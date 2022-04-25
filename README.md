@@ -63,7 +63,7 @@ The very latest developments can be obtained via git.
 
 Clone or download the project files (no compilation nor installation is required) 
 
-`git clone https://github.com/rezilion/amireallyvulnerable`
+`git clone https://github.com/Rezilion/amireallyvulnerable.git`
 
 Execute:
 
@@ -118,7 +118,7 @@ This tool is tested or confirmed to work with Linux systems.
 
 Found an issue, or have a great idea? Let us know:
 
-* GitHub - https://github.com/rezilion/amireallyvulnerable
+* GitHub - https://github.com/Rezilion/amireallyvulnerable.git
 * E-mail - ofrio@rezilion.com
 
 Contributions are appreciated and can be done via GitHub. 

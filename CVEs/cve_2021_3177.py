@@ -1,0 +1,173 @@
+import Modules.constants as constants
+import Modules.os_type as os_type
+import Modules.run_command as run_command
+import Modules.get_pids as get_pids
+import Modules.docker_commands as docker_commands
+import Modules.commons as commons
+import graphviz
+
+CVE_ID = 'CVE-2021-3711'
+DESCRIPTION = f'''{CVE_ID}
+
+CVSS Score: 9.8
+NVD Link: https://nvd.nist.gov/vuln/detail/cve-2021-3711
+ 
+Python 3.x through 3.9.1 has a buffer overflow in `PyCArg_repr` in `_ctypes/callproc.c`, because `sprintf` is used 
+unsafely. The vulnerability can cause Remote Code Execution, but most likely lead to application Denial of Service or 
+application crash.
+'''
+PATCHED_VERSIONS = ['3.6.13', '3.7.10', '3.8.8', '3.9.2']
+
+
+# This function checks if the ctypes file is loaded into the process memory or not.
+def check_ctypes_loaded(pid, ctypes_file_name, debug):
+    pid_maps_path = f'/proc/{pid}/maps'
+    pid_maps_file = commons.file_content(pid_maps_path, debug, container_name=False)
+    if not pid_maps_file:
+        return pid_maps_file
+    print(constants.FULL_QUESTION_MESSAGE.format('Is the _ctypes module loaded to the process memory?'))
+    for line in pid_maps_file:
+        if line.__contains__(ctypes_file_name):
+            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+            print(constants.FULL_EXPLANATION_MESSAGE.format('The _ctypes module is loaded'))
+            return True
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+    print(constants.FULL_EXPLANATION_MESSAGE.format('The _ctypes module is not loaded'))
+    return False
+
+
+# This function finds the name of the _ctypes file.
+def find_ctypes_file_name(pid, debug, container_name):
+    pid_maps_path = f'sudo cat /proc/{pid}/maps'
+    pipe_pid_maps_file = run_command.command_output(pid_maps_path, debug, container_name=False)
+    pid_maps_file = pipe_pid_maps_file.stdout
+    if not pid_maps_file:
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The /proc/{pid}/maps file does not exist'))
+        return constants.UNSUPPORTED
+    modules_path = ''
+    for line in pid_maps_file.split('\n'):
+        if line.__contains__('lib-dynload'):
+            modules_path = line.split(' ')[constants.END].split('lib-dynload')[constants.START] + 'lib-dynload'
+            break
+    print(constants.FULL_QUESTION_MESSAGE.format('Does the _ctypes .so file exist?'))
+    if not modules_path:
+        print(constants.FULL_EXPLANATION_MESSAGE.format('There is no python modules path'))
+        return constants.UNSUPPORTED
+    if container_name:
+        merge_dir = docker_commands.get_merge_dir(container_name, debug)
+        modules_path = merge_dir + modules_path
+    list_modules_command = f'ls {modules_path}'
+    pipe_list_modules = run_command.command_output(list_modules_command, debug, container_name=False)
+    list_modules = pipe_list_modules.stdout
+    if list_modules:
+        for module in list_modules:
+            if module.startswith('_ctypes') and module.endswith('.so') and not module.__contains__('test'):
+                print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+                print(constants.FULL_EXPLANATION_MESSAGE.format(f'The _ctypes .so file exists : {module}'))
+                return module
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        print(constants.FULL_EXPLANATION_MESSAGE.format('The _ctypes .so file does not exist'))
+        return False
+    else:
+        print(constants.FULL_EXPLANATION_MESSAGE.format('No modules in python lib-dynload'))
+        return constants.UNSUPPORTED
+
+
+# This function returns the python version of the process.
+def get_python_version(pid, debug, container_name):
+    pid_maps_path = f'/proc/{pid}/maps'
+    pid_maps_file = commons.file_content(pid_maps_path, debug, container_name=False)
+    if not pid_maps_file:
+        return pid_maps_file
+    path_to_modules = ''
+    for line in pid_maps_file:
+        if line.__contains__('lib-dynload'):
+            path_to_modules = line
+            break
+    if not path_to_modules:
+        return path_to_modules
+    path_values = path_to_modules.split('/')
+    python_executable = ''
+    for value in path_values:
+        if value.startswith('python') or value.startswith('Python'):
+            python_executable = value
+            break
+    python_version_command = f'{python_executable} --version'
+    pipe_python_version = run_command.command_output(python_version_command, debug, container_name)
+    host_python_version = pipe_python_version.stdout
+    if host_python_version:
+        return host_python_version.split(' ')[constants.START]
+    else:
+        return constants.UNSUPPORTED
+
+
+# This function loops over all Python processes and checks if they are vulnerable.
+def validate_processes(pids, debug, container_name):
+    for pid in pids:
+        python_version = get_python_version(pid, debug, container_name)
+        if python_version == constants.UNSUPPORTED:
+            print(constants.FULL_UNSUPPORTED_MESSAGE)
+        elif python_version:
+            if commons.check_patched_version('Python', python_version, PATCHED_VERSIONS):
+                ctypes_file_name = find_ctypes_file_name(pid, debug, container_name)
+                if ctypes_file_name == constants.UNSUPPORTED:
+                    print(constants.FULL_UNSUPPORTED_MESSAGE)
+                elif ctypes_file_name:
+                    if check_ctypes_loaded(pid, ctypes_file_name, debug):
+                        print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
+                    else:
+                        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                else:
+                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+            else:
+                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+        else:
+            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+
+
+# This function validates if the host is vulnerable to CVE-2021-3177.
+def validate(debug, container_name):
+    if os_type.linux(debug, container_name):
+        if container_name:
+            pids = get_pids.get_pids_by_name_container('python', debug, container_name)
+            pids.append(get_pids.get_pids_by_name_container('Python', debug, container_name))
+            pids = list(set(pids))
+        else:
+            pids = get_pids.get_pids_by_name('python', debug)
+            pids.append(get_pids.get_pids_by_name('Python', debug))
+            pids = list(set(pids))
+        if pids == constants.UNSUPPORTED:
+            print(constants.FULL_UNSUPPORTED_MESSAGE)
+        elif pids:
+            validate_processes(pids, debug, container_name)
+        else:
+            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+    else:
+        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+
+
+# This function creates graph that shows the vulnerability validation process of CVE-2021-3177.
+def validation_flow_chart():
+    vol_graph = graphviz.Digraph('G', filename=CVE_ID)
+    commons.graph_start(CVE_ID, vol_graph)
+    vol_graph.edge('Is it Linux?', 'Are there running Python processes?', label='Yes')
+    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vol_graph.edge('Are there running Python processes?', 'Is python version affected?', label='Yes')
+    vol_graph.edge('Are there running Python processes?', 'Not Vulnerable', label='No')
+    vol_graph.edge('Is python version affected?', 'Is ctypes module loaded into memory?', label='Yes')
+    vol_graph.edge('Is python version affected?', 'Not Vulnerable', label='No')
+    vol_graph.edge('Is ctypes module loaded into memory?', 'Vulnerable', label='Yes')
+    vol_graph.edge('Is ctypes module loaded into memory?', 'Not Vulnerable', label='No')
+    commons.graph_end(vol_graph)
+
+
+def main(describe, graph, debug, container_name):
+    if describe:
+        print(f'\n{DESCRIPTION}')
+    validate(debug, container_name)
+    if graph:
+        validation_flow_chart()
+
+
+if __name__ == '__main__':
+    main()

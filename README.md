@@ -23,7 +23,9 @@ In addition, the vulnerabilities checks we wrote so far, can be expanded with so
 * Validate if vulnerable to category of cves
 * Get the vulnerability description
 * Validate the host containers
-* Present the validation flow logic as a graph
+* Present the validation flow logic as a graph. An example flow graph:
+
+![PWNKIT_Flow](https://user-images.githubusercontent.com/15197376/165183294-45482743-1c92-4b24-8477-812a62537c71.png)
 
 Everyone is free to use 'Am I Really Vulnerable?' under the conditions of the Apache 2.0 License (see LICENSE file).
  
@@ -45,22 +47,10 @@ Modules are code implementations which are used in different CVE files.
 
 # Color Legend
 
-BASIC_COLOR 
+<img width="338" alt="Colors" src="https://user-images.githubusercontent.com/15197376/165183070-b54c6de7-ab2f-4fba-bf58-0ee3b6c08167.png">
 
-EXPLANATION
-
-NEGATIVE_RESULT
-
-POSITIVE_RESULT
-
-NEUTRAL_RESULT
 
 QUESTION
-
-VULNERABLE
-
-NOT_VULNERABLE
-
 # Installation Requirements
 
 1. Python version 3
@@ -115,6 +105,8 @@ Help to understand how to run the code
 Execute the program using parameters
 
 `python3 am_i_really_vulnerable.py -cve_id cve_yyyy_xxxx -container True -graph True`
+
+![Executing](https://user-images.githubusercontent.com/15197376/165183169-6b33eae8-c4f2-4d55-80b8-c28840ca467f.gif)
 
 # Supported Systems
 

@@ -28,6 +28,14 @@ def distribution_to_apache(debug, container_name):
                                                             f'{host_information}\nThe os distribution you are running '
                                                             f'on is potentially affected'))
             return HTTPD
+        elif host_information not in constants.APT_DISTRIBUTIONS and \
+                host_information not in constants.RPM_DISTRIBUTIONS:
+            print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Can not determine'))
+            print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os distributions: {constants.APT_DISTRIBUTIONS} '
+                                                            f'{constants.RPM_DISTRIBUTIONS}\nYour os distribution: '
+                                                            f'{host_information}\nThe os distribution you are running '
+                                                            f'on is not supported'))
+            return constants.UNSUPPORTED
         else:
             print(constants.FULL_POSITIVE_RESULT_MESSAGE)
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os distributions: {constants.APT_DISTRIBUTIONS} '

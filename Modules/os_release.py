@@ -21,6 +21,8 @@ def get_field(information_fields, debug, container_name):
             if host_information:
                 host_information += ' '
             host_version = field.split('=')[constants.FIRST]
+            if host_version.endswith('\n'):
+                host_version = host_version[:constants.END]
             if host_version.startswith('"') and host_version.endswith('"'):
                 host_version = host_version[constants.FIRST:constants.END]
             host_information += host_version

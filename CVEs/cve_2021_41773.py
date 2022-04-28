@@ -140,13 +140,13 @@ def validate(debug, container_name):
     if os_type.linux(debug, container_name):
         apache = apache_functions.distribution_to_apache(debug, container_name)
         if apache == constants.UNSUPPORTED:
-            print(constants.FULL_UNSUPPORTED_MESSAGE)
+            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
         elif apache:
             cve = apache_version(apache, debug, container_name)
             if cve:
                 permissions = apache_configuration_file(apache, debug, container_name)
                 if permissions == constants.UNSUPPORTED:
-                    print(constants.FULL_UNSUPPORTED_MESSAGE)
+                    print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
                 elif permissions:
                     modules = apache_functions.loaded_modules(apache, 'cgi_module', debug, container_name)
                     if modules == constants.UNSUPPORTED or not modules:

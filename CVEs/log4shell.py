@@ -4,7 +4,7 @@ import Modules.get_pids as get_pids
 import Modules.commons as commons
 import graphviz
 
-CVE_ID = 'Log4Shell CVEs'
+CVE_ID = 'Log4Shell'
 DESCRIPTION = f'''your system will be scanned for all Log4Shell related CVEs. 
 
 {CVE_ID}
@@ -63,40 +63,31 @@ VM_CLASS_HIERARCHY = 'VM.class_hierarchy'
 
 
 # This function loops over all java processes and checks if they are vulnerable.
-def validate_processes(pids, container_name, debug):
+def validate_processes(pids, debug, container_name):
     for pid in pids:
         if container_name:
             jcmd_path = commons.get_jcmd(pid, debug, container_name)
-            if jcmd_path == constants.UNSUPPORTED:
-                return constants.UNSUPPORTED
         else:
             jcmd_path = 'jcmd'
-        jcmd_command = f'sudo {jcmd_path} {pid} {VM_CLASS_HIERARCHY}"'
-        cves = commons.check_loaded_classes(pid, jcmd_command, CLASS_CVE, debug)
-        if cves == constants.UNSUPPORTED:
-            return constants.UNSUPPORTED
-        if cves:
-            print(constants.FULL_PROCESS_VULNERABLE_MESSAGE.format(pid, cves))
+        if not jcmd_path == constants.UNSUPPORTED:
+            jcmd_command = f'sudo {jcmd_path} {pid} "{VM_CLASS_HIERARCHY}"'
+            cves = commons.check_loaded_classes(pid, jcmd_command, CLASS_CVE, debug)
+            if cves == constants.UNSUPPORTED:
+                print('hello')
+            elif cves:
+                print(constants.FULL_PROCESS_VULNERABLE_MESSAGE.format(pid, cves))
+            else:
+                print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, CVE_ID))
         else:
-            print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, CVE_ID))
+            print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
 
 
 # This function validates if an instance is vulnerable to Log4Shell.
 def validate(debug, container_name):
     if os_type.linux(debug, container_name):
-        if container_name:
-            pids = get_pids.get_pids_by_name_container('java', debug, container_name)
-            pids.append(get_pids.get_pids_by_name_container('Java', debug, container_name))
-            pids = list(set(pids))
-        else:
-            pids = get_pids.get_pids_by_name('java', debug)
-            pids.append(get_pids.get_pids_by_name('java', debug))
-            pids = list(set(pids))
-        if pids == constants.UNSUPPORTED:
-            print(constants.FULL_UNSUPPORTED_MESSAGE)
-        elif pids:
-            if validate_processes(pids, container_name, debug) == constants.UNSUPPORTED:
-                print(constants.FULL_UNSUPPORTED_MESSAGE)
+        pids = get_pids.pids_consolidation('java', debug, container_name)
+        if pids:
+            validate_processes(pids, debug, container_name)
         else:
             print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
     else:

@@ -17,7 +17,6 @@ def linux(debug, container_name):
     if os_type_output.__contains__('Linux'):
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format('You are running on a Linux operation system'))
-        print(f'{EXPLANATION}{BASIC_COLOR}')
         return True
     else:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)

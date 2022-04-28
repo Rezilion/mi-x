@@ -10,7 +10,7 @@ DESCRIPTION = f'''{CVE_ID} - Dirty Pipe
 
 CVSS Score: 7.8
 NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2022-0847
- 
+
 Linux Kernel bug in the PIPE mechanism due to missing initialization of the `flags` member in the 
 `pipe_buffer` struct. The bug allows an attacker to create an unprivileged process that will inject code into a root 
 process, and through doing so, escalate privileges by getting write permissions to read-only files. This can also be 
@@ -23,19 +23,20 @@ FIXED_VERSION = '5.17.0-rc6'
 
 
 # This function checks if the kernel version is vulnerable to CVE-2022-0847.
-def check_kernel_version(debug, container_name):
+def check_kernel_version(debug):
     affected = False
-    host_kernel_version = kernel_version.get_kernel_version(debug, container_name)
+    host_kernel_version = kernel_version.get_kernel_version(debug)
     if host_kernel_version:
-        if (not semver.compare(host_kernel_version, FIXED_VERSION) == -1) or \
-                (semver.compare(host_kernel_version, FIRST_VULNERABLE_VERSION) == -1):
+        valid_kernel_version = commons.valid_kernel_version(host_kernel_version)
+        if (not semver.compare(valid_kernel_version, FIXED_VERSION) == -1) or \
+                (semver.compare(valid_kernel_version, FIRST_VULNERABLE_VERSION) == -1):
             print(constants.FULL_QUESTION_MESSAGE.format('Is kernel version affected?'))
             print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your kernel version which is: {host_kernel_version}, is '
+            print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your kernel version which is: {valid_kernel_version}, is '
                                                             f'not in the affected kernel versions range: '
                                                             f'{FIRST_VULNERABLE_VERSION} to {FIXED_VERSION}'))
         else:
-            return commons.check_patched_version('Kernel', host_kernel_version, PATCHED_VERSIONS)
+            return commons.check_patched_version('Kernel', valid_kernel_version, PATCHED_VERSIONS)
     else:
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Unsupported kernel version value'))
         return constants.UNSUPPORTED
@@ -45,9 +46,9 @@ def check_kernel_version(debug, container_name):
 # This function validates if the host is vulnerable to CVE-2022-0847.
 def validate(debug, container_name):
     if os_type.linux(debug, container_name):
-        vulnerable = check_kernel_version(debug, container_name)
+        vulnerable = check_kernel_version(debug)
         if vulnerable == constants.UNSUPPORTED:
-            print(constants.FULL_UNSUPPORTED_MESSAGE)
+            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
         elif vulnerable:
             print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
         else:

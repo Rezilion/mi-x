@@ -45,7 +45,7 @@ def glibc_exist(debug, container_name):
     glibc_output = pipe_glibc.stdout
     print(constants.FULL_QUESTION_MESSAGE.format('There is GLIBC?'))
     if glibc_output:
-        if glibc_output.__contains__('GLIBC'):
+        if glibc_output.__contains__('GLIBC') or glibc_output.__contains__('GNU libc'):
             print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
             print(constants.FULL_EXPLANATION_MESSAGE.format('GLIBC does exist'))
             return glibc_output.split('\n')[constants.START].split(' ')[-1]
@@ -63,7 +63,7 @@ def validate(debug, container_name):
     if os_type.linux(debug, container_name):
         glibc_value = glibc_exist(debug, container_name)
         if glibc_value == constants.UNSUPPORTED:
-            print(constants.FULL_UNSUPPORTED_MESSAGE)
+            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
         elif glibc_value:
             if glibc_version(glibc_value):
                 print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))

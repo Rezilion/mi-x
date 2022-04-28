@@ -48,14 +48,14 @@ FIXED = {'Ubuntu 12.04': '3.2.0-113.155', 'Ubuntu 14.04': '3.13.0-100.147', 'Ubu
          'Debian 8': '3.16.36-1+deb8u2', 'Red 5': '2.6.18-416', 'Red 6': '2.6.32-642.6.2',
          'Red 7': '3.10.0-327.36.3', 'SLES 11-SP4': '3.0.101-84.1', 'SLES 12': '3.12.60-52.57.1',
          'SLES 12-SP1': '3.12.62-60.64.8.2', 'Alpine 3.4.5': '4.4.27'}
-MIN_KERNEL_VERSION = '0'
+MIN_KERNEL_VERSION = '0.0.0'
 
 
 # This function checks if there is kpatch on the target system (relevant ony for Red Hat systems).
 def check_kpatch(debug, container_name):
     patched = False
     lsmod_command = 'lsmod'
-    print(constants.FULL_QUESTION_MESSAGE.format('Are There loaded modules?'))
+    print(constants.FULL_QUESTION_MESSAGE.format('Are there any loaded modules?'))
     pipe_modules = run_command.command_output(lsmod_command, debug, container_name)
     modules = pipe_modules.stdout
     if modules:
@@ -91,6 +91,13 @@ def check_release(debug, container_name):
         return constants.UNSUPPORTED
     elif host_information:
         print(constants.FULL_QUESTION_MESSAGE.format('Is os release affected?'))
+        host_distribution = host_information.split(' ')[constants.START]
+        if host_distribution not in constants.APT_DISTRIBUTIONS and host_distribution not in constants.APT_DISTRIBUTIONS:
+            print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Can not determine'))
+            print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable os releases: {list(FIXED.keys())}\nYour os '
+                                                            f'release: {host_distribution}\nThe os release you are '
+                                                            f'running on is not supported'))
+            return constants.UNSUPPORTED
         for fixed_release in FIXED.keys():
             if fixed_release == host_information:
                 print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
@@ -113,13 +120,13 @@ def validate(debug, container_name):
     if os_type.linux(debug, container_name):
         fixed_release = check_release(debug, container_name)
         if fixed_release == constants.UNSUPPORTED:
-            print(constants.FULL_UNSUPPORTED_MESSAGE)
+            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
         elif fixed_release:
             max_kernel_version = FIXED[fixed_release]
-            vulnerable = kernel_version.check_kernel(MIN_KERNEL_VERSION, max_kernel_version, debug, container_name)
-            if vulnerable == constants.UNSUPPORTED:
-                print(constants.FULL_UNSUPPORTED_MESSAGE)
-            elif vulnerable:
+            check_kernel_version = kernel_version.check_kernel(MIN_KERNEL_VERSION, max_kernel_version, debug)
+            if check_kernel_version == constants.UNSUPPORTED:
+                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+            elif check_kernel_version:
                 print(constants.FULL_EXPLANATION_MESSAGE.format('The os release you are running on is potentially '
                                                                 'affected'))
                 print(constants.FULL_QUESTION_MESSAGE.format('Is it Red Hat?'))
@@ -127,7 +134,7 @@ def validate(debug, container_name):
                     print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
                     kpatch = check_kpatch(debug, container_name)
                     if kpatch == constants.UNSUPPORTED:
-                        print(constants.FULL_UNSUPPORTED_MESSAGE)
+                        print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
                     elif kpatch:
                         print(constants.FULL_EXPLANATION_MESSAGE.format('Your kernel release has kpatch'))
                         print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))

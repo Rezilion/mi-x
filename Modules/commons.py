@@ -14,12 +14,16 @@ def get_jcmd(pid, debug, container_name):
         return constants.UNSUPPORTED
     proc_path = f'/proc/{pid}/exe'
     get_jcmd_path_command = f'sudo ls -l {proc_path}'
-    pipe_get_jcmd_path = run_command.command_output(get_jcmd_path_command, debug, container_name)
+    pipe_get_jcmd_path = run_command.command_output(get_jcmd_path_command, debug, container_name=False)
     get_jcmd_path = pipe_get_jcmd_path.stdout
     if get_jcmd_path:
-        full_container_jcmd_path = merged_dir_path + \
-                                   get_jcmd_path.split(' ')[constants.END].split('/java')[constants.FIRST] + '/jcmd'
-        return full_container_jcmd_path
+        if get_jcmd_path.__contains__('->'):
+            jcmd_path = get_jcmd_path.split(' ')[constants.END].split('/java')[constants.START] + '/jcmd'
+            full_container_jcmd_path = merged_dir_path + jcmd_path
+            return full_container_jcmd_path
+        else:
+            print(constants.FULL_EXPLANATION_MESSAGE.format(f'Unsupported "/proc/{pid}/exe" value'))
+            return constants.UNSUPPORTED
     else:
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Unsupported "/proc/{pid}/exe" value'))
         return constants.UNSUPPORTED
@@ -30,35 +34,53 @@ def check_loaded_classes(pid, jcmd_command, classes, debug):
     pipe_jcmd = run_command.command_output(jcmd_command, debug, container_name=False)
     jcmd = pipe_jcmd.stdout
     values = ''
-    print(constants.FULL_QUESTION_MESSAGE.format(f'Does {pid} process use webmvc or webflux dependencies?'))
     if jcmd:
         for affected_class in classes.keys():
+            print(constants.FULL_QUESTION_MESSAGE.format(f'Does {pid} process load {affected_class}?'))
             if affected_class in jcmd:
-                print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-                print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} process is loading the {affected_class} '
-                                                                f'class'))
+                print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+                print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} process loads the {affected_class} class'))
                 if values:
                     values += f', {classes[affected_class]}'
                 else:
                     values = classes[affected_class]
-        if values:
-            return values
-        else:
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The process does not load the affected classes'))
-            return False
+            else:
+                print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+                print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} process does not load the {affected_class}'
+                                                                f' class'))
+        return values
     else:
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Unsupported "VM.class_hierarchy" value'))
         return constants.UNSUPPORTED
 
 
+# This function checks if the file is exist in the system.
+def check_file_existence(file_path, debug, container_name):
+    exist = False
+    print(constants.FULL_QUESTION_MESSAGE.format(f'Is {file_path} file exists?'))
+    if container_name:
+        cat_file_command = f'cat {file_path}'
+        pipe_cat_file = run_command.command_output(cat_file_command, debug, container_name)
+        content = pipe_cat_file.stdout
+        if content:
+            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The file exists in your system'))
+            exist = True
+    else:
+        if os.path.isfile(file_path):
+            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The file exists in your system'))
+            exist = True
+    return exist
+
+
 # This function checks returns the file's content if exists.
 def file_content(file_path, debug, container_name):
     content = ''
-    print(constants.FULL_QUESTION_MESSAGE.format(f'Is {file_path} exists?'))
-    huge_page_command = f'cat {file_path}'
+    print(constants.FULL_QUESTION_MESSAGE.format(f'Is {file_path} file exists?'))
     if container_name:
-        pipe_cat_file = run_command.command_output(huge_page_command, debug, container_name)
+        cat_file_command = f'cat {file_path}'
+        pipe_cat_file = run_command.command_output(cat_file_command, debug, container_name)
         content = pipe_cat_file.stdout
         if content:
             print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
@@ -71,13 +93,26 @@ def file_content(file_path, debug, container_name):
         if os.path.isfile(file_path):
             print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'The file exists in your system'))
-            file = open(file_path, 'r')
-            content = file.readlines()
-            return content
+            try:
+                file = open(file_path, 'r')
+                content = file.readlines()
+            except PermissionError:
+                cat_file_command = f'sudo cat {file_path}'
+                pipe_cat_file = run_command.command_output(cat_file_command, debug, container_name)
+                content = pipe_cat_file.stdout
+                if content:
+                    content = content.split('\n')
         else:
             print(constants.FULL_POSITIVE_RESULT_MESSAGE)
             print(constants.FULL_EXPLANATION_MESSAGE.format('The file does not exist in your system'))
     return content
+
+
+# Returns the start of a valid kernel version using regex.
+def valid_kernel_version(full_version):
+    if full_version.endswith('\n'):
+        full_version = full_version[:constants.END]
+    return re.search('\d*\.\d*.\d*-\d*.\d*', full_version).group()
 
 
 # Returns the start of a version using regex.
@@ -89,17 +124,23 @@ def re_start_of_version(full_version):
 def check_patched_version(version_type, checked_version, patched_versions):
     affected = False
     print(constants.FULL_QUESTION_MESSAGE.format(f'Is {version_type} version affected?'))
-    if semver.compare(checked_version, patched_versions[constants.START]) == -1:
+    if checked_version.__contains__(patched_versions[constants.START]):
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {version_type} version which is: {checked_version} has '
+                                                        f'the patched version which is: '
+                                                        f'{patched_versions[constants.START]}'))
+    elif semver.compare(checked_version, patched_versions[constants.START]) == -1:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'The lowest patched version is: '
                                                         f'{patched_versions[constants.START]}\nYour {version_type}'
-                                                        f'version is: {checked_version}'))
+                                                        f' version is: {checked_version}'))
         affected = True
-    elif semver.compare(checked_version, patched_versions[constants.END]) == 1:
+    elif semver.compare(checked_version, patched_versions[constants.END]) == 1 \
+            or checked_version.__contains__(patched_versions[constants.END]):
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'The highest patched version is: '
                                                         f'{patched_versions[constants.END]}\nYour {version_type}'
-                                                        f'version is: {checked_version}'))
+                                                        f' version is: {checked_version}'))
     else:
         for patched_version in patched_versions[constants.FIRST:]:
             start_of_checked_version = re_start_of_version(checked_version)
@@ -110,15 +151,25 @@ def check_patched_version(version_type, checked_version, patched_versions):
                                                                 f'{checked_version} is not patched'))
                 affected = True
                 break
-            elif checked_version.startswith(start_of_checked_version):
+            elif patched_version.startswith(start_of_checked_version):
                 if semver.compare(checked_version, patched_version) == -1:
                     print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
                     affected = True
+                    print(constants.FULL_EXPLANATION_MESSAGE.format(f'The lowest patched version is: {patched_version}'
+                                                                    f'\nYour {version_type} version is: '
+                                                                    f'{checked_version}'))
                     break
+                elif checked_version.__contains__(patched_version):
+                    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+                    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {version_type} version which is: '
+                                                                    f'{checked_version} has the patched version which '
+                                                                    f'is: {patched_versions}'))
                 else:
                     print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-                print(constants.FULL_EXPLANATION_MESSAGE.format(f'The lowest patched version is: {patched_version}\n'
-                                                                f'Your {version_type} version is: {checked_version}'))
+                    print(constants.FULL_EXPLANATION_MESSAGE.format(f'The lowest patched version is: {patched_version}'
+                                                                    f'\nYour {version_type} version is: '
+                                                                    f'{checked_version}'))
+                    break
     return affected
 
 

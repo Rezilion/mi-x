@@ -4,36 +4,48 @@ import Modules.commons as commons
 
 
 # This function checks if there are Java running processes.
-def get_pids_by_name(process_type, debug):
+def get_pids_by_name(process_type, debug, container_name):
     pids_command = f'pgrep {process_type}'
     pipe_pids = run_command.command_output(pids_command, debug, container_name=False)
     pids = pipe_pids.stdout
     print(constants.FULL_QUESTION_MESSAGE.format(f'There are running {process_type} processes on the host?'))
     if pids:
+        pids_list = pids.split('\n')[:constants.END]
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The following PIDs are running {process_type} processes: '
+                                                        f'{pids_list}'))
         relevant_pids = []
-        for pid in pids:
+        for pid in pids_list:
             pid_status_path = f'/proc/{pid}/status'
             pid_status_content = commons.file_content(pid_status_path, debug, container_name=False)
             if not pid_status_content:
-                return pid_status_content
+                return []
             for line in pid_status_content:
                 if line.startswith('NSpid:'):
-                    if len(line.split('\t')) == 2:
-                        relevant_pids.append(pid)
+                    if container_name:
+                        if len(line.split('\t')) == 3:
+                            pids_info = pid + ' ' + line.split('\t')[constants.END].split('\n')[constants.START]
+                            relevant_pids.append(pids_info)
+                    else:
+                        if len(line.split('\t')) == 2:
+                            relevant_pids.append(pid)
+
+                    break
+        print(constants.FULL_QUESTION_MESSAGE.format(f'There are relevant running {process_type} processes on the '
+                                                     f'host?'))
         if relevant_pids:
             print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-            pids_list = pids.split('\n')[:constants.END]
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The following PIDs are running {process_type} processes: '
-                                                            f'{pids_list}'))
-            return pids_list
+            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The following PIDs are relevant running {process_type} '
+                                                            f'processes: {relevant_pids}'))
+            return relevant_pids
         else:
             print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'There are no running {process_type} processes'))
+            print(constants.FULL_EXPLANATION_MESSAGE.format(f'There are no relevant running {process_type} processes'))
             return relevant_pids
     else:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'There are no running {process_type} processes'))
-        return pids
+        return []
 
 
 # This function extracts the container java processes ids on the host.
@@ -48,40 +60,66 @@ def get_pids_by_name_container(process_type, debug, container_name):
         container_pids_list = pids_container.split('\n')[:constants.END]
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'The following PIDs are running {process_type} processes on '
                                                         f'the container: {container_pids_list}'))
-        print(constants.FULL_QUESTION_MESSAGE.format(f'There are running {process_type} processes on the host?'))
-        external_pids = get_pids_by_name(debug, process_type)
+        host_pid_and_container_pid = get_pids_by_name(process_type, debug, container_name)
         if process_type.islower():
             process_type = process_type[constants.START].upper() + process_type[constants.FIRST:]
         else:
             process_type = process_type.lower()
-        external_pids.append(get_pids_by_name(debug, process_type))
-        external_pids = list(set(external_pids))
-        if external_pids:
+        other_pids = get_pids_by_name(process_type, debug, container_name)
+        if not host_pid_and_container_pid:
+            host_pid_and_container_pid = other_pids
+        else:
+            if other_pids:
+                host_pid_and_container_pid.append(other_pids)
+        host_pid_and_container_pid = list(set(host_pid_and_container_pid))
+        relevant_pids = []
+        for field in host_pid_and_container_pid:
+            host_pid = field.split(' ')[constants.START]
+            container_pid = field.split(' ')[constants.END]
+            if container_pid in container_pids_list:
+                relevant_pids.append(host_pid)
+        print(constants.FULL_QUESTION_MESSAGE.format('There is a match between container pids to host pids?'))
+        if relevant_pids:
             print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The following PIDs are running {process_type} processes '
-                                                            f'on the system: {external_pids}'))
-            outside_pid_of_container = []
-            for outside_pid in external_pids[:constants.END]:
-                pid_status_path = f'/proc/{outside_pid}/status'
-                pid_status_content = commons.file_content(pid_status_path, debug, container_name=False)
-                if not pid_status_content:
-                    return pid_status_content
-                pid_content = ''
-                for field in pid_status_content:
-                    if field.__contains__('NSpid:'):
-                        pid_content = field
-                        break
-                container_pid = ''
-                if len(pid_content.split('\t')) == 3:
-                    container_pid = pid_content.split('\t')[constants.END]
-                if container_pid in external_pids:
-                    outside_pid_of_container.append(container_pid)
-            return outside_pid_of_container
+            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The following pids: {relevant_pids} have match with '
+                                                            f'container pids'))
+            return relevant_pids
         else:
             print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'There are no running {process_type} processes'))
-            return external_pids
+            print(constants.FULL_EXPLANATION_MESSAGE.format(f'There is no match between host pids and container pids'))
+            return relevant_pids
     else:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'There are no running {process_type} processes'))
-        return pids_container
+        return []
+
+
+# This function returns the pids by calling the functions above.
+def pids_consolidation(process_type, debug, container_name):
+    if container_name:
+        pids = get_pids_by_name_container(process_type, debug, container_name)
+        if process_type.islower():
+            process_type = process_type[constants.START].upper() + process_type[constants.FIRST:]
+        else:
+            process_type = process_type.lower()
+        other_pids = get_pids_by_name_container(process_type, debug, container_name)
+        if not pids:
+            pids = other_pids
+        else:
+            if other_pids:
+                pids.append(other_pids)
+        pids = list(set(pids))
+    else:
+        pids = get_pids_by_name(process_type, debug, container_name)
+        if process_type.islower():
+            process_type = process_type[constants.START].upper() + process_type[constants.FIRST:]
+        else:
+            process_type = process_type.lower()
+        other_pids = get_pids_by_name(process_type, debug, container_name)
+        if not pids:
+            pids = other_pids
+        else:
+            if other_pids:
+                pids.append(other_pids)
+        pids = list(set(pids))
+    return pids

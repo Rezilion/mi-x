@@ -4,15 +4,15 @@ import Modules.run_command as run_command
 import Modules.os_type as os_type
 import Modules.os_release as os_release
 import Modules.commons as commons
-import semver
+from packaging import version
 import graphviz
 
-CVE_ID = 'CVE-2021-4506'
+CVE_ID = 'CVE-2021-4034'
 DESCRIPTION = f'''{CVE_ID} - PwnKit 
 
 CVSS Score: 9.0
 NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2021-45046
- 
+
 The vulnerability is in the pkexec file in Policykit Linux package.
 PolicyKit is an application-level toolkit for defining and handling the policy that allows unprivileged processes to 
 speak to privileged processes, in order to grant users the right to perform some tasks in certain situations.
@@ -35,64 +35,100 @@ FIXED_APT = {'Ubuntu 21.10': '0.105-31ubuntu0.1', 'Ubuntu 20.04': '0.105-26ubunt
 FIXED_RPM = {'Fedora 34': ['0.117', '3.fc34'], 'Fedora 35': ['0.120', '1.fc35'],
              'CentOS 7': ['0.112', '26.el7'], 'CentOS 8': ['0.115', '13.el8'],
              'Red 6': ['0.96', '11.el6'], 'Red 7.3': ['0.112', '12.el7'], 'Red 7.4': ['0.112', '12.el7'],
-             'Red 7.6': ['0.112', '18.el7'], 'Red 7': ['0.112', '26.el7'], 'Red 7.7': ['112', '22.el7'],
+             'Red 7.6': ['0.112', '18.el7'], 'Red 7': ['0.112', '26.el7'], 'Red 7.7': ['0.112', '22.el7'],
              'Red 8': ['0.115', '13.el8'], 'Red 8.1': ['0.115', '9.el8'], 'Red 8.2': ['0.115', '11.el8'],
-             'Red 8.4': ['0.115', '11.el8']}
+             'Red 8.4': ['0.115', '11.el8'], 'Amazon 2': ['0.112', '26.amzn2.1']}
 MIN_KERNEL_VERSION = '0'
 
 
+# This function checks the file requirements in order to be vulnerable.
+def check_requirements(execute, suid, root):
+    affected = ''
+    print(constants.FULL_QUESTION_MESSAGE.format('Does pkexec have execute permissions?'))
+    if execute:
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_EXPLANATION_MESSAGE.format('Your pkexec file has execute permissions'))
+        print(constants.FULL_QUESTION_MESSAGE.format('Does pkexec have suid bit?'))
+        if suid:
+            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+            print(constants.FULL_EXPLANATION_MESSAGE.format('Your pkexec file has suid bit'))
+            print(constants.FULL_QUESTION_MESSAGE.format('Is the pkexec binary owner root?'))
+            if root:
+                affected = 'Yes'
+                print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+                print(constants.FULL_EXPLANATION_MESSAGE.format('Your pkexec file is running with root '
+                                                                'privileges'))
+            else:
+                print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+                print(constants.FULL_EXPLANATION_MESSAGE.format('Your pkexec file is not running with root '
+                                                                'privileges'))
+        else:
+            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+            print(constants.FULL_EXPLANATION_MESSAGE.format('Your pkexec file does not have suid bit'))
+    else:
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        print(constants.FULL_EXPLANATION_MESSAGE.format('Your pkexec file does not have execute permissions'))
+    return affected
+
+
+# This function checks file information using ls command.
+def check_pkexec_using_ls(pkexec_path, debug, container_name):
+    ls_command = f'ls -l {pkexec_path}'
+    pipe_ls = run_command.command_output(ls_command, debug, container_name)
+    ls = pipe_ls.stdout
+    if ls:
+        ls_split = ls.split(' ')
+        file_permissions = ls_split[0]
+        file_owner = ls_split[2]
+        root = False
+        suid = False
+        execute = False
+        if file_owner == 'root':
+            root = True
+        if file_permissions.__contains__('s'):
+            suid = True
+        if file_permissions.__contains__('x'):
+            execute = True
+        return check_requirements(execute, suid, root)
+    else:
+        print(constants.FULL_EXPLANATION_MESSAGE.format('Unsupported ls value'))
+        return constants.UNSUPPORTED
+
+
+# This function checks file information using getfacl command.
+def check_pkexec_using_getfacl(pkexec_path, debug, container_name):
+    getfacl_command = f'getfacl {pkexec_path}'
+    pipe_getfacl = run_command.command_output(getfacl_command, debug, container_name)
+    getfacl = pipe_getfacl.stdout
+    if getfacl:
+        pkexec_info = getfacl.split('\n')
+        root = False
+        suid = False
+        execute = False
+        for field in pkexec_info:
+            if field == ROOT_OWNER:
+                root = True
+            elif field.__contains__(SUID_FLAG):
+                suid = True
+            elif not field.startswith('#') and field.__contains__('::') and field.endswith('x'):
+                execute = True
+                break
+        return check_requirements(execute, suid, root)
+    else:
+        print(constants.FULL_EXPLANATION_MESSAGE.format('The "getfacl" Linux command is not installed in your system, '
+                                                        'the system is about to be validated using the ls command, '
+                                                        '(ls command is not 100 percents coverage of pkexec file)'))
+        return check_pkexec_using_ls(pkexec_path, debug, container_name)
+
+
 # This function checks for pkexec existence, suid bit and user permissions.
-def pkexec_info_check(debug, container_name):
-    affected = False
+def get_pkexec_path(debug, container_name):
     which_pkexec_command = 'which pkexec'
     pipe_which_pkexec = run_command.command_output(which_pkexec_command, debug, container_name)
     which_pkexec = pipe_which_pkexec.stdout
     if which_pkexec:
         pkexec_path = which_pkexec.split('\n')[constants.START]
-        getfacl_command = f'getfacl {pkexec_path}'
-        pipe_getfacl = run_command.command_output(getfacl_command, debug, container_name)
-        getfacl = pipe_getfacl.stdout
-        if getfacl:
-            pkexec_info = getfacl.split('\n')
-            root = False
-            suid = False
-            execute = False
-            for field in pkexec_info:
-                if field == ROOT_OWNER:
-                    root = True
-                elif field.__contains__(SUID_FLAG):
-                    suid = True
-                elif not field.startswith('#') and field.__contains__('::') and field.endswith('x'):
-                    execute = True
-                    break
-            print(constants.FULL_QUESTION_MESSAGE.format('Does pkexec have execute permissions?'))
-            if execute:
-                print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-                print(constants.FULL_EXPLANATION_MESSAGE.format('Your pkexec file has execute permissions'))
-                print(constants.FULL_QUESTION_MESSAGE.format('Does pkexec have suid bit?'))
-                if suid:
-                    print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-                    print(constants.FULL_EXPLANATION_MESSAGE.format('Your pkexec file has suid bit'))
-                    print(constants.FULL_QUESTION_MESSAGE.format('Is the pkexec binary owner root?'))
-                    if root:
-                        affected = True
-                        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-                        print(constants.FULL_EXPLANATION_MESSAGE.format('Your pkexec file is running with root '
-                                                                        'privileges'))
-                    else:
-                        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-                        print(constants.FULL_EXPLANATION_MESSAGE.format('Your pkexec file is not running with root '
-                                                                        'privileges'))
-                else:
-                    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-                    print(constants.FULL_EXPLANATION_MESSAGE.format('Your pkexec file does not have suid bit'))
-            else:
-                print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-                print(constants.FULL_EXPLANATION_MESSAGE.format('Your pkexec file does not have execute permissions'))
-        else:
-            print(constants.FULL_EXPLANATION_MESSAGE.format('The "getfacl" Linux command is not working for pkexec, '
-                                                            'unsupported value'))
-            return constants.UNSUPPORTED
+        affected = check_pkexec_using_getfacl(pkexec_path, debug, container_name)
     else:
         print(constants.FULL_EXPLANATION_MESSAGE.format('The "which" Linux command is not working for pkexec, '
                                                         'unsupported value'))
@@ -100,25 +136,25 @@ def pkexec_info_check(debug, container_name):
     return affected
 
 
-# This function compare the host policykit version with the patched version.
-def compare_version(polkit_fixed_version, polkit_version, patched_version, host_info, package_name):
-    if semver.compare(polkit_fixed_version, polkit_version) == 1:
+# This function compares between the fixed version and the host's version.
+def compare_versions(fixed_version, host_version, package_name):
+    affected = False
+    if version.parse(fixed_version) < version.parse(host_version):
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: {host_info}, is'
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: {host_version}, is '
                                                         f'bigger than the patched version which is: '
-                                                        f'{patched_version}'))
-        return ''
-    elif semver.compare(polkit_fixed_version, polkit_version) == 0:
+                                                        f'{fixed_version}'))
+    elif version.parse(fixed_version) == version.parse(host_version):
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your system has the {package_name} patched version which is: '
-                                                        f'{patched_version}'))
-        return ''
+                                                        f'{fixed_version}'))
     else:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: {host_info}, is '
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: {host_version}, is '
                                                         f'lower than the patched version which is: '
-                                                        f'{patched_version}'))
-        return polkit_fixed_version
+                                                        f'{fixed_version}'))
+        affected = True
+    return affected
 
 
 # This function checks if the Policy Kit package is affected.
@@ -130,22 +166,35 @@ def policykit_affected_rpm(host_information, package_name, debug, container_name
         polkit_info = polkit_info.split('\n')
         polkit_fixed_version = FIXED_RPM[host_information]
         check = False
-        host_version = ''
         for field in polkit_info:
-            if field.__contains__(POLKIT_VERSION_FIELD) and field.__contains__(polkit_fixed_version[constants.START]):
-                check = True
-                host_version = field.split(': ')[constants.FIRST]
+            if field.__contains__(POLKIT_VERSION_FIELD):
+                host_version = field.split(': ')[constants.END]
+                fixed_version = polkit_fixed_version[constants.START]
+                if host_version.endswith('\n'):
+                    host_version = host_version[:constants.END]
+                if version.parse(host_version) > version.parse(fixed_version):
+                    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+                    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: '
+                                                                    f'{host_version}, is bigger than the patched '
+                                                                    f'version which is: {fixed_version}'))
+                    return False
+                elif version.parse(host_version) == version.parse(fixed_version):
+                    check = True
+                else:
+                    print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+                    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: '
+                                                                    f'{host_version}, is lower than the patched version'
+                                                                    f' which is: {fixed_version}'))
+                    return True
             if check:
                 if field.__contains__(POLKIT_RELEASE_FIELD):
                     host_release = field.split(': ')[constants.FIRST]
-                    host_info = f'{host_version}-{host_release}'
-                    patched_version = f'{polkit_fixed_version[constants.START]}-{polkit_fixed_version[constants.FIRST]}'
-                    return compare_version(polkit_fixed_version[constants.FIRST], host_release, patched_version,
-                                           host_info, package_name)
+                    patched_version = polkit_fixed_version[constants.FIRST]
+                    return compare_versions(patched_version, host_release, package_name)
     else:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format('Polkit is not installed on the host'))
-        return ''
+        return False
 
 
 # This function checks if the Policy Kit package is affected.
@@ -164,12 +213,12 @@ def policykit_affected_apt(host_information, package_name, debug, container_name
         if not polkit_version or polkit_version.__contains__(NONE):
             print(constants.FULL_POSITIVE_RESULT_MESSAGE)
             print(constants.FULL_EXPLANATION_MESSAGE.format('Policykit-1 is not installed on the host'))
-            return ''
-        return compare_version(polkit_fixed_version, polkit_version, polkit_fixed_version, polkit_version, package_name)
+            return False
+        return compare_versions(polkit_fixed_version, polkit_version, package_name)
     else:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format('Policykit-1 is not installed on the host'))
-        return ''
+        return False
 
 
 # This function run policy check according to the package manager.
@@ -191,7 +240,6 @@ def check_policykit(host_information, debug, container_name):
 def distribution_version_affected(debug, container_name):
     information_fields = ['Distribution', 'Version']
     host_information = os_release.get_field(information_fields, debug, container_name)
-    print(host_information)
     print(constants.FULL_QUESTION_MESSAGE.format('Is os release affected?'))
     if host_information == constants.UNSUPPORTED:
         return constants.UNSUPPORTED
@@ -207,8 +255,7 @@ def distribution_version_affected(debug, container_name):
                                                             f'{list(FIXED_RPM.keys())}\nYour os release: '
                                                             f'{host_information}\nThe os release you are running on is '
                                                             f'potentially affected'))
-            print(constants.FULL_QUESTION_MESSAGE.format('Is there an affected PolicyKit package installed?'))
-
+            return host_information
         elif host_information in FIXED_RPM.keys():
             print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable os releases: {list(FIXED_APT.keys())} '
@@ -216,6 +263,13 @@ def distribution_version_affected(debug, container_name):
                                                             f'{host_information}\nThe os release you are running on is '
                                                             f'potentially affected'))
             return host_information
+        elif host_information not in constants.APT_DISTRIBUTIONS and host_information not in constants.RPM_DISTRIBUTIONS:
+            print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Can not determine'))
+            print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable os releases: {list(FIXED_APT.keys())} '
+                                                            f'{list(FIXED_RPM.keys())}\nYour os release: '
+                                                            f'{host_information}\nThe os release you are running on is '
+                                                            f'not supported'))
+            return constants.UNSUPPORTED
         else:
             print(constants.FULL_POSITIVE_RESULT_MESSAGE)
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable os releases: {list(FIXED_APT.keys())} '
@@ -233,15 +287,15 @@ def validate(debug, container_name):
     if os_type.linux(debug, container_name):
         host_information = distribution_version_affected(debug, container_name)
         if host_information == constants.UNSUPPORTED:
-            print(constants.FULL_UNSUPPORTED_MESSAGE)
+            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
         elif host_information:
             policykit_installed = check_policykit(host_information, debug, container_name)
             if policykit_installed == constants.UNSUPPORTED:
-                print(constants.FULL_UNSUPPORTED_MESSAGE)
+                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
             elif policykit_installed:
-                pkexec_info = pkexec_info_check(debug, container_name)
+                pkexec_info = get_pkexec_path(debug, container_name)
                 if pkexec_info == constants.UNSUPPORTED:
-                    print(constants.FULL_UNSUPPORTED_MESSAGE)
+                    print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
                 elif pkexec_info:
                     print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
                 else:

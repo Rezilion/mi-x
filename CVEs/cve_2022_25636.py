@@ -59,19 +59,20 @@ def check_kernel(debug, container_name):
     print(constants.FULL_QUESTION_MESSAGE.format('Is kernel version vulnerable?'))
     host_kernel_version = kernel_version.get_kernel_version(container_name, debug)
     if host_kernel_version:
-        if semver.compare(host_kernel_version, MAX_VULNERABLE_VERSION) == 1 and \
-                semver.compare(host_kernel_version, MIN_VULNERABLE_VERSION) == -1:
+        valid_kernel_version = commons.valid_kernel_version(host_kernel_version)
+        if semver.compare(valid_kernel_version, MAX_VULNERABLE_VERSION) == 1 or \
+                semver.compare(valid_kernel_version, MIN_VULNERABLE_VERSION) == -1:
             print(constants.FULL_POSITIVE_RESULT_MESSAGE)
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'According to your os release, vulnerable kernel versions '
                                                             f'range is: {MIN_VULNERABLE_VERSION} to '
                                                             f'{MAX_VULNERABLE_VERSION}\nYour kernel version: '
-                                                            f'{host_kernel_version[:constants.END]}'))
+                                                            f'{valid_kernel_version[:constants.END]}'))
         else:
             print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'According to your os release, vulnerable kernel versions '
                                                             f'range is: {MIN_VULNERABLE_VERSION} to '
                                                             f'{MAX_VULNERABLE_VERSION}\nYour kernel version: '
-                                                            f'{host_kernel_version[:constants.END]}'))
+                                                            f'{valid_kernel_version[:constants.END]}'))
             return host_kernel_version
 
     else:
@@ -85,14 +86,14 @@ def validate(debug, container_name):
     if os_type.linux(debug, container_name):
         vulnerable_kernel_version = check_kernel(debug, container_name)
         if vulnerable_kernel_version == constants.UNSUPPORTED:
-            print(constants.FULL_UNSUPPORTED_MESSAGE)
+            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
         elif vulnerable_kernel_version:
             nf_tables_path = f'/usr/lib/modules/{vulnerable_kernel_version}/kernel/net/netfilter/nf_tables.ko'
-            nf_tables_file = commons.file_content(nf_tables_path, debug, container_name)
+            nf_tables_file = commons.check_file_existence(nf_tables_path, debug, container_name)
             if nf_tables_file:
                 affected = nf_tables_affected(nf_tables_path, debug, container_name)
                 if affected == constants.UNSUPPORTED:
-                    print(constants.FULL_UNSUPPORTED_MESSAGE)
+                    print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
                 elif affected:
                     print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
                 else:
@@ -124,7 +125,6 @@ def main(describe, graph, debug, container_name):
     if describe:
         print(f'\n{DESCRIPTION}')
     validate(debug, container_name)
-    validation_flow_chart()
     if graph:
         validation_flow_chart()
 

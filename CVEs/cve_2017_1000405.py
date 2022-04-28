@@ -9,7 +9,7 @@ DESCRIPTION = f'''{CVE_ID} - Huge Dirty COW
 
 CVSS Score: 7.0
 NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2017-1000405
- 
+
 Is a continued vulnerability to CVE-2016-5195 known as Dirty COW.
 After the CVE-2016-5195 patch, another race condition was identified in the Transparent Huge Pages mechanism
  and Zero Huge Pages.
@@ -32,15 +32,15 @@ def huge_page(debug, container_name):
     if not huge_page_content:
         return huge_page_content
     print(constants.FULL_QUESTION_MESSAGE.format('Does your system use huge pages mechanism?'))
-    if huge_page_content.__contains__('[never]'):
+    if huge_page_content[constants.START].__contains__('[never]'):
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format('Your system is not using Huge Pages'))
-    elif huge_page_content.__contains__('[madvise]'):
+    elif huge_page_content[constants.START].__contains__('[madvise]'):
         affected = True
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format('Your system is using Huge Pages in "madvise" mode (means that '
                                                         'only applications which need Huge Pages will use it)'))
-    elif huge_page_content.__contains__('[always]'):
+    elif huge_page_content[constants.START].__contains__('[always]'):
         affected = True
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format('Your system is using Huge Pages in "always" mode'))
@@ -59,10 +59,10 @@ def zero_page(debug, container_name):
     if not zero_page_content:
         return affected
     print(constants.FULL_QUESTION_MESSAGE.format('Does your system use zero pages mechanism?'))
-    if zero_page_content.startswith('0'):
+    if zero_page_content[constants.START].__contains__('0'):
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format('Your system is not using Huge Zero Pages'))
-    elif zero_page_content.startswith('1'):
+    elif zero_page_content[constants.START].__contains__('1'):
         affected = True
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format('Your system is using Huge Zero Pages'))
@@ -76,21 +76,20 @@ def zero_page(debug, container_name):
 # This function validates if the host is vulnerable to CVE-2017-1000405.
 def validate(debug, container_name):
     if os_type.linux(debug, container_name):
-        kernel_version_output = kernel_version.check_kernel(MIN_KERNEL_VERSION, MAX_KERNEL_VERSION, debug,
-                                                            container_name)
+        kernel_version_output = kernel_version.check_kernel(MIN_KERNEL_VERSION, MAX_KERNEL_VERSION, debug)
         if kernel_version_output == constants.UNSUPPORTED:
-            print(constants.FULL_UNSUPPORTED_MESSAGE)
+            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
         elif kernel_version_output:
             affected = zero_page(debug, container_name)
             if affected == constants.UNSUPPORTED:
-                print(constants.FULL_UNSUPPORTED_MESSAGE)
+                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
             elif affected:
                 print(constants.FULL_VULNERABLE_MESSAGE.format(f'{CVE_ID} zero pages manipulation'))
             else:
                 print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(f'zero pages manipulation in {CVE_ID}'))
             affected = huge_page(debug, container_name)
             if affected == constants.UNSUPPORTED:
-                print(constants.FULL_UNSUPPORTED_MESSAGE)
+                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
             elif affected:
                 print(constants.FULL_VULNERABLE_MESSAGE.format(f'{CVE_ID} huge pages manipulation'))
             else:

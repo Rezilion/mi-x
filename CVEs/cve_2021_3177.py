@@ -11,7 +11,7 @@ DESCRIPTION = f'''{CVE_ID}
 
 CVSS Score: 9.8
 NVD Link: https://nvd.nist.gov/vuln/detail/cve-2021-3711
- 
+
 Python 3.x through 3.9.1 has a buffer overflow in `PyCArg_repr` in `_ctypes/callproc.c`, because `sprintf` is used 
 unsafely. The vulnerability can cause Remote Code Execution, but most likely lead to application Denial of Service or 
 application crash.
@@ -25,7 +25,7 @@ def check_ctypes_loaded(pid, ctypes_file_name, debug):
     pid_maps_file = commons.file_content(pid_maps_path, debug, container_name=False)
     if not pid_maps_file:
         return pid_maps_file
-    print(constants.FULL_QUESTION_MESSAGE.format('Is the _ctypes module loaded to the process memory?'))
+    print(constants.FULL_QUESTION_MESSAGE.format(f'Is the _ctypes module loaded to the {pid} process memory?'))
     for line in pid_maps_file:
         if line.__contains__(ctypes_file_name):
             print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
@@ -56,11 +56,11 @@ def find_ctypes_file_name(pid, debug, container_name):
     if container_name:
         merge_dir = docker_commands.get_merge_dir(container_name, debug)
         modules_path = merge_dir + modules_path
-    list_modules_command = f'ls {modules_path}'
+    list_modules_command = f'sudo ls {modules_path}'
     pipe_list_modules = run_command.command_output(list_modules_command, debug, container_name=False)
     list_modules = pipe_list_modules.stdout
     if list_modules:
-        for module in list_modules:
+        for module in list_modules.split('\n'):
             if module.startswith('_ctypes') and module.endswith('.so') and not module.__contains__('test'):
                 print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
                 print(constants.FULL_EXPLANATION_MESSAGE.format(f'The _ctypes .so file exists : {module}'))
@@ -96,7 +96,7 @@ def get_python_version(pid, debug, container_name):
     pipe_python_version = run_command.command_output(python_version_command, debug, container_name)
     host_python_version = pipe_python_version.stdout
     if host_python_version:
-        return host_python_version.split(' ')[constants.START]
+        return host_python_version.split(' ')[constants.END][:constants.END]
     else:
         return constants.UNSUPPORTED
 
@@ -106,39 +106,30 @@ def validate_processes(pids, debug, container_name):
     for pid in pids:
         python_version = get_python_version(pid, debug, container_name)
         if python_version == constants.UNSUPPORTED:
-            print(constants.FULL_UNSUPPORTED_MESSAGE)
+            print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
         elif python_version:
             if commons.check_patched_version('Python', python_version, PATCHED_VERSIONS):
                 ctypes_file_name = find_ctypes_file_name(pid, debug, container_name)
                 if ctypes_file_name == constants.UNSUPPORTED:
-                    print(constants.FULL_UNSUPPORTED_MESSAGE)
+                    print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
                 elif ctypes_file_name:
                     if check_ctypes_loaded(pid, ctypes_file_name, debug):
-                        print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
+                        print(constants.FULL_PROCESS_VULNERABLE_MESSAGE.format(pid, CVE_ID))
                     else:
-                        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                        print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, CVE_ID))
                 else:
-                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                    print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, CVE_ID))
             else:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, CVE_ID))
         else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, CVE_ID))
 
 
 # This function validates if the host is vulnerable to CVE-2021-3177.
 def validate(debug, container_name):
     if os_type.linux(debug, container_name):
-        if container_name:
-            pids = get_pids.get_pids_by_name_container('python', debug, container_name)
-            pids.append(get_pids.get_pids_by_name_container('Python', debug, container_name))
-            pids = list(set(pids))
-        else:
-            pids = get_pids.get_pids_by_name('python', debug)
-            pids.append(get_pids.get_pids_by_name('Python', debug))
-            pids = list(set(pids))
-        if pids == constants.UNSUPPORTED:
-            print(constants.FULL_UNSUPPORTED_MESSAGE)
-        elif pids:
+        pids = get_pids.pids_consolidation('python', debug, container_name)
+        if pids:
             validate_processes(pids, debug, container_name)
         else:
             print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))

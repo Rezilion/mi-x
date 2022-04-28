@@ -4,12 +4,9 @@ import importlib
 import argparse
 import os
 
-MIN_SUPPORT_YEAR = 2010
-ALL_CVE = ['cve_2016_5195', 'cve_2021_4034', 'cve_2021_41773']
-ALL_NAMES = ['log4shell', 'shellshock']
 MENU_MESSAGE = '''The 'Am I Really Vulnerable?' CVEs database:
 Remote Code Execution (RCE):
-CVE-2015-0235
+Ghost - CVE-2015-0235
 CVE-2021-3711
 CVE-2021-41773
 CVE-2021-42013

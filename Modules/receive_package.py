@@ -10,6 +10,4 @@ def package(distribution, package_name, debug, container_name):
         package_info_command = f'rpm -qi {package_name}'
     else:
         return False
-    if container_name:
-        package_info_command = constants.DOCKER_EXEC_COMMAND.format(container_name, package_info_command)
     return run_command.command_output(package_info_command, debug, container_name).stdout

@@ -5,7 +5,7 @@ import Modules.run_command as run_command
 # This function checks the MergeDir path of the container.
 def get_merge_dir(container_name, debug):
     docker_inspect_command = constants.DOCKER_INSPECT_COMMAND.format(container_name)
-    pipe_docker_inspect = run_command.command_output(docker_inspect_command, debug, container_name)
+    pipe_docker_inspect = run_command.command_output(docker_inspect_command, debug, container_name=False)
     docker_inspect = pipe_docker_inspect.stdout
     if docker_inspect:
         for line in docker_inspect.split('\n'):

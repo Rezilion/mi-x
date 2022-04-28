@@ -1,5 +1,4 @@
 import Modules.constants as constants
-import Modules.os_release as os_release
 import subprocess
 import shlex
 
@@ -8,13 +7,27 @@ import shlex
 def command_output(command, debug, container_name):
     if container_name:
         bash = 'bash'
-        if os_release.get_field('Distribution', debug, container_name).__contains__('Alpine'):
-            bash = 'sh'
-        command = constants.DOCKER_EXEC_COMMAND.format(container_name, bash, command)
-    converted_command = shlex.split(command)
+        docker_command = constants.DOCKER_EXEC_COMMAND.format(container_name, bash, command)
+        converted_command = shlex.split(docker_command)
+    else:
+        converted_command = shlex.split(command)
     pipe_command = subprocess.run(converted_command, capture_output=True, text=True)
     if debug:
         print(pipe_command.stderr)
     if pipe_command.stdout.endswith('not found\n'):
-        return False
+        pipe_command.stdout = ''
+    elif pipe_command.stdout.__contains__('/bin/bash: no such file or directory'):
+        if container_name:
+            bash = 'sh'
+            docker_command = constants.DOCKER_EXEC_COMMAND.format(container_name, bash, command)
+            converted_command = shlex.split(docker_command)
+        else:
+            converted_command = shlex.split(command)
+        pipe_command = subprocess.run(converted_command, capture_output=True, text=True)
+        if debug:
+            print(pipe_command.stderr)
+        if pipe_command.stdout.endswith('not found\n'):
+            pipe_command.stdout = ''
+        elif pipe_command.stdout.__contains__('/bin/sh: no such file or directory'):
+            pipe_command.stdout = ''
     return pipe_command

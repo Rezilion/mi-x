@@ -52,7 +52,8 @@ Modules are code implementations which are used in different CVE files.
 # Installation Requirements
 
 1. Python version 3
-2. Graphviz (optional, needed only for the graph capabilities)
+2. Graphviz (optional, needed only for the graph capabilities) 
+3. Xdg-utils (optional, needed only for the graph capabilities)
 
 
 # Installation

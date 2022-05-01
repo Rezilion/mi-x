@@ -71,7 +71,7 @@ Execute:
 
 Execute the program using parameters
 ```
-python3 am_i_really_vulnerable.py -cve_id cve_yyyy_xxxx -container True -graph True
+python3 am_i_really_vulnerable.py --cve_id cve_yyyy_xxxx --container True --graph True
 ```
 ![Executing](https://user-images.githubusercontent.com/15197376/165183169-6b33eae8-c4f2-4d55-80b8-c28840ca467f.gif)
 

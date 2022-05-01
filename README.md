@@ -65,7 +65,7 @@ git clone https://github.com/Rezilion/amireallyvulnerable.git
 ```
 Execute:
 ```
-`cd amireallyvulnerable && python3 am_i_really_vulnerable.py`
+cd amireallyvulnerable && python3 am_i_really_vulnerable.py
 ```
 # Execution Example
 

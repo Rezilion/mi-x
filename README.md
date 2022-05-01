@@ -60,13 +60,13 @@ Modules are code implementations which are used in different CVE files.
 The very latest developments can be obtained via git.
 
 Clone or download the project files (no compilation nor installation is required) 
-
-<copy-button>`git clone https://github.com/Rezilion/amireallyvulnerable.git`</copy-button>
-
+```
+git clone https://github.com/Rezilion/amireallyvulnerable.git
+```
 Execute:
-
+```
 `cd amireallyvulnerable && python3 am_i_really_vulnerable.py`
-
+```
 # Execution Example
 
 Execute the program using parameters

@@ -61,7 +61,7 @@ The very latest developments can be obtained via git.
 
 Clone or download the project files (no compilation nor installation is required) 
 
-`git clone https://github.com/Rezilion/amireallyvulnerable.git`
+<copy-button>`git clone https://github.com/Rezilion/amireallyvulnerable.git`</copy-button>
 
 Execute:
 

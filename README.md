@@ -47,10 +47,8 @@ Modules are code implementations which are used in different CVE files.
 
 # Color Legend
 
-<img width="338" alt="Colors" src="https://user-images.githubusercontent.com/15197376/165183070-b54c6de7-ab2f-4fba-bf58-0ee3b6c08167.png">
+<img width="341" alt="colors" src="https://user-images.githubusercontent.com/104366208/165800276-f31d063b-f031-4569-8f61-72832c602031.png">
 
-
-QUESTION
 # Installation Requirements
 
 1. Python version 3
@@ -69,6 +67,14 @@ Execute:
 
 `cd amireallyvulnerable && python3 am_i_really_vulnerable.py`
 
+# Execution Example
+
+Execute the program using parameters
+
+`python3 am_i_really_vulnerable.py -cve_id cve_yyyy_xxxx -container True -graph True`
+
+![Executing](https://user-images.githubusercontent.com/15197376/165183169-6b33eae8-c4f2-4d55-80b8-c28840ca467f.gif)
+
 # Arguments
 
 ## --cve_id
@@ -81,7 +87,6 @@ Syntax:
 - name - runs specific cve by the vulnerability name
 
 If the argument is not set, a menu message will appear presenting the currently supported vulnerabilities.
-
 
 ## --container
 
@@ -99,14 +104,6 @@ The user needs to specify whether to see the validation flow chart (False by def
 ## --help
 
 Help to understand how to run the code
-
-# Execution Example
-
-Execute the program using parameters
-
-`python3 am_i_really_vulnerable.py -cve_id cve_yyyy_xxxx -container True -graph True`
-
-![Executing](https://user-images.githubusercontent.com/15197376/165183169-6b33eae8-c4f2-4d55-80b8-c28840ca467f.gif)
 
 # Supported Systems
 

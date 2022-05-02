@@ -188,4 +188,4 @@ def graph_end(vol_graph):
     try:
         vol_graph.view()
     except ValueError:
-        print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format(constants.GRAPHVIZ_NOT_INSTALLED))
+        print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format(constants.NOT_INSTALLED_MESSAGE.format('Graphviz')))

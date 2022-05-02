@@ -72,7 +72,25 @@ def checks_cve_id_parameter(cve_id, describe, debug, graph, container_name):
         print(constants.FULL_EXPLANATION_MESSAGE.format('The vulnerability name does not exists in the database'))
 
 
-def main():
+# This function checks if the dependencies can run successfully.
+def check_dependencies(graph):
+    if graph:
+        try:
+            import graphviz
+        except NameError:
+            print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format(constants.NOT_INSTALLED_MESSAGE.format('Graphviz')))
+    try:
+        import semver
+    except ModuleNotFoundError:
+        print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format(constants.NOT_INSTALLED_MESSAGE.format('Semver')))
+    try:
+        from packaging import version
+    except ModuleNotFoundError:
+        print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format(constants.NOT_INSTALLED_MESSAGE.format('Packaging')))
+
+
+# This function sets the arguments.
+def arguments():
     parser = argparse.ArgumentParser(description="'AM I Really Vulnerable?' is a service that let's you validate "
                                                  "whether or not your system is susceptible to a given CVE")
     parser.add_argument('--cve_id', type=str, default='', help='Enter CVE name according to the following format:'
@@ -84,8 +102,12 @@ def main():
                                                                   'vulnerability')
     parser.add_argument('--debug', type=bool, default=False, help='An option to debug the program and see errors')
     parser.add_argument('--container', type=bool, default=False, help='Specify if you run in container or not')
-    args = parser.parse_args()
+    return parser.parse_args()
 
+
+def main():
+    args = arguments()
+    check_dependencies(args.graph)
     if args.container:
         container_names = []
         docker_ps_command = 'sudo docker ps -f status=running'

@@ -38,6 +38,7 @@ FULL_NEUTRAL_RESULT_MESSAGE = f'{NEUTRAL_RESULT}{NEUTRAL_RESULT_MESSAGE}{BASIC_C
 FULL_NEGATIVE_RESULT_MESSAGE = f'{NEGATIVE_RESULT}Yes{BASIC_COLOR}'
 FULL_QUESTION_MESSAGE = f'{QUESTION}{QUESTION_MESSAGE}{BASIC_COLOR}'
 FULL_EXPLANATION_MESSAGE = f'{EXPLANATION}{EXPLANATION_MESSAGE}{BASIC_COLOR}'
+NOT_INSTALLED_MESSAGE = '{} is not installed on your system'
 
 # Docker commands.
 DOCKER_EXEC_COMMAND = 'sudo docker exec -it {} /bin/{} -c "{}"'
@@ -48,7 +49,6 @@ APT_DISTRIBUTIONS = ['Ubuntu', 'Debian']
 RPM_DISTRIBUTIONS = ['Red', 'Centos', 'Fedora', 'SUSE', 'SLES', 'Amazon']
 
 # Graphviz.
-GRAPHVIZ_NOT_INSTALLED = 'Graphviz is not installed on your system'
 GRAPH_VULNERABLE = 'Vulnerable'
 GRAPH_NOT_VULNERABLE = 'Not Vulnerable'
 GRAPH_VULNERABLE_MESSAGE = 'Vulnerable to {}'

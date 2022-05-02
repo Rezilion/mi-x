@@ -52,7 +52,8 @@ Modules are code implementations which are used in different CVE files.
 # Installation Requirements
 
 1. Python version 3
-2. Graphviz (optional, needed only for the graph capabilities)
+2. Graphviz (optional, needed only for the graph capabilities) 
+3. Xdg-utils (optional, needed only for the graph capabilities)
 
 
 # Installation
@@ -60,19 +61,19 @@ Modules are code implementations which are used in different CVE files.
 The very latest developments can be obtained via git.
 
 Clone or download the project files (no compilation nor installation is required) 
-
-`git clone https://github.com/Rezilion/amireallyvulnerable.git`
-
+```
+git clone https://github.com/Rezilion/amireallyvulnerable.git
+```
 Execute:
-
-`cd amireallyvulnerable && python3 am_i_really_vulnerable.py`
-
+```
+cd amireallyvulnerable && python3 am_i_really_vulnerable.py
+```
 # Execution Example
 
 Execute the program using parameters
-
-`python3 am_i_really_vulnerable.py -cve_id cve_yyyy_xxxx -container True -graph True`
-
+```
+python3 am_i_really_vulnerable.py --cve_id cve_yyyy_xxxx --container True --graph True
+```
 ![Executing](https://user-images.githubusercontent.com/15197376/165183169-6b33eae8-c4f2-4d55-80b8-c28840ca467f.gif)
 
 # Arguments

@@ -61,7 +61,9 @@ In order to install the requirements:
    cat /etc/os-release
    ```
 2. Understand which package manager your os distbution is using:
+
    apt - Ubuntu, Debian
+   
    yum - Red Hat, CentOS, Fedora, Amazon
 3. Install the relevant package using your os distribution pacakage manager
 

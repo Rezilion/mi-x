@@ -27,7 +27,7 @@ SUID_FLAG = '# flags: s'
 FIXED_APT = {'Ubuntu 21.10': '0.105-31ubuntu0.1', 'Ubuntu 20.04': '0.105-26ubuntu1.2',
              'Ubuntu 18.04': '0.105-20ubuntu0.18.04.6', 'Ubuntu 16.04': '0.105-14.1ubuntu0.5+esm1',
              'Ubuntu 14.04': '0.105-4ubuntu3.14.04.6+esm1', 'Debian 9': '0.105-18+deb9u2',
-             'Debian 10': '0.105-25+deb10u1', 'Debian 11': '0.105-31+deb11u1', 'Debian 12 (unstable)': '0.105-31.1'}
+             'Debian 10': '0.105-25+deb10u1', 'Debian 11': '0.105-31+deb11u1', 'Debian unstable': '0.105-31.1'}
 FIXED_RPM = {'Fedora 34': ['0.117', '3.fc34'], 'Fedora 35': ['0.120', '1.fc35'],
              'CentOS 7': ['0.112', '26.el7'], 'CentOS 8': ['0.115', '13.el8'],
              'Red 6': ['0.96', '11.el6'], 'Red 7.3': ['0.112', '12.el7'], 'Red 7.4': ['0.112', '12.el7'],
@@ -190,11 +190,6 @@ def distribution_version_affected(debug, container_name):
     if host_information == constants.UNSUPPORTED:
         return constants.UNSUPPORTED
     elif host_information:
-        if host_information == 'Debian 12':
-            information_fields = ['Distribution', 'Version', 'Sid']
-            host_information_debian = os_release.get_field(information_fields, debug, container_name)
-            if host_information_debian.endswith('unstable'):
-                host_information = host_information_debian
         if host_information in FIXED_APT.keys():
             print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable os releases: {list(FIXED_APT.keys())} '

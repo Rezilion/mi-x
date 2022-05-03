@@ -9,5 +9,8 @@ def package(distribution, package_name, debug, container_name):
     elif distribution in constants.RPM_DISTRIBUTIONS:
         package_info_command = f'rpm -qi {package_name}'
     else:
-        return False
+        return ''
+    package_output = run_command.command_output(package_info_command, debug, container_name).stdout
+    if package_output.endswith('is not installed\n'):
+        return ''
     return run_command.command_output(package_info_command, debug, container_name).stdout

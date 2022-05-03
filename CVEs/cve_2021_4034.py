@@ -21,10 +21,6 @@ Due to a missing input check of argv and the fact that there is a Linux mechanis
 NULL, an overflow can occur allowing reading and writing from unexpected memory regions.
 This overflow allows exploits to modify variables so that unprivileged users gain root privileges.
 '''
-POLKIT_VERSION_FIELD = 'Version'
-POLKIT_RELEASE_FIELD = 'Release'
-POLICYKIT_INSTALLED_FIELD = 'Installed'
-NONE = 'none'
 FIXED_VERSION = '0.120'
 ROOT_OWNER = '# owner: root'
 SUID_FLAG = '# flags: s'
@@ -136,89 +132,39 @@ def get_pkexec_path(debug, container_name):
     return affected
 
 
-# This function compares between the fixed version and the host's version.
-def compare_versions(fixed_version, host_version, package_name):
-    affected = False
-    if version.parse(fixed_version) < version.parse(host_version):
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: {host_version}, is '
-                                                        f'bigger than the patched version which is: '
-                                                        f'{fixed_version}'))
-    elif version.parse(fixed_version) == version.parse(host_version):
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your system has the {package_name} patched version which is: '
-                                                        f'{fixed_version}'))
-    else:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: {host_version}, is '
-                                                        f'lower than the patched version which is: '
-                                                        f'{fixed_version}'))
-        affected = True
-    return affected
-
-
 # This function checks if the Policy Kit package is affected.
 def policykit_affected_rpm(host_information, package_name, debug, container_name):
-    print(constants.FULL_QUESTION_MESSAGE.format('Is there an affected PolicyKit package installed?'))
-    polkit_info = receive_package.package(host_information.split(' ')[constants.START], package_name, debug,
-                                          container_name)
-    if polkit_info:
-        polkit_info = polkit_info.split('\n')
-        polkit_fixed_version = FIXED_RPM[host_information]
-        check = False
-        for field in polkit_info:
-            if field.__contains__(POLKIT_VERSION_FIELD):
-                host_version = field.split(': ')[constants.END]
-                fixed_version = polkit_fixed_version[constants.START]
-                if host_version.endswith('\n'):
-                    host_version = host_version[:constants.END]
-                if version.parse(host_version) > version.parse(fixed_version):
-                    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-                    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: '
-                                                                    f'{host_version}, is bigger than the patched '
-                                                                    f'version which is: {fixed_version}'))
-                    return False
-                elif version.parse(host_version) == version.parse(fixed_version):
-                    check = True
-                else:
-                    print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-                    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: '
-                                                                    f'{host_version}, is lower than the patched version'
-                                                                    f' which is: {fixed_version}'))
-                    return True
-            if check:
-                if field.__contains__(POLKIT_RELEASE_FIELD):
-                    host_release = field.split(': ')[constants.FIRST]
-                    patched_version = polkit_fixed_version[constants.FIRST]
-                    return compare_versions(patched_version, host_release, package_name)
-    else:
+    distribution = host_information.split(' ')[constants.START]
+    host_info = receive_package.package_version_rpm(distribution, package_name, debug, container_name)
+    host_version = host_info[constants.START]
+    host_release = host_info[constants.FIRST]
+    polkit_fixed_version = FIXED_RPM[host_information]
+    fixed_version = polkit_fixed_version[constants.START]
+    if host_version.endswith('\n'):
+        host_version = host_version[:constants.END]
+    if version.parse(host_version) > version.parse(fixed_version):
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-        print(constants.FULL_EXPLANATION_MESSAGE.format('Polkit is not installed on the host'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: '
+                                                        f'{host_version}, is bigger than the patched '
+                                                        f'version which is: {fixed_version}'))
         return False
+    elif version.parse(host_version) == version.parse(fixed_version):
+        patched_version = polkit_fixed_version[constants.FIRST]
+        return commons.compare_versions(patched_version, host_release, package_name)
+    else:
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: '
+                                                        f'{host_version}, is lower than the patched version'
+                                                        f' which is: {fixed_version}'))
+        return True
 
 
 # This function checks if the Policy Kit package is affected.
 def policykit_affected_apt(host_information, package_name, debug, container_name):
-    print(constants.FULL_QUESTION_MESSAGE.format('Is there an affected Policy Kit package installed?'))
-    polkit_info = receive_package.package(host_information.split(' ')[constants.START], package_name, debug,
-                                          container_name)
-    if polkit_info:
-        polkit_info = polkit_info.split('\n')
-        polkit_fixed_version = FIXED_APT[host_information]
-        polkit_version = ''
-        for field in polkit_info:
-            if field.__contains__(POLICYKIT_INSTALLED_FIELD):
-                polkit_version = field.split(': ')[constants.FIRST]
-                break
-        if not polkit_version or polkit_version.__contains__(NONE):
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-            print(constants.FULL_EXPLANATION_MESSAGE.format('Policykit-1 is not installed on the host'))
-            return False
-        return compare_versions(polkit_fixed_version, polkit_version, package_name)
-    else:
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-        print(constants.FULL_EXPLANATION_MESSAGE.format('Policykit-1 is not installed on the host'))
-        return False
+    distribution = host_information.split(' ')[constants.START]
+    host_version = receive_package.package_version_apt(distribution, package_name, debug, container_name)
+    polkit_fixed_version = FIXED_APT[host_information]
+    return commons.compare_versions(polkit_fixed_version, host_version, package_name)
 
 
 # This function run policy check according to the package manager.

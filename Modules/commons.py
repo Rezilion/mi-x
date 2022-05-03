@@ -173,6 +173,27 @@ def check_patched_version(version_type, checked_version, patched_versions):
     return affected
 
 
+# This function compares between the fixed version and the host's version.
+def compare_versions(fixed_version, host_version, package_name):
+    affected = False
+    if version.parse(fixed_version) < version.parse(host_version):
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: {host_version}, is '
+                                                        f'bigger than the patched version which is: '
+                                                        f'{fixed_version}'))
+    elif version.parse(fixed_version) == version.parse(host_version):
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your system has the {package_name} patched version which is: '
+                                                        f'{fixed_version}'))
+    else:
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: {host_version}, is '
+                                                        f'lower than the patched version which is: '
+                                                        f'{fixed_version}'))
+        affected = True
+    return affected
+
+
 # Graphviz start function.
 def graph_start(cve, vol_graph):
     vol_graph.attr(label=f'{cve}\n\n', labelloc='t')

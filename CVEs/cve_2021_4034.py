@@ -186,25 +186,19 @@ def check_policykit(host_information, debug, container_name):
 def distribution_version_affected(debug, container_name):
     information_fields = ['Distribution', 'Version']
     host_information = os_release.get_field(information_fields, debug, container_name)
+    host_distribution = host_information.split(' ')[constants.START]
     print(constants.FULL_QUESTION_MESSAGE.format('Is os release affected?'))
     if host_information == constants.UNSUPPORTED:
         return constants.UNSUPPORTED
     elif host_information:
-        if host_information in FIXED_APT.keys():
+        if host_information in FIXED_APT.keys() or host_information in FIXED_RPM.keys():
             print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable os releases: {list(FIXED_APT.keys())} '
                                                             f'{list(FIXED_RPM.keys())}\nYour os release: '
                                                             f'{host_information}\nThe os release you are running on is '
                                                             f'potentially affected'))
             return host_information
-        elif host_information in FIXED_RPM.keys():
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable os releases: {list(FIXED_APT.keys())} '
-                                                            f'{list(FIXED_RPM.keys())}\nYour os release: '
-                                                            f'{host_information}\nThe os release you are running on is '
-                                                            f'potentially affected'))
-            return host_information
-        elif host_information not in constants.APT_DISTRIBUTIONS and host_information not in constants.RPM_DISTRIBUTIONS:
+        elif host_distribution not in constants.APT_DISTRIBUTIONS and host_information not in constants.RPM_DISTRIBUTIONS:
             print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Can not determine'))
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable os releases: {list(FIXED_APT.keys())} '
                                                             f'{list(FIXED_RPM.keys())}\nYour os release: '

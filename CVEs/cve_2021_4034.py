@@ -198,7 +198,8 @@ def distribution_version_affected(debug, container_name):
                                                             f'{host_information}\nThe os release you are running on is '
                                                             f'potentially affected'))
             return host_information
-        elif host_distribution not in constants.APT_DISTRIBUTIONS and host_information not in constants.RPM_DISTRIBUTIONS:
+        elif host_distribution not in constants.APT_DISTRIBUTIONS and \
+                host_information not in constants.RPM_DISTRIBUTIONS:
             print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Can not determine'))
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable os releases: {list(FIXED_APT.keys())} '
                                                             f'{list(FIXED_RPM.keys())}\nYour os release: '

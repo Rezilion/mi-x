@@ -4,6 +4,7 @@ import Modules.run_command as run_command
 PACKAGE_VERSION_FIELD = 'Version'
 PACKAGE_RELEASE_FIELD = 'Release'
 PACKAGE_INSTALLED_FIELD = 'Installed'
+ERROR_MESSAGE = 'Unable to locate package'
 NONE = 'none'
 
 
@@ -54,11 +55,13 @@ def package_version_apt(distribution, package_name, debug, container_name):
             if field.__contains__(PACKAGE_INSTALLED_FIELD):
                 package_version = field.split(': ')[constants.FIRST]
                 break
-        if not package_version or package_version.__contains__(NONE):
+        if not package_version or package_version.__contains__(ERROR_MESSAGE) or package_version.__contains__(NONE):
             print(constants.FULL_POSITIVE_RESULT_MESSAGE)
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'{package_name} is not installed on the host'))
             return ''
         else:
+            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+            print(constants.FULL_EXPLANATION_MESSAGE.format(f'{package_name} is installed on the host'))
             return package_version
     else:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)

@@ -1,9 +1,9 @@
-import Modules.constants as constants
-import Modules.receive_package as receive_package
-import Modules.run_command as run_command
-import Modules.os_type as os_type
-import Modules.os_release as os_release
-import Modules.commons as commons
+from Modules import constants
+from Modules import run_command
+from Modules import commons
+from Modules import receive_package
+from Modules import os_type
+from Modules import os_release
 from packaging import version
 import graphviz
 

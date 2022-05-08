@@ -1,4 +1,4 @@
-import Modules.constants as constants
+from Modules import constants
 import subprocess
 import shlex
 

@@ -1,8 +1,8 @@
-import Modules.constants as constants
-import Modules.run_command as run_command
-import Modules.os_type as os_type
+from Modules import constants
+from Modules import run_command
+from Modules import commons
+from Modules import os_type
 from packaging import version
-import Modules.commons as commons
 import graphviz
 
 CVE_ID = 'CVE-2015-0235'

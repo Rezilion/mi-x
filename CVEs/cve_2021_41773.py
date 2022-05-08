@@ -1,8 +1,8 @@
-import Modules.constants as constants
-import Modules.run_command as run_command
-import Modules.os_type as os_type
-import Modules.apache as apache_functions
-import Modules.commons as commons
+from Modules import constants
+from Modules import run_command
+from Modules import commons
+from Modules import os_type
+from Modules import apache as apache_functions
 import graphviz
 import semver
 import os

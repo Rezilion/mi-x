@@ -1,5 +1,5 @@
-import Modules.constants as constants
-import Modules.run_command as run_command
+from Modules import constants
+from Modules import run_command
 
 PACKAGE_VERSION_FIELD = 'Version'
 PACKAGE_RELEASE_FIELD = 'Release'

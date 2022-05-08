@@ -1,7 +1,7 @@
-import Modules.constants as constants
-import Modules.os_type as os_type
-import Modules.get_pids as get_pids
-import Modules.commons as commons
+from Modules import constants
+from Modules import commons
+from Modules import os_type
+from Modules import get_pids
 import graphviz
 
 CVE_ID = 'Log4Shell'

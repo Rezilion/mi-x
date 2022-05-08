@@ -1,9 +1,9 @@
-import Modules.constants as constants
-import Modules.run_command as run_command
-import Modules.os_type as os_type
-import Modules.os_release as os_release
-import Modules.kernel_version as kernel_version
-import Modules.commons as commons
+from Modules import constants
+from Modules import run_command
+from Modules import commons
+from Modules import os_type
+from Modules import os_release
+from Modules import kernel_version
 import importlib
 import graphviz
 

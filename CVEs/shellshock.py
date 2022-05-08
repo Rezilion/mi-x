@@ -1,7 +1,7 @@
-import Modules.constants as constants
-import Modules.os_type as os_type
-import Modules.run_command as run_command
-import Modules.commons as commons
+from Modules import constants
+from Modules import run_command
+from Modules import commons
+from Modules import os_type
 import subprocess
 import semver
 import graphviz

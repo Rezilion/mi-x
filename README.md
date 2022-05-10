@@ -1,6 +1,6 @@
 # **'Am I Really Vulnerable?' - Readme**
 
- Author:                   2022-Now, Rezilion
+ Author:                   2022 - Now, Rezilion
 
  Description:              Vulnerabilities validation
 

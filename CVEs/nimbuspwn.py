@@ -5,8 +5,11 @@ import graphviz
 CVE_ID = 'NIMBUSPWN'
 DESCRIPTION = f'''
 
-CVSS Score: 6.8
-NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2015-0235
+CVSS Score: N/A
+NVD Link: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-29799
+
+CVSS Score: N/A
+NVD Link: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-29800
 
 Your system will be scanned for all NIMBUSPWN related CVEs. 
 The vulnerabilities are collectively dubbed as Nimbuspwn and have been identified as CVE-2022-29799 and CVE-2022-29800.

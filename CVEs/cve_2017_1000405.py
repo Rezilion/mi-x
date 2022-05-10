@@ -1,7 +1,4 @@
-from Modules import constants
-from Modules import commons
-from Modules import os_type
-from Modules import kernel_version
+from Modules import os_type, kernel_version, commons, constants
 import graphviz
 
 CVE_ID = 'CVE-2017-1000405'

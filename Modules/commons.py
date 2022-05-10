@@ -1,6 +1,4 @@
-from Modules import constants
-from Modules import run_command
-from Modules import docker_commands
+from Modules import run_command, constants, docker_commands
 from packaging import version
 import os
 import semver

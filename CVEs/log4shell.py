@@ -1,7 +1,4 @@
-from Modules import constants
-from Modules import commons
-from Modules import os_type
-from Modules import get_pids
+from Modules import os_type, get_pids, commons, constants
 import graphviz
 
 CVE_ID = 'Log4Shell'

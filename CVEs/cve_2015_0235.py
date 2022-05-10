@@ -1,7 +1,4 @@
-from Modules import constants
-from Modules import run_command
-from Modules import commons
-from Modules import os_type
+from Modules import os_type, run_command, commons, constants
 from packaging import version
 import graphviz
 

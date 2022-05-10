@@ -1,5 +1,4 @@
-from Modules import constants
-from Modules import run_command
+from Modules import run_command, constants
 
 
 # This function checks the MergeDir path of the container.

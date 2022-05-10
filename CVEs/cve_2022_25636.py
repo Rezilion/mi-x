@@ -1,8 +1,4 @@
-from Modules import constants
-from Modules import run_command
-from Modules import commons
-from Modules import os_type
-from Modules import kernel_version
+from Modules import os_type, run_command, kernel_version, commons, constants
 import semver
 import graphviz
 

@@ -1,5 +1,4 @@
-from Modules import constants
-from Modules import commons
+from Modules import commons, constants
 
 NAME_FIELD = 'NAME='
 VERSION_FIELD = 'VERSION_ID='

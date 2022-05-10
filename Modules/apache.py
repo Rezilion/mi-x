@@ -1,6 +1,4 @@
-from Modules import constants
-from Modules import run_command
-from Modules import os_release
+from Modules import run_command, os_release, constants
 
 APACHE = 'apache2'
 HTTPD = 'httpd'

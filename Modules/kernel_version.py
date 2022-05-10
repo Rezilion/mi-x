@@ -1,6 +1,4 @@
-from Modules import constants
-from Modules import run_command
-from Modules import commons
+from Modules import run_command, commons, constants
 import semver
 
 BASIC_COLOR = '\033[00m'

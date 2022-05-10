@@ -1,6 +1,4 @@
-from Modules import constants
-from Modules import run_command
-from Modules import commons
+from Modules import run_command, commons, constants
 
 
 # This function checks if there are Java running processes.

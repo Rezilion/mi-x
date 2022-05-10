@@ -1,8 +1,4 @@
-from Modules import constants
-from Modules import run_command
-from Modules import commons
-from Modules import os_type
-from Modules import get_pids
+from Modules import os_type, run_command, get_pids, commons, constants
 import graphviz
 
 CVE_ID = 'CVE-2022-22965'

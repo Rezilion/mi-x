@@ -1,13 +1,14 @@
-from Modules import constants
-from Modules import commons
-from Modules import os_type
-from Modules import os_release
-from Modules import receive_package
+from Modules import os_type, commons, os_release, constants, receive_package
 from packaging import version
 import graphviz
 
 CVE_ID = 'NIMBUSPWN'
-DESCRIPTION = f'''your system will be scanned for all NIMBUSPWN related CVEs. 
+DESCRIPTION = f'''
+
+CVSS Score: 6.8
+NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2015-0235
+
+Your system will be scanned for all NIMBUSPWN related CVEs. 
 The vulnerabilities are collectively dubbed as Nimbuspwn and have been identified as CVE-2022-29799 and CVE-2022-29800.
 Exploiting Nimbuspwn vulnerabilities together, can be chained to gain root privileges on Linux systems, allowing 
 attackers to deploy payloads, like a root backdoor, and perform other malicious actions via arbitrary root code 

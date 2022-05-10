@@ -1,5 +1,4 @@
-from Modules import constants
-from Modules import run_command
+from Modules import run_command, constants
 
 BASIC_COLOR = '\033[00m'
 EXPLANATION = '\033[90m'

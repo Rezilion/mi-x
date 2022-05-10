@@ -1,9 +1,4 @@
-from Modules import constants
-from Modules import run_command
-from Modules import commons
-from Modules import os_type
-from Modules import get_pids
-from Modules import docker_commands
+from Modules import os_type, run_command, get_pids, commons, constants, docker_commands
 import graphviz
 
 CVE_ID = 'CVE-2021-3711'

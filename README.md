@@ -55,6 +55,25 @@ Modules are code implementations which are used in different CVE files.
 2. Graphviz (optional, needed only for the graph capabilities) 
 3. Xdg-utils (optional, needed only for the graph capabilities)
 
+In order to install the requirements:
+1. Check your os distribution you can use the following command:
+   ```
+   cat /etc/os-release
+   ```
+2. Understand which package manager your os distbution is using:
+
+   apt - Ubuntu, Debian
+   
+   yum - Red Hat, CentOS, Fedora, Amazon
+3. Install the relevant package using your os distribution pacakage manager
+
+# Dependencies Installation
+- semver
+- packaging
+- graphviz (only if the graph parameter is set to True)
+```
+pip install -r requirements.txt
+```
 
 # Installation
 

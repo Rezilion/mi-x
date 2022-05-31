@@ -81,15 +81,15 @@ def file_content(file_path, debug, container_name):
         pipe_cat_file = run_command.command_output(cat_file_command, debug, container_name)
         content = pipe_cat_file.stdout
         if content:
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+            print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'The file exists in your system'))
             content = content.split('\n')
         else:
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+            print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('No'))
             print(constants.FULL_EXPLANATION_MESSAGE.format('The file does not exist in your system'))
     else:
         if os.path.isfile(file_path):
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+            print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'The file exists in your system'))
             try:
                 file = open(file_path, 'r')
@@ -101,7 +101,7 @@ def file_content(file_path, debug, container_name):
                 if content:
                     content = content.split('\n')
         else:
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+            print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('No'))
             print(constants.FULL_EXPLANATION_MESSAGE.format('The file does not exist in your system'))
     return content
 

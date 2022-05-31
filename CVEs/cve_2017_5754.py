@@ -29,8 +29,8 @@ def meltdown_file(debug, container_name):
                                                             f' file'))
             return ''
     else:
-        print(constants.FULL_EXPLANATION_MESSAGE.format('Can not determine vulnerability status, meltdown file does not'
-                                                        ' exist'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Can not determine vulnerability status, {meltdown_path} file'
+                                                        f' does not exist'))
         return constants.UNSUPPORTED
 
 
@@ -83,6 +83,10 @@ def validation_flow_chart():
     vol_graph.edge('Is it amd?', 'Not Vulnerable', label='Yes')
     vol_graph.edge('Is it amd?', 'Is /sys/devices/system/cpu/vulnerabilities/meltdown file contains the "vulnerable" '
                                  'string?', label='No')
+    vol_graph.edge('Does /sys/devices/system/cpu/vulnerabilities/meltdown file contain the "vulnerable" string?',
+                   'Not Vulnerable', label='No')
+    vol_graph.edge('Does /sys/devices/system/cpu/vulnerabilities/meltdown file contain the "vulnerable" string?',
+                   'Vulnerable', label='Yes')
     commons.graph_end(vol_graph)
 
 

@@ -1,8 +1,8 @@
 from Modules import os_type, commons, constants
 import graphviz
 
-CVE_ID = 'Meltdown'
-DESCRIPTION = f'''{CVE_ID}
+CVE_ID = 'CVE-2017-5754'
+DESCRIPTION = f'''{CVE_ID} - Meltdown
 
 CVSS Score: 5.6
 NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2017-5754

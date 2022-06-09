@@ -67,6 +67,9 @@ def checks_cve_id_parameter(cve_id, describe, debug, graph, container_name):
         run(fixed_cve, describe, graph, debug, container_name)
     elif fixed_cve in constants.DUPLICATE_VULNERABILITIES_NAMES.keys():
         run(constants.DUPLICATE_VULNERABILITIES_NAMES[fixed_cve], describe, graph, debug, container_name)
+    elif fixed_cve == 'spectre':
+        for spectre_cve in constants.SPECTRE:
+            run(spectre_cve, describe, graph, debug, container_name)
     elif not cve_id:
         print(constants.FULL_EXPLANATION_MESSAGE.format(MENU_MESSAGE))
         print(constants.FULL_EXPLANATION_MESSAGE.format('Enter one of the running options in order to be scanned'))
@@ -119,7 +122,7 @@ def main():
             for field in docker_ps.split('\n')[constants.FIRST:constants.END]:
                 container_names.append(field.split(' ')[constants.END])
             for container_name in container_names:
-                print(f'Scanning vulnerabilities on {container_name} container')
+                print(f'\nScanning vulnerabilities on {container_name} container')
                 checks_cve_id_parameter(args.cve_id, args.describe, args.debug, args.graph, container_name)
         else:
             print('Docker containers where not found, unsupported value')

@@ -18,7 +18,7 @@ def meltdown_file(debug, container_name):
     meltdown_path = '/sys/devices/system/cpu/vulnerabilities/meltdown'
     meltdown_content = commons.file_content(meltdown_path, debug, container_name)
     if meltdown_content:
-        print(constants.FULL_QUESTION_MESSAGE.format(f'Does {meltdown_path} file contains the "vulnerable" string?'))
+        print(constants.FULL_QUESTION_MESSAGE.format(f'Does {meltdown_path} file contain the "vulnerable" string?'))
         if meltdown_content.__contains__('vulnerable'):
             print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'The "vulnerable" string exists it {meltdown_path} file'))
@@ -76,17 +76,15 @@ def validate(debug, container_name):
 
 # This function creates a graph that shows the vulnerability validation process of Meltdown.
 def validation_flow_chart():
+    meltdown_path = '/sys/devices/system/cpu/vulnerabilities/meltdown'
     vol_graph = graphviz.Digraph('G', filename=CVE_ID)
     commons.graph_start(CVE_ID, vol_graph)
     vol_graph.edge('Is it Linux?', 'Is it amd?', label='Yes')
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge('Is it amd?', 'Not Vulnerable', label='Yes')
-    vol_graph.edge('Is it amd?', 'Is /sys/devices/system/cpu/vulnerabilities/meltdown file contains the "vulnerable" '
-                                 'string?', label='No')
-    vol_graph.edge('Does /sys/devices/system/cpu/vulnerabilities/meltdown file contain the "vulnerable" string?',
-                   'Not Vulnerable', label='No')
-    vol_graph.edge('Does /sys/devices/system/cpu/vulnerabilities/meltdown file contain the "vulnerable" string?',
-                   'Vulnerable', label='Yes')
+    vol_graph.edge('Is it amd?', f'Does {meltdown_path} file contain the "vulnerable" string?', label='No')
+    vol_graph.edge(f'Does {meltdown_path} file contain the "vulnerable" string?', 'Not Vulnerable', label='No')
+    vol_graph.edge(f'Does {meltdown_path} file contain the "vulnerable" string?', 'Vulnerable', label='Yes')
     commons.graph_end(vol_graph)
 
 

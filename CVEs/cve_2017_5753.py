@@ -19,7 +19,7 @@ def spectre_file(debug, container_name):
     spectre_path = '/sys/devices/system/cpu/vulnerabilities/spectre_v1'
     spectre_content = commons.file_content(spectre_path, debug, container_name)
     if spectre_content:
-        print(constants.FULL_QUESTION_MESSAGE.format(f'Does {spectre_path} file contains the "vulnerable" string?'))
+        print(constants.FULL_QUESTION_MESSAGE.format(f'Does {spectre_path} file contain the "vulnerable" string?'))
         if spectre_content.__contains__('vulnerable'):
             print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'The "vulnerable" string exists it {spectre_path} file'))
@@ -51,15 +51,13 @@ def validate(debug, container_name):
 
 # This function creates a graph that shows the vulnerability validation process of Spectre Variant 1.
 def validation_flow_chart():
+    spectre_v1_path = '/sys/devices/system/cpu/vulnerabilities/spectre_v1'
     vol_graph = graphviz.Digraph('G', filename=CVE_ID)
     commons.graph_start(CVE_ID, vol_graph)
-    vol_graph.edge('Is it Linux?', 'Does /sys/devices/system/cpu/vulnerabilities/spectre_v1 file contain the '
-                                   '"vulnerable" string?', label='Yes')
+    vol_graph.edge('Is it Linux?', f'Does {spectre_v1_path} file contain the "vulnerable" string?', label='Yes')
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Does /sys/devices/system/cpu/vulnerabilities/spectre_v1 file contain the "vulnerable" string?',
-                   'Not Vulnerable', label='No')
-    vol_graph.edge('Does /sys/devices/system/cpu/vulnerabilities/spectre_v1 file contain the "vulnerable" string?',
-                   'Vulnerable', label='Yes')
+    vol_graph.edge(f'Does {spectre_v1_path} file contain the "vulnerable" string?', 'Not Vulnerable', label='No')
+    vol_graph.edge(f'Does {spectre_v1_path} file contain the "vulnerable" string?', 'Vulnerable', label='Yes')
     commons.graph_end(vol_graph)
 
 

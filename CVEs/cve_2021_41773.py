@@ -82,8 +82,6 @@ def apache_configuration_file(apache, debug, container_name):
     if configuration_content:
         return filesystem_directory_configuration(configuration_content)
     else:
-        print(constants.FULL_EXPLANATION_MESSAGE.format('Can not determine vulnerability status, configuration file'
-                                                        ' is not available'))
         return constants.UNSUPPORTED
 
 

@@ -30,8 +30,6 @@ def spectre_file(debug, container_name):
                                                             f' file'))
             return ''
     else:
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Can not determine vulnerability status, {spectre_path} file '
-                                                        f'does not exist'))
         return constants.UNSUPPORTED
 
 

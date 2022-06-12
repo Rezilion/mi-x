@@ -29,8 +29,6 @@ def meltdown_file(debug, container_name):
                                                             f' file'))
             return ''
     else:
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Can not determine vulnerability status, {meltdown_path} file'
-                                                        f' does not exist'))
         return constants.UNSUPPORTED
 
 
@@ -49,8 +47,6 @@ def check_vendor(debug, container_name):
             print(constants.FULL_EXPLANATION_MESSAGE.format('The system processor is not AMD'))
             return cpuinfo_content
     else:
-        print(constants.FULL_EXPLANATION_MESSAGE.format('Can not determine vulnerability status, meltdown file does not'
-                                                        ' exist'))
         return constants.UNSUPPORTED
 
 

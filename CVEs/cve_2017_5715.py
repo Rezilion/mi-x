@@ -30,7 +30,6 @@ def check_cmdline_disabled(debug, container_name, mitigation):
                                                             f'cmdline'))
             return True
     else:
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {cmdline_path} file does not exist'))
         return constants.UNSUPPORTED
 
 
@@ -38,32 +37,39 @@ def check_cmdline_disabled(debug, container_name, mitigation):
 def check_mitigations(debug, container_name, mitigation):
     file_name = f'{mitigation}_enabled'
     mitigation_path = f'/sys/kernel/debug/x86/{file_name}'
-    mitigation_file = commons.check_file_existence(mitigation_path, debug, container_name)
-    if mitigation_file:
-        dmesg_path = '/var/log/dmesg'
-        dmesg_content = commons.file_content(dmesg_path, debug, container_name)
-        if dmesg_content:
-            print(constants.FULL_QUESTION_MESSAGE.format(f'Does {mitigation} mitigation present on the system?'))
-            for line in dmesg_content:
-                if line.__contains__(mitigation):
-                    if line.lower().__contains__('not present'):
-                        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-                        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {mitigation} mitigation does not present '
-                                                                        f'on the system'))
-                        return False
+    mitigation_file_content = commons.file_content(mitigation_path, debug, container_name)
+    if mitigation_file_content:
+        print(constants.FULL_QUESTION_MESSAGE.format(f'Is {mitigation} mitigation disabled?'))
+        if mitigation_file_content.__contains__('1'):
+            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {mitigation} mitigation is enabled'))
+            dmesg_path = '/var/log/dmesg'
+            dmesg_content = commons.file_content(dmesg_path, debug, container_name)
+            if dmesg_content:
+                print(constants.FULL_QUESTION_MESSAGE.format(f'Does {mitigation} mitigation present on the system?'))
+                for line in dmesg_content:
+                    if line.__contains__(mitigation):
+                        if line.lower().__contains__('not present'):
+                            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+                            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {mitigation} mitigation does not '
+                                                                            f'present on the system'))
+                            return False
+                        else:
+                            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+                            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {mitigation} mitigation does present '
+                                                                            f'on the system'))
+                            return check_cmdline_disabled(debug, container_name, mitigation)
                     else:
-                        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-                        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {mitigation} mitigation does present on '
-                                                                        f'the system'))
-                        return check_cmdline_disabled(debug, container_name, mitigation)
-                else:
-                    print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-                    print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {dmesg_path} file does not contain the '
-                                                                    f'{mitigation} string'))
-                    return False
+                        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+                        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {dmesg_path} file does not contain the '
+                                                                        f'{mitigation} string'))
+                        return False
+            else:
+                return constants.UNSUPPORTED
         else:
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {dmesg_path} file does not exist'))
-            return constants.UNSUPPORTED
+            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {mitigation} mitigation is disabled'))
+            return False
     else:
         return False
 
@@ -84,7 +90,6 @@ def spectre_file(debug, container_name):
                                                             f' file'))
             return True
     else:
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {spectre_path} file does not exist'))
         return constants.UNSUPPORTED
 
 

@@ -1,4 +1,4 @@
-# **'Am I Really Vulnerable?' - Readme**
+# **Am I Really Vulnerable?**
 
  Author:                   2022 - Now, Rezilion
 
@@ -27,7 +27,7 @@ In addition, the vulnerabilities checks we wrote so far, can be expanded with so
 
 ![PWNKIT_Flow](https://user-images.githubusercontent.com/15197376/165183294-45482743-1c92-4b24-8477-812a62537c71.png)
 
-Everyone is free to use 'Am I Really Vulnerable?' under the conditions of the Apache 2.0 License (see LICENSE file).
+Everyone is free to use 'Am I Really Vulnerable?' under the conditions of the AGPL-3.0 License (see [LICENSE](https://github.com/Rezilion/amireallyvulnerable/blob/main/LICENSE) file).
  
 ## Quick facts
    - **Name**:      'Am I Really Vulnerable?'

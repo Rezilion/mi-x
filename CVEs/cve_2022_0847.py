@@ -1,6 +1,9 @@
-from Modules import os_type, kernel_version, commons, constants
-import semver
+"""
+Support for graphviz and other modules which written for avoiding repetitive code.
+"""
 import graphviz
+import semver
+from Modules import os_type, kernel_version, commons, constants
 
 CVE_ID = 'CVE-2022-0847'
 DESCRIPTION = f'''{CVE_ID} - Dirty Pipe
@@ -19,8 +22,8 @@ PATCHED_VERSIONS = ['5.10.102', '5.15.25', '5.16.11']
 FIXED_VERSION = '5.17.0-rc6'
 
 
-# This function checks if the kernel version is vulnerable to CVE-2022-0847.
 def check_kernel_version(debug):
+    """This function checks if the kernel version is vulnerable to CVE-2022-0847."""
     affected = False
     host_kernel_version = kernel_version.get_kernel_version(debug)
     if host_kernel_version:
@@ -35,13 +38,13 @@ def check_kernel_version(debug):
         else:
             return commons.check_patched_version('Kernel', valid_kernel_version, PATCHED_VERSIONS)
     else:
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Unsupported kernel version value'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format('Unsupported kernel version value'))
         return constants.UNSUPPORTED
     return affected
 
 
-# This function validates if the host is vulnerable to CVE-2022-0847.
 def validate(debug, container_name):
+    """This function validates if the host is vulnerable to CVE-2022-0847."""
     if os_type.linux(debug, container_name):
         vulnerable = check_kernel_version(debug)
         if vulnerable == constants.UNSUPPORTED:
@@ -54,8 +57,8 @@ def validate(debug, container_name):
         print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
-# This function creates a graph that shows the vulnerability validation process of CVE-2022-0847.
 def validation_flow_chart():
+    """This function creates a graph that shows the vulnerability validation process of CVE-2022-0847."""
     vol_graph = graphviz.Digraph('G', filename=CVE_ID)
     commons.graph_start(CVE_ID, vol_graph)
     vol_graph.edge('Is it Linux?', 'Is the kernel version affected?', label='Yes')
@@ -66,12 +69,9 @@ def validation_flow_chart():
 
 
 def main(describe, graph, debug, container_name):
+    """This is the main function."""
     if describe:
         print(f'\n{DESCRIPTION}')
     validate(debug, container_name)
     if graph:
         validation_flow_chart()
-
-
-if __name__ == '__main__':
-    main()

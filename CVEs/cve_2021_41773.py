@@ -1,5 +1,5 @@
 """
-Support for graphviz and other modules which written for avoiding repetitive code.
+Support for os, semver, graphviz and other modules which written for avoiding repetitive code.
 """
 import os
 import semver

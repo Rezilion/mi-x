@@ -1,5 +1,5 @@
 """
-Support for graphviz and other modules which written for avoiding repetitive code.
+Support for graphviz, version from packaging and other modules which written for avoiding repetitive code.
 """
 import graphviz
 from packaging import version

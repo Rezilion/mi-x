@@ -56,23 +56,22 @@ def check_kpatch(debug, container_name):
     print(constants.FULL_QUESTION_MESSAGE.format('Are there any loaded modules?'))
     pipe_modules = run_command.command_output(lsmod_command, debug, container_name)
     modules = pipe_modules.stdout
-    if modules:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-        print(constants.FULL_QUESTION_MESSAGE.format('Is it patched with kpatch?'))
-        for kpatch in KPATCH_MODULE_NAMES:
-            if kpatch in modules:
-                print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-                print(constants.FULL_EXPLANATION_MESSAGE.format(f'Red Hat relevant kpatch: {KPATCH_MODULE_NAMES}\nYour '
-                                                                f'kpatch: {kpatch}'))
-                patched = True
-                break
-        if not patched:
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'Red Hat relevant kpatch: {KPATCH_MODULE_NAMES}'))
-    else:
+    if not modules:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format('Can not determine loaded modules status, unsupported value'))
         return constants.UNSUPPORTED
+    print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+    print(constants.FULL_QUESTION_MESSAGE.format('Is it patched with kpatch?'))
+    for kpatch in KPATCH_MODULE_NAMES:
+        if kpatch in modules:
+            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+            print(constants.FULL_EXPLANATION_MESSAGE.format(f'Red Hat relevant kpatch: {KPATCH_MODULE_NAMES}\nYour '
+                                                            f'kpatch: {kpatch}'))
+            patched = True
+            break
+    if not patched:
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Red Hat relevant kpatch: {KPATCH_MODULE_NAMES}'))
     return patched
 
 

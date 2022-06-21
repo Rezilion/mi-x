@@ -55,14 +55,14 @@ def loaded_modules(apache, module_name, debug, container_name):
     loaded_modules_command = f'{apache} -M'
     pipe_modules = run_command.command_output(loaded_modules_command, debug, container_name)
     modules = pipe_modules.stdout
-    if 'Loaded Modules:' in modules:
-        print(constants.FULL_QUESTION_MESSAGE.format(f'Is "{module_name}" module loaded?'))
-        if module_name in modules:
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The "{module_name}" module is loaded'))
-            return True
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The "{module_name}" module is not loaded'))
-        return False
-    print(constants.FULL_EXPLANATION_MESSAGE.format('Can not determine loaded modules, unsupported value'))
-    return constants.UNSUPPORTED
+    if not 'Loaded Modules:' in modules:
+        print(constants.FULL_EXPLANATION_MESSAGE.format('Can not determine loaded modules, unsupported value'))
+        return constants.UNSUPPORTED
+    print(constants.FULL_QUESTION_MESSAGE.format(f'Is "{module_name}" module loaded?'))
+    if module_name in modules:
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The "{module_name}" module is loaded'))
+        return True
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'The "{module_name}" module is not loaded'))
+    return False

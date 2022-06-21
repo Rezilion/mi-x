@@ -17,13 +17,13 @@ def get_jcmd(pid, debug, container_name):
     get_jcmd_path_command = f'sudo ls -l {proc_path}'
     pipe_get_jcmd_path = run_command.command_output(get_jcmd_path_command, debug, container_name=False)
     get_jcmd_path = pipe_get_jcmd_path.stdout
-    if get_jcmd_path:
-        if '->' in get_jcmd_path:
-            jcmd_path = get_jcmd_path.split(' ')[constants.END].split('/java')[constants.START] + '/jcmd'
-            full_container_jcmd_path = merged_dir_path + jcmd_path
-            return full_container_jcmd_path
+    if not get_jcmd_path:
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Unsupported "/proc/{pid}/exe" value'))
         return constants.UNSUPPORTED
+    if '->' in get_jcmd_path:
+        jcmd_path = get_jcmd_path.split(' ')[constants.END].split('/java')[constants.START] + '/jcmd'
+        full_container_jcmd_path = merged_dir_path + jcmd_path
+        return full_container_jcmd_path
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'Unsupported "/proc/{pid}/exe" value'))
     return constants.UNSUPPORTED
 

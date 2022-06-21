@@ -68,6 +68,29 @@ def check_mitigations_components(mitigation, debug, container_name):
         return False
 
 
+def validate_mitigations(debug, container_name):
+    """This function validates whether the mitigations enabled or not."""
+    ibrs = check_mitigations_components('ibrs', debug, container_name)
+    if ibrs == constants.UNSUPPORTED:
+        print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+    elif ibrs:
+        ibpb = check_mitigations_components('ibpb', debug, container_name)
+        if ibpb == constants.UNSUPPORTED:
+            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+        elif ibpb:
+            spectre_v2_mitigation = check_cmdline_disabled('spectre_v2', debug, container_name)
+            if spectre_v2_mitigation == constants.UNSUPPORTED:
+                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+            elif spectre_v2_mitigation:
+                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+            else:
+                print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
+        else:
+            print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
+    else:
+        print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
+
+
 def spectre_file(debug, container_name):
     """This function checks if the meltdown file contains the 'vulnerable' string in it."""
     spectre_path = '/sys/devices/system/cpu/vulnerabilities/spectre_v2'
@@ -151,29 +174,6 @@ def check_edge_case(debug, container_name):
     return edge_case
 
 
-def check_mitigations(debug, container_name):
-    """This function if the mitigations are enabled."""
-    ibrs = check_mitigations_components('ibrs', debug, container_name)
-    if ibrs == constants.UNSUPPORTED:
-        print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
-    elif ibrs:
-        ibpb = check_mitigations_components('ibpb', debug, container_name)
-        if ibpb == constants.UNSUPPORTED:
-            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
-        elif ibpb:
-            spectre_v2_mitigation = check_cmdline_disabled('spectre_v2', debug, container_name)
-            if spectre_v2_mitigation == constants.UNSUPPORTED:
-                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
-            elif spectre_v2_mitigation:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
-            else:
-                print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
-        else:
-            print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
-    else:
-        print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
-
-
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to Spectre Variant 2."""
     if os_type.linux(debug, container_name):
@@ -181,7 +181,7 @@ def validate(debug, container_name):
         if edge_case == constants.UNSUPPORTED or edge_case:
             spectre = spectre_file(debug, container_name)
             if spectre == constants.UNSUPPORTED:
-                check_mitigations(debug, container_name)
+                validate_mitigations(debug, container_name)
             elif spectre:
                 print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
             else:

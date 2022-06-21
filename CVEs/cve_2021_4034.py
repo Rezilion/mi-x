@@ -1,9 +1,12 @@
-from Modules import os_type, run_command, commons, os_release, constants, receive_package
-from packaging import version
+"""
+Support for graphviz and other modules which written for avoiding repetitive code.
+"""
 import graphviz
+from packaging import version
+from Modules import os_type, run_command, commons, os_release, constants, receive_package
 
 CVE_ID = 'CVE-2021-4034'
-DESCRIPTION = f'''{CVE_ID} - PwnKit 
+DESCRIPTION = f'''{CVE_ID} - PwnKit
 
 CVSS Score: 9.0
 NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2021-45046
@@ -33,8 +36,8 @@ FIXED_RPM = {'Fedora 34': ['0.117', '3.fc34.2'], 'Fedora 35': ['0.120', '1.fc35.
 MIN_KERNEL_VERSION = '0'
 
 
-# This function checks the file requirements in order to be vulnerable.
 def check_requirements(execute, suid, root):
+    """This function checks the file requirements in order to be vulnerable."""
     affected = ''
     print(constants.FULL_QUESTION_MESSAGE.format('Does pkexec have execute permissions?'))
     if execute:
@@ -63,58 +66,56 @@ def check_requirements(execute, suid, root):
     return affected
 
 
-# This function checks file information using ls command.
 def check_pkexec_using_ls(pkexec_path, debug, container_name):
-    ls_command = f'ls -l {pkexec_path}'
+    """This function checks file information using ls_output command."""
+    ls_command = f'ls_output -l {pkexec_path}'
     pipe_ls = run_command.command_output(ls_command, debug, container_name)
-    ls = pipe_ls.stdout
-    if ls:
-        ls_split = ls.split(' ')
-        file_permissions = ls_split[0]
-        file_owner = ls_split[2]
-        root = False
-        suid = False
-        execute = False
-        if file_owner == 'root':
-            root = True
-        if file_permissions.__contains__('s'):
-            suid = True
-        if file_permissions.__contains__('x'):
-            execute = True
-        return check_requirements(execute, suid, root)
-    else:
-        print(constants.FULL_EXPLANATION_MESSAGE.format('Unsupported ls value'))
+    ls_output = pipe_ls.stdout
+    if not ls_output:
+        print(constants.FULL_EXPLANATION_MESSAGE.format('Unsupported ls_output value'))
         return constants.UNSUPPORTED
+    ls_split = ls_output.split(' ')
+    file_permissions = ls_split[0]
+    file_owner = ls_split[2]
+    root = False
+    suid = False
+    execute = False
+    if file_owner == 'root':
+        root = True
+    if 's' in file_permissions:
+        suid = True
+    if 'x'in file_permissions:
+        execute = True
+    return check_requirements(execute, suid, root)
 
 
-# This function checks file information using getfacl command.
 def check_pkexec_using_getfacl(pkexec_path, debug, container_name):
+    """This function checks file information using getfacl command."""
     getfacl_command = f'getfacl {pkexec_path}'
     pipe_getfacl = run_command.command_output(getfacl_command, debug, container_name)
     getfacl = pipe_getfacl.stdout
-    if getfacl:
-        pkexec_info = getfacl.split('\n')
-        root = False
-        suid = False
-        execute = False
-        for field in pkexec_info:
-            if field == ROOT_OWNER:
-                root = True
-            elif field.__contains__(SUID_FLAG):
-                suid = True
-            elif not field.startswith('#') and field.__contains__('::') and field.endswith('x'):
-                execute = True
-                break
-        return check_requirements(execute, suid, root)
-    else:
+    if not getfacl:
         print(constants.FULL_EXPLANATION_MESSAGE.format('The "getfacl" Linux command is not installed in your system, '
                                                         'the system is about to be validated using the ls command, '
                                                         '(ls command is not 100 percents coverage of pkexec file)'))
         return check_pkexec_using_ls(pkexec_path, debug, container_name)
+    pkexec_info = getfacl.split('\n')
+    root = False
+    suid = False
+    execute = False
+    for field in pkexec_info:
+        if field == ROOT_OWNER:
+            root = True
+        elif SUID_FLAG in field:
+            suid = True
+        elif not field.startswith('#') and '::' in field and field.endswith('x'):
+            execute = True
+            break
+    return check_requirements(execute, suid, root)
 
 
-# This function checks for pkexec existence, suid bit and user permissions.
 def get_pkexec_path(debug, container_name):
+    """This function checks for pkexec existence, suid bit and user permissions."""
     which_pkexec_command = 'which pkexec'
     pipe_which_pkexec = run_command.command_output(which_pkexec_command, debug, container_name)
     which_pkexec = pipe_which_pkexec.stdout
@@ -128,8 +129,9 @@ def get_pkexec_path(debug, container_name):
     return affected
 
 
-# This function checks if the Policy Kit package is affected.
 def policykit_affected_rpm(host_information, package_name, debug, container_name):
+    """This function checks if the Policy Kit package is affected."""
+    affected = False
     distribution = host_information.split(' ')[constants.START]
     host_info = receive_package.package_version_rpm(distribution, package_name, debug, container_name)
     host_version = host_info[constants.START]
@@ -143,7 +145,6 @@ def policykit_affected_rpm(host_information, package_name, debug, container_name
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: '
                                                         f'{host_version}, is bigger than the patched '
                                                         f'version which is: {fixed_version}'))
-        return False
     elif version.parse(host_version) == version.parse(fixed_version):
         patched_version = polkit_fixed_version[constants.FIRST]
         return commons.compare_versions(patched_version, host_release, package_name)
@@ -152,70 +153,68 @@ def policykit_affected_rpm(host_information, package_name, debug, container_name
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: '
                                                         f'{host_version}, is lower than the patched version'
                                                         f' which is: {fixed_version}'))
-        return True
+        affected = True
+    return affected
 
 
-# This function checks if the Policy Kit package is affected.
 def policykit_affected_apt(host_information, package_name, debug, container_name):
+    """# This function checks if the Policy Kit package is affected."""
     distribution = host_information.split(' ')[constants.START]
     host_version = receive_package.package_version_apt(distribution, package_name, debug, container_name)
     polkit_fixed_version = FIXED_APT[host_information]
     return commons.compare_versions(polkit_fixed_version, host_version, package_name)
 
 
-# This function run policy check according to the package manager.
 def check_policykit(host_information, debug, container_name):
+    """This function run policy check according to the package manager."""
     if host_information.split(' ')[constants.START] in constants.APT_DISTRIBUTIONS:
         package_name = 'policykit-1'
         return policykit_affected_apt(host_information, package_name, debug, container_name)
-    elif host_information.split(' ')[constants.START] in constants.RPM_DISTRIBUTIONS:
+    if host_information.split(' ')[constants.START] in constants.RPM_DISTRIBUTIONS:
         package_name = 'polkit'
         return policykit_affected_rpm(host_information, package_name, debug, container_name)
-    else:
-        print(constants.FULL_EXPLANATION_MESSAGE.format(
-            f'The distribution value is not one of these distributions: {constants.RPM_DISTRIBUTIONS} or these '
-            f'distributions: {constants.APT_DISTRIBUTIONS}'))
-        return constants.UNSUPPORTED
+    print(constants.FULL_EXPLANATION_MESSAGE.format(
+        f'The distribution value is not one of these distributions: {constants.RPM_DISTRIBUTIONS} or these '
+        f'distributions: {constants.APT_DISTRIBUTIONS}'))
+    return constants.UNSUPPORTED
 
 
-# This function checks if the host distribution and version are affected.
 def distribution_version_affected(debug, container_name):
+    """This function checks if the host distribution and version are affected."""
     information_fields = ['Distribution', 'Version']
     host_information = os_release.get_field(information_fields, debug, container_name)
     host_distribution = host_information.split(' ')[constants.START]
     print(constants.FULL_QUESTION_MESSAGE.format('Is os release affected?'))
     if host_information == constants.UNSUPPORTED:
         return constants.UNSUPPORTED
-    elif host_information:
-        if host_information in FIXED_APT.keys() or host_information in FIXED_RPM.keys():
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable os releases: {list(FIXED_APT.keys())} '
-                                                            f'{list(FIXED_RPM.keys())}\nYour os release: '
-                                                            f'{host_information}\nThe os release you are running on is '
-                                                            f'potentially affected'))
-            return host_information
-        elif host_distribution not in constants.APT_DISTRIBUTIONS and \
-                host_information not in constants.RPM_DISTRIBUTIONS:
-            print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Can not determine'))
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable os releases: {list(FIXED_APT.keys())} '
-                                                            f'{list(FIXED_RPM.keys())}\nYour os release: '
-                                                            f'{host_information}\nThe os release you are running on is '
-                                                            f'not supported'))
-            return constants.UNSUPPORTED
-        else:
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable os releases: {list(FIXED_APT.keys())} '
-                                                            f'{list(FIXED_RPM.keys())}\nYour os release: '
-                                                            f'{host_information}\nThe os release you are running on is '
-                                                            f'not affected'))
-            return ''
-    else:
+    if not host_information:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Can not determine os release, unsupported value'))
         return constants.UNSUPPORTED
+    if host_information in FIXED_APT or host_information in FIXED_RPM:
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable os releases: {list(FIXED_APT.keys())} '
+                                                        f'{list(FIXED_RPM.keys())}\nYour os release: '
+                                                        f'{host_information}\nThe os release you are running on is '
+                                                        f'potentially affected'))
+        return host_information
+    if host_distribution not in constants.APT_DISTRIBUTIONS and \
+            host_information not in constants.RPM_DISTRIBUTIONS:
+        print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Can not determine'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable os releases: {list(FIXED_APT.keys())} '
+                                                        f'{list(FIXED_RPM.keys())}\nYour os release: '
+                                                        f'{host_information}\nThe os release you are running on is '
+                                                        f'not supported'))
+        return constants.UNSUPPORTED
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable os releases: {list(FIXED_APT.keys())} '
+                                                    f'{list(FIXED_RPM.keys())}\nYour os release: '
+                                                    f'{host_information}\nThe os release you are running on is '
+                                                    f'not affected'))
+    return ''
 
 
-# This function validates if the host is vulnerable to PwnKit.
 def validate(debug, container_name):
+    """This function validates if the host is vulnerable to PwnKit."""
     if os_type.linux(debug, container_name):
         host_information = distribution_version_affected(debug, container_name)
         if host_information == constants.UNSUPPORTED:
@@ -240,8 +239,8 @@ def validate(debug, container_name):
         print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
-# This function creates graph that shows the vulnerability validation process of PwnKit.
 def validation_flow_chart():
+    """This function creates graph that shows the vulnerability validation process of PwnKit."""
     vol_graph = graphviz.Digraph('G', filename=CVE_ID)
     commons.graph_start(CVE_ID, vol_graph)
     vol_graph.edge('Is it Linux?', 'Is there an affected PolicyKit package installed?', label='Yes')
@@ -259,12 +258,9 @@ def validation_flow_chart():
 
 
 def main(describe, graph, debug, container_name):
+    """This is the main function."""
     if describe:
         print(f'\n{DESCRIPTION}')
     validate(debug, container_name)
     if graph:
         validation_flow_chart()
-
-
-if __name__ == '__main__':
-    main()

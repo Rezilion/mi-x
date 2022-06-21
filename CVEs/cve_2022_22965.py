@@ -55,13 +55,12 @@ def check_java_version(pid, jcmd_command, debug):
     if start_of_version < MIN_AFFECTED_VERSION:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'The minimum affected java version is: '
-                                                        f'{MIN_AFFECTED_VERSION}, the process`s java version which '
-                                                        f'is: {version}, is not affected'))
+                                                        f'{MIN_AFFECTED_VERSION}, the process`s java version which is: '
+                                                        f'{version}, is not affected'))
         return False
     print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-    print(constants.FULL_EXPLANATION_MESSAGE.format(f'The minimum affected java version is: '
-                                                    f'{MIN_AFFECTED_VERSION}, the process`s java version which '
-                                                    f'is: {version}, is affected'))
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'The minimum affected java version is: {MIN_AFFECTED_VERSION}, the'
+                                                    f'process`s java version which is: {version}, is affected'))
     return True
 
 

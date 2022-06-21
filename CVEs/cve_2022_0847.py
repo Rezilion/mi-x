@@ -27,19 +27,18 @@ def check_kernel_version(debug):
     affected = False
     host_kernel_version = kernel_version.get_kernel_version(debug)
     if host_kernel_version:
-        valid_kernel_version = commons.valid_kernel_version(host_kernel_version)
-        if (not semver.compare(valid_kernel_version, FIXED_VERSION) == -1) or \
-                (semver.compare(valid_kernel_version, FIRST_VULNERABLE_VERSION) == -1):
-            print(constants.FULL_QUESTION_MESSAGE.format('Is kernel version affected?'))
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your kernel version which is: {valid_kernel_version}, is '
-                                                            f'not in the affected kernel versions range: '
-                                                            f'{FIRST_VULNERABLE_VERSION} to {FIXED_VERSION}'))
-        else:
-            return commons.check_patched_version('Kernel', valid_kernel_version, PATCHED_VERSIONS)
-    else:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Unsupported kernel version value'))
         return constants.UNSUPPORTED
+    valid_kernel_version = commons.valid_kernel_version(host_kernel_version)
+    if (not semver.compare(valid_kernel_version, FIXED_VERSION) == -1) or \
+            (semver.compare(valid_kernel_version, FIRST_VULNERABLE_VERSION) == -1):
+        print(constants.FULL_QUESTION_MESSAGE.format('Is kernel version affected?'))
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your kernel version which is: {valid_kernel_version}, is not'
+                                                        f'in the affected kernel versions range: '
+                                                        f'{FIRST_VULNERABLE_VERSION} to {FIXED_VERSION}'))
+    else:
+        return commons.check_patched_version('Kernel', valid_kernel_version, PATCHED_VERSIONS)
     return affected
 
 

@@ -22,18 +22,19 @@ def check_cmdline_disabled(mitigation, debug, container_name):
     """This function checks if the spectre_v2 mitigations were not disabled by the cmdline."""
     cmdline_path = '/proc/cmdline'
     cmdline_content = commons.file_content(cmdline_path, debug, container_name)
-    if cmdline_content:
-        print(constants.FULL_QUESTION_MESSAGE.format(f'Does {mitigation} mitigation disabled by the cmdline?'))
-        if f'no{mitigation}' in cmdline_content:
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {mitigation} mitigation disabled by the cmdline'))
-            return False
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {mitigation} mitigation is not disabled by the '
-                                                        f'cmdline'))
-        return True
-    print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {cmdline_path} file does not exist'))
-    return constants.UNSUPPORTED
+    if not cmdline_content:
+
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {cmdline_path} file does not exist'))
+        return constants.UNSUPPORTED
+    print(constants.FULL_QUESTION_MESSAGE.format(f'Does {mitigation} mitigation disabled by the cmdline?'))
+    if f'no{mitigation}' in cmdline_content:
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {mitigation} mitigation disabled by the cmdline'))
+        return False
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {mitigation} mitigation is not disabled by the '
+                                                    f'cmdline'))
+    return True
 
 
 def check_mitigations_components(mitigation, debug, container_name):
@@ -41,31 +42,30 @@ def check_mitigations_components(mitigation, debug, container_name):
     file_name = f'{mitigation}_enabled'
     mitigation_path = f'/sys/kernel/debug/x86/{file_name}'
     mitigation_file = commons.check_file_existence(mitigation_path, debug, container_name)
-    if mitigation_file:
-        dmesg_path = '/var/log/dmesg'
-        dmesg_content = commons.file_content(dmesg_path, debug, container_name)
-        if dmesg_content:
-            print(constants.FULL_QUESTION_MESSAGE.format(f'Does {mitigation} mitigation present on the system?'))
-            for line in dmesg_content:
-                if mitigation in line:
-                    if 'not present' in line.lower():
-                        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-                        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {mitigation} mitigation does not present '
-                                                                        f'on the system'))
-                        return False
-                    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-                    print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {mitigation} mitigation does present on '
-                                                                    f'the system'))
-                    return check_cmdline_disabled(mitigation, debug, container_name)
-                print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-                print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {dmesg_path} file does not contain the '
-                                                                f'{mitigation} string'))
-                return False
-        else:
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {dmesg_path} file does not exist'))
-            return constants.UNSUPPORTED
-    else:
+    if not mitigation_file:
         return False
+    dmesg_path = '/var/log/dmesg'
+    dmesg_content = commons.file_content(dmesg_path, debug, container_name)
+    if dmesg_content:
+        print(constants.FULL_QUESTION_MESSAGE.format(f'Does {mitigation} mitigation present on the system?'))
+        for line in dmesg_content:
+            if mitigation in line:
+                if 'not present' in line.lower():
+                    print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+                    print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {mitigation} mitigation does not present '
+                                                                    f'on the system'))
+                    return False
+                print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+                print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {mitigation} mitigation does present on '
+                                                                f'the system'))
+                return check_cmdline_disabled(mitigation, debug, container_name)
+            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {dmesg_path} file does not contain the '
+                                                            f'{mitigation} string'))
+            return False
+    else:
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {dmesg_path} file does not exist'))
+        return constants.UNSUPPORTED
 
 
 def validate_mitigations(debug, container_name):
@@ -95,18 +95,17 @@ def spectre_file(debug, container_name):
     """This function checks if the meltdown file contains the 'vulnerable' string in it."""
     spectre_path = '/sys/devices/system/cpu/vulnerabilities/spectre_v2'
     spectre_content = commons.file_content(spectre_path, debug, container_name)
-    if spectre_content:
-        print(constants.FULL_QUESTION_MESSAGE.format(f'Does {spectre_path} file contain the "vulnerable" string?'))
-        if 'vulnerable' in spectre_content:
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The "vulnerable" string exists it {spectre_path} file'))
-            return False
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The "vulnerable" string does not exist it {spectre_path}'
-                                                        f' file'))
-        return True
-    print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {spectre_path} file does not exist'))
-    return constants.UNSUPPORTED
+    if not spectre_content:
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {spectre_path} file does not exist'))
+        return constants.UNSUPPORTED
+    print(constants.FULL_QUESTION_MESSAGE.format(f'Does {spectre_path} file contain the "vulnerable" string?'))
+    if 'vulnerable' in spectre_content:
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The "vulnerable" string exists it {spectre_path} file'))
+        return False
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'The "vulnerable" string does not exist it {spectre_path} file'))
+    return True
 
 
 def check_cpuinfo(spectre_path, debug, container_name):
@@ -114,34 +113,29 @@ def check_cpuinfo(spectre_path, debug, container_name):
     edge_case = False
     cpuinfo_path = '/proc/cpuinfo'
     cpuinfo_content = commons.file_content(cpuinfo_path, debug, container_name)
-    if cpuinfo_content:
-        for line in cpuinfo_content:
-            if line.startswith('flags'):
-                if 'ibpb' in line and not check_mitigations_components('ibpb', debug, container_name):
-                    print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-                    print(constants.FULL_EXPLANATION_MESSAGE.format(f'The system meets the conditions of '
-                                                                    f'the edge case - the distribution and'
-                                                                    f'versions are Red Hat 5 or 6, the '
-                                                                    f'{spectre_path} file contains the '
-                                                                    f'"retpoline" strings, and the flags '
-                                                                    f'field in the {cpuinfo_path} file'
-                                                                    f'contains the "ibpb string and the '
-                                                                    f'ibpb mitigation is disabled'))
-                else:
-                    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-                    print(constants.FULL_EXPLANATION_MESSAGE.format(f'The system does not meet the '
-                                                                    f'conditions of the edge case - because'
-                                                                    f'the flags field in the {cpuinfo_path}'
-                                                                    f' file may not contain the "ibpb '
-                                                                    f'string or the ibpb mitigation is '
-                                                                    f'disabled'))
-                    edge_case = True
-            else:
-                print(constants.FULL_EXPLANATION_MESSAGE.format(f'Unsupported {cpuinfo_path} value'))
-                return constants.UNSUPPORTED
-    else:
+    if not cpuinfo_content:
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {cpuinfo_path} file does not exist'))
         return constants.UNSUPPORTED
+    for line in cpuinfo_content:
+        if line.startswith('flags'):
+            if 'ibpb' in line and not check_mitigations_components('ibpb', debug, container_name):
+                print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+                print(constants.FULL_EXPLANATION_MESSAGE.format(f'The system meets the conditions of the edge case - '
+                                                                f'the distribution and versions are Red Hat 5 or 6, the'
+                                                                f' {spectre_path} file contains the "retpoline" '
+                                                                f'strings, and the flags field in the {cpuinfo_path} '
+                                                                f'file contains the "ibpb string and the ibpb '
+                                                                f'mitigation is disabled'))
+            else:
+                print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+                print(constants.FULL_EXPLANATION_MESSAGE.format(f'The system does not meet the conditions of the edge'
+                                                                f' case - because the flags field in the {cpuinfo_path}'
+                                                                f' file may not contain the "ibpb string or the ibpb '
+                                                                f'mitigation is disabled'))
+                edge_case = True
+        else:
+            print(constants.FULL_EXPLANATION_MESSAGE.format(f'Unsupported {cpuinfo_path} value'))
+            return constants.UNSUPPORTED
     return edge_case
 
 

@@ -119,13 +119,12 @@ def get_pkexec_path(debug, container_name):
     which_pkexec_command = 'which pkexec'
     pipe_which_pkexec = run_command.command_output(which_pkexec_command, debug, container_name)
     which_pkexec = pipe_which_pkexec.stdout
-    if which_pkexec:
-        pkexec_path = which_pkexec.split('\n')[constants.START]
-        affected = check_pkexec_using_getfacl(pkexec_path, debug, container_name)
-    else:
+    if not which_pkexec:
         print(constants.FULL_EXPLANATION_MESSAGE.format('The "which" Linux command is not working for pkexec, '
                                                         'unsupported value'))
         return constants.UNSUPPORTED
+    pkexec_path = which_pkexec.split('\n')[constants.START]
+    affected = check_pkexec_using_getfacl(pkexec_path, debug, container_name)
     return affected
 
 
@@ -193,23 +192,20 @@ def distribution_version_affected(debug, container_name):
     if host_information in FIXED_APT or host_information in FIXED_RPM:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable os releases: {list(FIXED_APT.keys())} '
-                                                        f'{list(FIXED_RPM.keys())}\nYour os release: '
-                                                        f'{host_information}\nThe os release you are running on is '
-                                                        f'potentially affected'))
+                                                        f'{list(FIXED_RPM.keys())}\nYour os release: {host_information}'
+                                                        f'\nThe os release you are running on is potentially affected'))
         return host_information
     if host_distribution not in constants.APT_DISTRIBUTIONS and \
             host_information not in constants.RPM_DISTRIBUTIONS:
         print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Can not determine'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable os releases: {list(FIXED_APT.keys())} '
-                                                        f'{list(FIXED_RPM.keys())}\nYour os release: '
-                                                        f'{host_information}\nThe os release you are running on is '
-                                                        f'not supported'))
+                                                        f'{list(FIXED_RPM.keys())}\nYour os release: {host_information}'
+                                                        f'\nThe os release you are running on is not supported'))
         return constants.UNSUPPORTED
     print(constants.FULL_POSITIVE_RESULT_MESSAGE)
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable os releases: {list(FIXED_APT.keys())} '
-                                                    f'{list(FIXED_RPM.keys())}\nYour os release: '
-                                                    f'{host_information}\nThe os release you are running on is '
-                                                    f'not affected'))
+                                                    f'{list(FIXED_RPM.keys())}\nYour os release: {host_information}\n'
+                                                    f'The os release you are running on is not affected'))
     return ''
 
 

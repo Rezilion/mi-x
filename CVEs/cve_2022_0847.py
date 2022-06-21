@@ -1,8 +1,8 @@
 """
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
-import graphviz
 import semver
+import graphviz
 from Modules import os_type, kernel_version, commons, constants
 
 CVE_ID = 'CVE-2022-0847'

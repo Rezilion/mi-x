@@ -57,26 +57,24 @@ def check_kernel(debug):
     affected = ''
     print(constants.FULL_QUESTION_MESSAGE.format('Is kernel version vulnerable?'))
     host_kernel_version = kernel_version.get_kernel_version(debug)
-    if host_kernel_version:
-        valid_kernel_version = commons.valid_kernel_version(host_kernel_version)
-        if semver.compare(valid_kernel_version, MAX_VULNERABLE_VERSION) == 1 or \
-                semver.compare(valid_kernel_version, MIN_VULNERABLE_VERSION) == -1:
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'According to your os release, vulnerable kernel versions '
-                                                            f'range is: {MIN_VULNERABLE_VERSION} to '
-                                                            f'{MAX_VULNERABLE_VERSION}\nYour kernel version: '
-                                                            f'{valid_kernel_version[:constants.END]}'))
-        else:
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'According to your os release, vulnerable kernel versions '
-                                                            f'range is: {MIN_VULNERABLE_VERSION} to '
-                                                            f'{MAX_VULNERABLE_VERSION}\nYour kernel version: '
-                                                            f'{valid_kernel_version[:constants.END]}'))
-            return host_kernel_version
-
-    else:
+    if not host_kernel_version:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Kernel version unsupported value'))
         return constants.UNSUPPORTED
+    valid_kernel_version = commons.valid_kernel_version(host_kernel_version)
+    if semver.compare(valid_kernel_version, MAX_VULNERABLE_VERSION) == 1 or \
+            semver.compare(valid_kernel_version, MIN_VULNERABLE_VERSION) == -1:
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'According to your os release, vulnerable kernel versions '
+                                                        f'range is: {MIN_VULNERABLE_VERSION} to '
+                                                        f'{MAX_VULNERABLE_VERSION}\nYour kernel version: '
+                                                        f'{valid_kernel_version[:constants.END]}'))
+    else:
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'According to your os release, vulnerable kernel versions '
+                                                        f'range is: {MIN_VULNERABLE_VERSION} to '
+                                                        f'{MAX_VULNERABLE_VERSION}\nYour kernel version: '
+                                                        f'{valid_kernel_version[:constants.END]}'))
+        return host_kernel_version
     return affected
 
 

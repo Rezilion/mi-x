@@ -2,8 +2,8 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import os
-import graphviz
 import semver
+import graphviz
 from Modules import os_type, run_command, apache as apache_functions, commons, constants
 
 CVE_ID_ONE = 'CVE-2021-41773'

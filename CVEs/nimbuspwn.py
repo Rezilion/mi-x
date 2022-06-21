@@ -1,9 +1,12 @@
-from Modules import os_type, commons, os_release, constants, receive_package
-from packaging import version
+"""
+Support for graphviz and other modules which written for avoiding repetitive code.
+"""
 import graphviz
+from packaging import version
+from Modules import os_type, commons, os_release, constants, receive_package
 
 CVE_ID = 'NIMBUSPWN'
-DESCRIPTION = f'''
+DESCRIPTION = f'''{CVE_ID} - CVE-2022-29799, CVE-2022-29800
 
 CVSS Score: N/A
 NVD Link: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-29799
@@ -28,8 +31,8 @@ AFFECTED_VERSIONS = {'Debian 10': '2.0-2', 'Debian 11': '2.1-2', 'Debian 12': '2
                      'Ubuntu 21.10': '2.1-2ubuntu0.21.10.1', 'Ubuntu 22.04': '2.1-2ubuntu0.22.04.1'}
 
 
-# This function checks if the networkd-dispatcher version is affected.
 def check_networkd_version(host_information, debug, container_name):
+    """This function checks if the networkd-dispatcher version is affected."""
     affected = False
     distribution = host_information.split(' ')[constants.START]
     package_name = 'networkd-dispatcher'
@@ -56,37 +59,39 @@ def check_networkd_version(host_information, debug, container_name):
     return affected
 
 
-# This function checks if the host distribution and version are affected.
 def distribution_version_affected(debug, container_name):
+    """This function checks if the host distribution and version are affected."""
     information_fields = ['Distribution', 'Version']
     host_information = os_release.get_field(information_fields, debug, container_name)
     print(constants.FULL_QUESTION_MESSAGE.format('Is os release affected?'))
     if host_information == constants.UNSUPPORTED:
         return constants.UNSUPPORTED
-    elif host_information:
-        if host_information in AFFECTED_VERSIONS.keys():
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os releases: {list(AFFECTED_VERSIONS.keys())}\n'
-                                                            f'Your os release: {host_information}\nThe os release you '
-                                                            f'are running on is potentially affected'))
-            return host_information
-        elif host_information.split(' ')[constants.START] in constants.APT_DISTRIBUTIONS:
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your os distribution and version which is: '
-                                                            f'{host_information}\nAffected distributions and versions: '
-                                                            f'{list(AFFECTED_VERSIONS.keys())}\nYour distribution and '
-                                                            f'version are not affected'))
-            return ''
-        else:
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os distributions: Ubuntu and Debian\nYour os '
-                                                            f'distribution: {host_information}\nThe os distribution you'
-                                                            f' are running on is not affected'))
-            return ''
+    if not host_information:
+        print(constants.FULL_EXPLANATION_MESSAGE.format('Can not determine vulnerability status, no distribution and '
+                                                        'version values'))
+        return constants.UNSUPPORTED
+    if host_information in AFFECTED_VERSIONS:
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os releases: {list(AFFECTED_VERSIONS.keys())}\n'
+                                                        f'Your os release: {host_information}\nThe os release you '
+                                                        f'are running on is potentially affected'))
+        return host_information
+    if host_information.split(' ')[constants.START] in constants.APT_DISTRIBUTIONS:
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your os distribution and version which is: '
+                                                        f'{host_information}\nAffected distributions and versions: '
+                                                        f'{list(AFFECTED_VERSIONS.keys())}\nYour distribution and '
+                                                        f'version are not affected'))
+        return ''
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os distributions: Ubuntu and Debian\nYour os '
+                                                    f'distribution: {host_information}\nThe os distribution you'
+                                                    f' are running on is not affected'))
+    return ''
 
 
-# This function validates if an instance is vulnerable to NIMBUSPWN.
 def validate(debug, container_name):
+    """This function validates if an instance is vulnerable to NIMBUSPWN."""
     if os_type.linux(debug, container_name):
         host_information = distribution_version_affected(debug, container_name)
         if host_information:
@@ -100,8 +105,8 @@ def validate(debug, container_name):
         print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
-# This function creates graph that shows the vulnerability validation process of NIMBUSPWN.
 def validation_flow_chart():
+    """This function creates graph that shows the vulnerability validation process of NIMBUSPWN."""
     vol_graph = graphviz.Digraph('G', filename=CVE_ID)
     commons.graph_start(CVE_ID, vol_graph)
     vol_graph.edge('Is it Linux?', 'Are os distribution and version affected?', label='Yes')
@@ -115,12 +120,9 @@ def validation_flow_chart():
 
 
 def main(describe, graph, debug, container_name):
+    """This is the main function."""
     if describe:
         print(f'\n{DESCRIPTION}')
     validate(debug, container_name)
     if graph:
         validation_flow_chart()
-
-
-if __name__ == '__main__':
-    main()

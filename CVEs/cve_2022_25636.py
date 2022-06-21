@@ -1,6 +1,9 @@
-from Modules import os_type, run_command, kernel_version, commons, constants
+"""
+Support for graphviz and other modules which written for avoiding repetitive code.
+"""
 import semver
 import graphviz
+from Modules import os_type, run_command, kernel_version, commons, constants
 
 CVE_ID = 'CVE-2022-25636'
 DESCRIPTION = f'''{CVE_ID}
@@ -19,41 +22,41 @@ VULNERABLE_VARIABLE = 'offload_flags'
 INVULNERABLE_VARIABLE = 'offload_action'
 
 
-# This function checks if the vulnerable variable - offload_flags or invulnerable variable - offload_action are in use.
 def nf_tables_affected(nf_tables_path, debug, container_name):
+    """This function checks if the vulnerable variable - offload_flags or invulnerable variable - offload_action are
+    in use."""
     strings_command = f'strings {nf_tables_path}'
     pipe_strings_command = run_command.command_output(strings_command, debug, container_name)
     strings_output = pipe_strings_command.stdout
-    print(constants.FULL_QUESTION_MESSAGE.format(f'Is `nf_tables.ko` file fixed?'))
-    if strings_output:
-        for string in strings_output.split('\n'):
-            if string == VULNERABLE_VARIABLE:
-                print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-                print(constants.FULL_EXPLANATION_MESSAGE.format(f'The `nf_tables.ko` file is affected because it uses '
-                                                                f'the vulnerable variable which is - '
-                                                                f'{VULNERABLE_VARIABLE}'))
-                return True
-            elif string == INVULNERABLE_VARIABLE:
-                print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-                print(constants.FULL_EXPLANATION_MESSAGE.format(f'The `nf_tables.ko` file is fixed because it uses the'
-                                                                f'invulnerable variable which is - '
-                                                                f'{INVULNERABLE_VARIABLE}'))
-                return False
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The vulnerable - {VULNERABLE_VARIABLE} and invulnerable - '
-                                                        f'{INVULNERABLE_VARIABLE} variables were not found in the '
-                                                        f'`nf_tables.ko` file.. unsupported case'))
-        return constants.UNSUPPORTED
-    else:
+    print(constants.FULL_QUESTION_MESSAGE.format('Is `nf_tables.ko` file fixed?'))
+    if not strings_output:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Can not determine vulnerability status, unsupported '
                                                         'nf_tables.ko strings value'))
         return constants.UNSUPPORTED
+    for string in strings_output.split('\n'):
+        if string == VULNERABLE_VARIABLE:
+            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The `nf_tables.ko` file is affected because it uses '
+                                                            f'the vulnerable variable which is - '
+                                                            f'{VULNERABLE_VARIABLE}'))
+            return True
+        if string == INVULNERABLE_VARIABLE:
+            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The `nf_tables.ko` file is fixed because it uses the'
+                                                            f'invulnerable variable which is - '
+                                                            f'{INVULNERABLE_VARIABLE}'))
+            return False
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'The vulnerable - {VULNERABLE_VARIABLE} and invulnerable - '
+                                                    f'{INVULNERABLE_VARIABLE} variables were not found in the '
+                                                    f'`nf_tables.ko` file.. unsupported case'))
+    return constants.UNSUPPORTED
 
 
-# This function checks if the kernel version is vulnerable.
-def check_kernel(debug, container_name):
+def check_kernel(debug):
+    """This function checks if the kernel version is vulnerable."""
     affected = ''
     print(constants.FULL_QUESTION_MESSAGE.format('Is kernel version vulnerable?'))
-    host_kernel_version = kernel_version.get_kernel_version(container_name, debug)
+    host_kernel_version = kernel_version.get_kernel_version(debug)
     if host_kernel_version:
         valid_kernel_version = commons.valid_kernel_version(host_kernel_version)
         if semver.compare(valid_kernel_version, MAX_VULNERABLE_VERSION) == 1 or \
@@ -77,10 +80,10 @@ def check_kernel(debug, container_name):
     return affected
 
 
-# This function validates if the host is vulnerable to CVE-2022-25636.
 def validate(debug, container_name):
+    """This function validates if the host is vulnerable to CVE-2022-25636."""
     if os_type.linux(debug, container_name):
-        vulnerable_kernel_version = check_kernel(debug, container_name)
+        vulnerable_kernel_version = check_kernel(debug)
         if vulnerable_kernel_version == constants.UNSUPPORTED:
             print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
         elif vulnerable_kernel_version:
@@ -102,8 +105,8 @@ def validate(debug, container_name):
         print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
-# This function creates a graph that shows the vulnerability validation process of CVE-2022-25636.
 def validation_flow_chart():
+    """This function creates a graph that shows the vulnerability validation process of CVE-2022-25636."""
     vol_graph = graphviz.Digraph('G', filename=CVE_ID)
     commons.graph_start(CVE_ID, vol_graph)
     vol_graph.edge('Is it Linux?', 'Is the kernel version affected?', label='Yes')
@@ -118,12 +121,9 @@ def validation_flow_chart():
 
 
 def main(describe, graph, debug, container_name):
+    """This is the main function."""
     if describe:
         print(f'\n{DESCRIPTION}')
     validate(debug, container_name)
     if graph:
         validation_flow_chart()
-
-
-if __name__ == '__main__':
-    main()

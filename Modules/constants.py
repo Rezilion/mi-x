@@ -1,3 +1,6 @@
+"""
+This file stores all of the repetitive constant variables.
+"""
 # Colors.
 VULNERABLE = '\033[101m'
 NOT_DETERMINED = '\033[103m'

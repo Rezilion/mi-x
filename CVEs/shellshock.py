@@ -1,7 +1,10 @@
-from Modules import os_type, run_command, commons, constants
+"""
+Support for subprocess, semver, graphviz and other modules which written for avoiding repetitive code.
+"""
 import subprocess
 import semver
 import graphviz
+from Modules import os_type, run_command, commons, constants
 
 CVE_ID = 'Shellshock'
 DESCRIPTION = f'''your system will be scanned for all ShellShock related CVEs.
@@ -78,87 +81,85 @@ MIN_BASH_VULNERABLE_VERSION = '1.0.3'
 MAX_BASH_VULNERABLE_VERSION = '4.3.0'
 
 
-# This function tests if the system is vulnerable to CVE-2014-7187.
 def cve_2014_7187(container_name):
-    exploit_command = '''(for x in {1..200} ; do echo "for x$x in ; do :"; done; for x in {1..200} ; 
-                        do echo done ; done) | bash | echo "CVE-2014-7187 vulnerable, word_lineno"'''
+    """This function tests if the system is vulnerable to CVE-2014-7187."""
+    exploit_command = '''(for x in {1..200} ; do echo "for x$x in ; do :"; done; for x in {1..200} ;
+                         do echo done ; done) | bash | echo "CVE-2014-7187 vulnerable, word_lineno"'''
     if container_name:
         exploit_command = constants.DOCKER_EXEC_COMMAND.format(container_name, 'bash', exploit_command)
-    pipe_exploit_out = subprocess.Popen(exploit_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                        text=True)
-    exploit_out, exploit_error = pipe_exploit_out.communicate()
-    print(constants.FULL_QUESTION_MESSAGE.format('Is vulnerable to CVE-2014-7187?'))
-    if exploit_out.__contains__('CVE-2014-7187 vulnerable, word_lineno'):
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-        print(constants.FULL_VULNERABLE_MESSAGE.format('CVE-2014-7187'))
-    else:
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format('CVE-2014-7187'))
+    with subprocess.Popen(exploit_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True) \
+            as pipe_exploit_out:
+        exploit_out = pipe_exploit_out.communicate()[constants.START]
+        print(constants.FULL_QUESTION_MESSAGE.format('Is vulnerable to CVE-2014-7187?'))
+        if 'CVE-2014-7187 vulnerable, word_lineno' in exploit_out:
+            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+            print(constants.FULL_VULNERABLE_MESSAGE.format('CVE-2014-7187'))
+        else:
+            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format('CVE-2014-7187'))
 
 
-# This function tests if the system is vulnerable to CVE-2014-7186.
 def cve_2014_7186(container_name):
-    exploit_command = '''bash -c "export f=1 g='() {'; f() { echo 2;}; export -f f; bash -c 
-                        'echo \$f \$g; f; env | grep ^f='"'''
+    """This function tests if the system is vulnerable to CVE-2014-7186."""
+    exploit_command = r'''bash -c "export f=1 g='() {'; f() { echo 2;}; export -f f; bash -c
+                        ' echo \$f \$g; f; env | grep ^f='"'''
     if container_name:
         exploit_command = constants.DOCKER_EXEC_COMMAND.format(container_name, 'bash', exploit_command)
-    pipe_exploit_out = subprocess.Popen(exploit_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                        text=True)
-    exploit_out, exploit_error = pipe_exploit_out.communicate()
-    print(constants.FULL_QUESTION_MESSAGE.format('Is vulnerable to CVE-2014-7186?'))
-    if exploit_out.__contains__('echo'):
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-        print(constants.FULL_VULNERABLE_MESSAGE.format('CVE-2014-7186'))
-    else:
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format('CVE-2014-7186'))
+    with subprocess.Popen(exploit_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True) \
+            as pipe_exploit_out:
+        exploit_out = pipe_exploit_out.communicate()[constants.START]
+        print(constants.FULL_QUESTION_MESSAGE.format('Is vulnerable to CVE-2014-7186?'))
+        if 'echo' in exploit_out:
+            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+            print(constants.FULL_VULNERABLE_MESSAGE.format('CVE-2014-7186'))
+        else:
+            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format('CVE-2014-7186'))
 
 
-# This function tests if the system is vulnerable to CVE-2014-7169.
 def cve_2014_7169(container_name):
+    """This function tests if the system is vulnerable to CVE-2014-7169."""
     exploit_command = '''env X='() { (a)=>\' sh -c "echo date"; cat echo; rm ./echo'''
     if container_name:
         exploit_command = constants.DOCKER_EXEC_COMMAND.format(container_name, 'bash', exploit_command)
-    pipe_exploit_out = subprocess.Popen(exploit_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                        text=True)
-    exploit_out, exploit_error = pipe_exploit_out.communicate()
-    print(constants.FULL_QUESTION_MESSAGE.format('Is vulnerable to CVE-2014-7169?'))
-    if not exploit_error or exploit_error.__contains__('No such file or directory'):
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format('CVE-2014-7169'))
-    else:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-        print(constants.FULL_VULNERABLE_MESSAGE.format('CVE-2014-7169'))
+    with subprocess.Popen(exploit_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True) \
+            as pipe_exploit_out:
+        exploit_error = pipe_exploit_out.communicate()[constants.FIRST]
+        print(constants.FULL_QUESTION_MESSAGE.format('Is vulnerable to CVE-2014-7169?'))
+        if not exploit_error or 'No such file or directory' in exploit_error:
+            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format('CVE-2014-7169'))
+        else:
+            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+            print(constants.FULL_VULNERABLE_MESSAGE.format('CVE-2014-7169'))
 
 
-# This function tests if the system is vulnerable to CVE-2014-6277 or CVE-2014-6278.
 def cve_2014_6277_and_cve_2014_6278(container_name):
+    """This function tests if the system is vulnerable to CVE-2014-6277 or CVE-2014-6278."""
     exploit_command = '''foo='() { echo vulnerable; }' bash -c foo'''
     if container_name:
         exploit_command = constants.DOCKER_EXEC_COMMAND.format(container_name, 'bash', exploit_command)
-    print(exploit_command)
-    pipe_exploit_out = subprocess.Popen(exploit_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                        text=True)
-    exploit_out, exploit_error = pipe_exploit_out.communicate()
-    print(constants.FULL_QUESTION_MESSAGE.format('Is vulnerable to CVE-2014-6277 or CVE-2014-6278?'))
-    print(exploit_out)
-    if exploit_out.__contains__('vulnerable'):
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-        print(constants.FULL_VULNERABLE_MESSAGE.format('CVE-2014-6277 or CVE-2014-6278'))
-    else:
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format('CVE-2014-6277 or CVE-2014-6278'))
+    with subprocess.Popen(exploit_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True) \
+            as pipe_exploit_out:
+        exploit_out = pipe_exploit_out.communicate()[constants.START]
+        print(constants.FULL_QUESTION_MESSAGE.format('Is vulnerable to CVE-2014-6277 or CVE-2014-6278?'))
+        if 'vulnerable' in exploit_out:
+            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+            print(constants.FULL_VULNERABLE_MESSAGE.format('CVE-2014-6277 or CVE-2014-6278'))
+        else:
+            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format('CVE-2014-6277 or CVE-2014-6278'))
 
 
-# This function tests if the system is vulnerable to CVE-2014-6271.
 def cve_2014_6271(container_name):
+    """This function tests if the system is vulnerable to CVE-2014-6271."""
     exploit_command = '''env x='() { :;}; echo vulnerable' bash -c "echo test"'''
     if container_name:
         exploit_command = constants.DOCKER_EXEC_COMMAND.format(container_name, 'bash', exploit_command)
     pipe_exploit_out = run_command.command_output(exploit_command, debug=False, container_name=container_name)
     exploit_out = pipe_exploit_out.stdout
     print(constants.FULL_QUESTION_MESSAGE.format('Is vulnerable to CVE-2014-6271?'))
-    if exploit_out.__contains__('vulnerable'):
+    if 'vulnerable' in exploit_out:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
         print(constants.FULL_VULNERABLE_MESSAGE.format('CVE-2014-6271'))
     else:
@@ -166,8 +167,8 @@ def cve_2014_6271(container_name):
         print(constants.FULL_NOT_VULNERABLE_MESSAGE.format('CVE-2014-6271'))
 
 
-# This function check the bash version.
 def is_bash_affected(bash_version):
+    """This function check the bash version."""
     print(constants.FULL_QUESTION_MESSAGE.format('Is bash version affected?'))
     if (semver.compare(bash_version, MIN_BASH_VULNERABLE_VERSION) == -1) \
             and (semver.compare(bash_version, MAX_BASH_VULNERABLE_VERSION) == 1):
@@ -178,25 +179,24 @@ def is_bash_affected(bash_version):
         print(constants.FULL_EXPLANATION_MESSAGE.format('Your bash version is affected'))
 
 
-# This functions checks if there is bash installed of the host.
 def bash_installed(debug, container_name):
+    """This functions checks if there is bash installed of the host."""
     bash_version_command = 'bash --version'
     pipe_bash_version = run_command.command_output(bash_version_command, debug, container_name)
     bash_version_information = pipe_bash_version.stdout
     print(constants.FULL_QUESTION_MESSAGE.format('Is there bash installed?'))
-    if bash_version_information and not bash_version_information.__contains__('failed'):
+    if bash_version_information and not 'failed' in bash_version_information:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
         bash_version_information = bash_version_information.split('(')[constants.START]
         bash_version = bash_version_information.split(' ')[3]
         return bash_version
-    else:
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-        print(constants.FULL_EXPLANATION_MESSAGE.format('There is no bash installed on the system'))
-        return ''
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+    print(constants.FULL_EXPLANATION_MESSAGE.format('There is no bash installed on the system'))
+    return ''
 
 
-# This function validates if the host is vulnerable to shellshock vulnerabilities.
 def validate(debug, container_name):
+    """This function validates if the host is vulnerable to shellshock vulnerabilities."""
     if os_type.linux(debug, container_name):
         bash_version = bash_installed(debug, container_name)
         if bash_version:
@@ -215,8 +215,8 @@ def validate(debug, container_name):
         print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
-# This function creates graph that shows the vulnerability validation process of shellshock.
 def validation_flow_chart():
+    """This function creates graph that shows the vulnerability validation process of shellshock."""
     vol_graph = graphviz.Digraph('G', filename={CVE_ID})
     vol_graph.attr(label=f'{CVE_ID}\n\n', labelloc='t')
     vol_graph.attr('node', shape='box', style='filled', color='red')
@@ -266,12 +266,9 @@ def validation_flow_chart():
 
 
 def main(describe, graph, debug, container_name):
+    """This is the main function."""
     if describe:
         print(f'\n{DESCRIPTION}')
     validate(debug, container_name)
     if graph:
         validation_flow_chart()
-
-
-if __name__ == '__main__':
-    main()

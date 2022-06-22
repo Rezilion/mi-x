@@ -1,5 +1,8 @@
-from Modules import os_type, kernel_version, commons, constants
+"""
+Support for graphviz and other modules which written for avoiding repetitive code.
+"""
 import graphviz
+from Modules import os_type, kernel_version, commons, constants
 
 CVE_ID = 'CVE-2017-1000405'
 DESCRIPTION = f'''{CVE_ID} - Huge Dirty COW
@@ -21,23 +24,23 @@ MAX_KERNEL_VERSION = '4.15.0'
 MIN_KERNEL_VERSION = '2.6.37'
 
 
-# This function performs the check for zero pages.
 def huge_page(debug, container_name):
+    """This function performs the check for zero pages."""
     affected = False
     huge_page_path = '/sys/kernel/mm/transparent_hugepage/enabled'
     huge_page_content = commons.file_content(huge_page_path, debug, container_name)
     if not huge_page_content:
         return huge_page_content
     print(constants.FULL_QUESTION_MESSAGE.format('Does your system use huge pages mechanism?'))
-    if huge_page_content[constants.START].__contains__('[never]'):
+    if '[never]' in huge_page_content[constants.START]:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format('Your system is not using Huge Pages'))
-    elif huge_page_content[constants.START].__contains__('[madvise]'):
+    elif '[madvise]' in huge_page_content[constants.START]:
         affected = True
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format('Your system is using Huge Pages in "madvise" mode (means that '
                                                         'only applications which need Huge Pages will use it)'))
-    elif huge_page_content[constants.START].__contains__('[always]'):
+    elif '[always]' in huge_page_content[constants.START]:
         affected = True
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format('Your system is using Huge Pages in "always" mode'))
@@ -48,18 +51,18 @@ def huge_page(debug, container_name):
     return affected
 
 
-# This function perform the check for zero pages.
 def zero_page(debug, container_name):
+    """This function perform the check for zero pages."""
     affected = False
     zero_page_path = '/sys/kernel/mm/transparent_hugepage/use_zero_page'
     zero_page_content = commons.file_content(zero_page_path, debug, container_name)
     if not zero_page_content:
         return affected
     print(constants.FULL_QUESTION_MESSAGE.format('Does your system use zero pages mechanism?'))
-    if zero_page_content[constants.START].__contains__('0'):
+    if '0' in zero_page_content[constants.START]:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format('Your system is not using Huge Zero Pages'))
-    elif zero_page_content[constants.START].__contains__('1'):
+    elif '1' in zero_page_content[constants.START]:
         affected = True
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format('Your system is using Huge Zero Pages'))
@@ -70,8 +73,8 @@ def zero_page(debug, container_name):
     return affected
 
 
-# This function validates if the host is vulnerable to CVE-2017-1000405.
 def validate(debug, container_name):
+    """This function validates if the host is vulnerable to CVE-2017-1000405."""
     if os_type.linux(debug, container_name):
         kernel_version_output = kernel_version.check_kernel(MIN_KERNEL_VERSION, MAX_KERNEL_VERSION, debug)
         if kernel_version_output == constants.UNSUPPORTED:
@@ -97,8 +100,8 @@ def validate(debug, container_name):
         print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
-# This function creates graph that shows the vulnerability validation process of CVE-2017-1000405.
 def validation_flow_chart():
+    """This function creates graph that shows the vulnerability validation process of CVE-2017-1000405."""
     vol_graph = graphviz.Digraph('G', filename=CVE_ID)
     commons.graph_start(CVE_ID, vol_graph)
     vol_graph.edge('Is it Linux?', 'Does your system has a Huge Zero Pages mechanism?', label='Yes')
@@ -115,12 +118,9 @@ def validation_flow_chart():
 
 
 def main(describe, graph, debug, container_name):
+    """This is the main function."""
     if describe:
         print(f'\n{DESCRIPTION}')
     validate(debug, container_name)
     if graph:
         validation_flow_chart()
-
-
-if __name__ == '__main__':
-    main()

@@ -22,14 +22,14 @@ def meltdown_file(debug, container_name):
     meltdown_content = commons.file_content(meltdown_path, debug, container_name)
     if not meltdown_content:
         return constants.UNSUPPORTED
-    print(constants.FULL_QUESTION_MESSAGE.format(f'Does {meltdown_path} file contain the "vulnerable" string?'))
+    print(constants.FULL_QUESTION_MESSAGE.format(f'Does the {meltdown_path} file contain the "vulnerable" string?'))
     if 'vulnerable' in meltdown_content:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The "vulnerable" string exists it {meltdown_path} file'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The "vulnerable" string exists in the {meltdown_path} file'))
         return meltdown_content
     print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-    print(constants.FULL_EXPLANATION_MESSAGE.format(f'The "vulnerable" string does not exist it {meltdown_path}'
-                                                    f' file'))
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'The "vulnerable" string does not exist in the {meltdown_path} '
+                                                    f'file'))
     return ''
 
 

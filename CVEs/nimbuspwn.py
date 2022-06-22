@@ -42,7 +42,7 @@ def check_networkd_version(host_information, debug, container_name):
         affected_networkd_version = AFFECTED_VERSIONS[host_information]
         if version.parse(host_network_version) > version.parse(affected_networkd_version):
             print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is bigger '
+            print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is higher '
                                                             f'than the last affected version which is: '
                                                             f'{affected_networkd_version}'))
         elif version.parse(host_network_version) == version.parse(affected_networkd_version):

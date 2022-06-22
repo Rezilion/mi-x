@@ -112,21 +112,18 @@ def apache_version(apache, debug, container_name):
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable apache versions : {FIRST_AFFECTED_VERSION} and'
                                                         f' {SECOND_AFFECTED_VERSION}\nYour apache version: '
-                                                        f'{version}\nYour apache version is vulnerable to '
-                                                        f'CVE-2021-41773'))
+                                                        f'{version}\nYour apache version is affected'))
         return 'CVE-2021-41773'
     if semver.compare(SECOND_AFFECTED_VERSION, version) == 0:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable apache versions : {FIRST_AFFECTED_VERSION} and'
                                                         f' {SECOND_AFFECTED_VERSION}\nYour apache version: '
-                                                        f'{version}\nYour apache version is vulnerable to '
-                                                        f'CVE-2021-42013'))
+                                                        f'{version}\nYour apache version is affected'))
         return 'CVE-2021-42013'
     print(constants.FULL_POSITIVE_RESULT_MESSAGE)
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable apache versions : {FIRST_AFFECTED_VERSION} and'
                                                     f' {SECOND_AFFECTED_VERSION}\nYour apache version: '
-                                                    f'{version}\nYour apache version is not vulnerable to '
-                                                    f'CVE-2021-41773 and CVE-2021-42013'))
+                                                    f'{version}\nYour apache version is not affected'))
     return False
 
 

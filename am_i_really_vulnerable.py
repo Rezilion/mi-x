@@ -85,15 +85,17 @@ def check_dependencies(graph):
         try:
             import graphviz
         except NameError:
-            print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format(constants.NOT_INSTALLED_MESSAGE.format('Graphviz')))
+            print(constants.FULL_EXPLANATION_MESSAGE.format(constants.NOT_INSTALLED_MESSAGE.format('Graphviz',
+                                                                                                   'Graphviz')))
     try:
         import semver
     except ModuleNotFoundError:
-        print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format(constants.NOT_INSTALLED_MESSAGE.format('Semver')))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(constants.NOT_INSTALLED_MESSAGE.format('Semver', 'Semver')))
     try:
         from packaging import version
     except ModuleNotFoundError:
-        print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format(constants.NOT_INSTALLED_MESSAGE.format('Packaging')))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(constants.NOT_INSTALLED_MESSAGE.format('Packaging',
+                                                                                               'Packaging')))
 
 
 def arguments():
@@ -128,7 +130,7 @@ def main():
                 print(f'\nScanning vulnerabilities on {container_name} container')
                 checks_cve_id_parameter(args.cve_id, args.describe, args.debug, args.graph, container_name)
         else:
-            print('Docker containers where not found, unsupported value')
+            print(constants.FULL_EXPLANATION_MESSAGE.format('Docker containers where not found, unsupported value'))
     else:
         checks_cve_id_parameter(args.cve_id, args.describe, args.debug, args.graph, container_name='')
 

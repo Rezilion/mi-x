@@ -187,6 +187,7 @@ def bash_installed(debug, container_name):
     print(constants.FULL_QUESTION_MESSAGE.format('Is there bash installed?'))
     if bash_version_information and not 'failed' in bash_version_information:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_EXPLANATION_MESSAGE.format('Bash is installed on the system'))
         bash_version_information = bash_version_information.split('(')[constants.START]
         bash_version = bash_version_information.split(' ')[3]
         return bash_version

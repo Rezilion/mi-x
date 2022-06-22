@@ -133,25 +133,26 @@ def policykit_affected_rpm(host_information, package_name, debug, container_name
     affected = False
     distribution = host_information.split(' ')[constants.START]
     host_info = receive_package.package_version_rpm(distribution, package_name, debug, container_name)
+    if not host_info:
+        return False
     host_version = host_info[constants.START]
     host_release = host_info[constants.FIRST]
     polkit_fixed_version = FIXED_RPM[host_information]
     fixed_version = polkit_fixed_version[constants.START]
     if host_version.endswith('\n'):
         host_version = host_version[:constants.END]
+    print(constants.FULL_QUESTION_MESSAGE.format(f'Is {package_name} version affected?'))
     if version.parse(host_version) > version.parse(fixed_version):
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: '
-                                                        f'{host_version}, is bigger than the patched '
-                                                        f'version which is: {fixed_version}'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: {host_version}, is '
+                                                        f'higher than the patched version which is: {fixed_version}'))
     elif version.parse(host_version) == version.parse(fixed_version):
         patched_version = polkit_fixed_version[constants.FIRST]
         return commons.compare_versions(patched_version, host_release, package_name)
     else:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: '
-                                                        f'{host_version}, is lower than the patched version'
-                                                        f' which is: {fixed_version}'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: {host_version}, is '
+                                                        f'lower than the patched version which is: {fixed_version}'))
         affected = True
     return affected
 
@@ -160,6 +161,8 @@ def policykit_affected_apt(host_information, package_name, debug, container_name
     """# This function checks if the Policy Kit package is affected."""
     distribution = host_information.split(' ')[constants.START]
     host_version = receive_package.package_version_apt(distribution, package_name, debug, container_name)
+    if not host_version:
+        return False
     polkit_fixed_version = FIXED_APT[host_information]
     return commons.compare_versions(polkit_fixed_version, host_version, package_name)
 
@@ -172,9 +175,9 @@ def check_policykit(host_information, debug, container_name):
     if host_information.split(' ')[constants.START] in constants.RPM_DISTRIBUTIONS:
         package_name = 'polkit'
         return policykit_affected_rpm(host_information, package_name, debug, container_name)
-    print(constants.FULL_EXPLANATION_MESSAGE.format(
-        f'The distribution value is not one of these distributions: {constants.RPM_DISTRIBUTIONS} or these '
-        f'distributions: {constants.APT_DISTRIBUTIONS}'))
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'The distribution value is not one of these distributions: '
+                                                    f'{constants.RPM_DISTRIBUTIONS} or these distributions: '
+                                                    f'{constants.APT_DISTRIBUTIONS}'))
     return constants.UNSUPPORTED
 
 

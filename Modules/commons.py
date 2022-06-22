@@ -59,22 +59,17 @@ def check_file_existence(file_path, debug, container_name):
     if container_name:
         cat_file_command = f'cat {file_path}'
         pipe_cat_file = run_command.command_output(cat_file_command, debug, container_name)
-        content = pipe_cat_file.stdout
-        if content:
-            print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
-            print(constants.FULL_EXPLANATION_MESSAGE.format('The file exists in your system'))
+        if pipe_cat_file.stdout:
             exist = True
-        else:
-            print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('No'))
-            print(constants.FULL_EXPLANATION_MESSAGE.format('The file does not exist in your system'))
     else:
         if os.path.isfile(file_path):
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-            print(constants.FULL_EXPLANATION_MESSAGE.format('The file exists in your system'))
             exist = True
-        else:
-            print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('No'))
-            print(constants.FULL_EXPLANATION_MESSAGE.format('The file does not exist in your system'))
+    if exist:
+        print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format('The file exists in your system'))
+    else:
+        print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('No'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format('The file does not exist in your system'))
     return exist
 
 
@@ -87,23 +82,21 @@ def file_content(file_path, debug, container_name):
         pipe_cat_file = run_command.command_output(cat_file_command, debug, container_name)
         content = pipe_cat_file.stdout
         if content:
-            content = content.split('\n')
+            content = content.split('\n')[:constants.END]
     else:
         if os.path.isfile(file_path):
-            print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {file_path} exists in your system'))
             try:
                 with open(file_path, 'r', encoding='utf-8') as file:
-                    content = file.readlines()
+                    content = []
+                    for line in file.readlines():
+                        content.append(line[:constants.END])
+
             except PermissionError:
                 cat_file_command = f'sudo cat {file_path}'
                 pipe_cat_file = run_command.command_output(cat_file_command, debug, container_name)
                 content = pipe_cat_file.stdout
                 if content:
-                    content = content.split('\n')
-        else:
-            print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('No'))
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {file_path} does not exist in your system'))
+                    content = content.split('\n')[:constants.END]
     if content:
         print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {file_path} exists in your system'))
@@ -117,7 +110,10 @@ def valid_kernel_version(full_version):
     """Returns the start of a valid kernel version using regex."""
     if full_version.endswith('\n'):
         full_version = full_version[:constants.END]
-    return re.search(r'\d*\.\d*.\d*-\d*.\d*', full_version).group()
+    kernel_version = re.search(r'\d*\.\d*.\d*-\d*.\d*', full_version).group()
+    if kernel_version.endswith('-'):
+        kernel_version = kernel_version[:-1]
+    return kernel_version
 
 
 def re_start_of_version(full_version):
@@ -182,10 +178,11 @@ def check_patched_version(version_type, checked_version, patched_versions):
 def compare_versions(fixed_version, host_version, package_name):
     """This function compares between the fixed version and the host's version."""
     affected = False
+    print(constants.FULL_QUESTION_MESSAGE.format(f'Is {package_name} version affected?'))
     if version.parse(fixed_version) < version.parse(host_version):
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: {host_version}, is '
-                                                        f'bigger than the patched version which is: '
+                                                        f'higher than the patched version which is: '
                                                         f'{fixed_version}'))
     elif version.parse(fixed_version) == version.parse(host_version):
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)

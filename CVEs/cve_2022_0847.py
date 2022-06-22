@@ -26,7 +26,8 @@ def check_kernel_version(debug):
     """This function checks if the kernel version is vulnerable to CVE-2022-0847."""
     affected = False
     host_kernel_version = kernel_version.get_kernel_version(debug)
-    if host_kernel_version:
+    if not host_kernel_version:
+        print(constants.FULL_QUESTION_MESSAGE.format('Is kernel version affected?'))
         print(constants.FULL_EXPLANATION_MESSAGE.format('Unsupported kernel version value'))
         return constants.UNSUPPORTED
     valid_kernel_version = commons.valid_kernel_version(host_kernel_version)
@@ -35,7 +36,7 @@ def check_kernel_version(debug):
         print(constants.FULL_QUESTION_MESSAGE.format('Is kernel version affected?'))
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your kernel version which is: {valid_kernel_version}, is not'
-                                                        f'in the affected kernel versions range: '
+                                                        f'in the affected kernel versions range which is: '
                                                         f'{FIRST_VULNERABLE_VERSION} to {FIXED_VERSION}'))
     else:
         return commons.check_patched_version('Kernel', valid_kernel_version, PATCHED_VERSIONS)

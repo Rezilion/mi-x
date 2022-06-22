@@ -49,7 +49,7 @@ def package_version_rpm(distribution, package_name, debug, container_name):
 
 def package_version_apt(distribution, package_name, debug, container_name):
     """This function returns the policy installed version for distributions with apt package manager."""
-    print(constants.FULL_QUESTION_MESSAGE.format('Is there an affected Policy Kit package installed?'))
+    print(constants.FULL_QUESTION_MESSAGE.format(f'Is there an affected {package_name} package installed?'))
     policy_info = package(distribution, package_name, debug, container_name)
     if not policy_info:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)

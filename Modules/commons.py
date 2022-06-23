@@ -5,7 +5,36 @@ import os
 import re
 import semver
 from packaging import version
-from Modules import run_command, constants, docker_commands
+from Modules import run_command, constants, docker_commands, os_type
+
+
+def check_linux_and_affected_distribution(cve, debug, container_name):
+    """This function checks if the machine is running on linux and if the os distribution is supported."""
+    if os_type.is_linux(debug, container_name):
+        if os_type.is_supported_distribution(debug, container_name):
+            return True
+        print(constants.FULL_NOT_DETERMINED_MESSAGE.format(cve))
+        return False
+    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(cve))
+    return False
+
+
+def graph_start(cve, vol_graph):
+    """Graphviz start function."""
+    vol_graph.attr(label=f'{cve}\n\n', labelloc='t')
+    vol_graph.attr('node', shape='box', style='filled', color='red')
+    vol_graph.node(constants.GRAPH_VULNERABLE)
+    vol_graph.attr('node', shape='box', style='filled', color='green')
+    vol_graph.node(constants.GRAPH_NOT_VULNERABLE)
+    vol_graph.attr('node', shape='box', color='lightgrey')
+
+
+def graph_end(vol_graph):
+    """Graphviz end function."""
+    try:
+        vol_graph.view()
+    except ValueError:
+        print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format(constants.NOT_INSTALLED_MESSAGE.format('Graphviz')))
 
 
 def get_jcmd(pid, debug, container_name):
@@ -195,21 +224,3 @@ def compare_versions(fixed_version, host_version, package_name):
                                                         f'{fixed_version}'))
         affected = True
     return affected
-
-
-def graph_start(cve, vol_graph):
-    """Graphviz start function."""
-    vol_graph.attr(label=f'{cve}\n\n', labelloc='t')
-    vol_graph.attr('node', shape='box', style='filled', color='red')
-    vol_graph.node(constants.GRAPH_VULNERABLE)
-    vol_graph.attr('node', shape='box', style='filled', color='green')
-    vol_graph.node(constants.GRAPH_NOT_VULNERABLE)
-    vol_graph.attr('node', shape='box', color='lightgrey')
-
-
-def graph_end(vol_graph):
-    """Graphviz end function."""
-    try:
-        vol_graph.view()
-    except ValueError:
-        print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format(constants.NOT_INSTALLED_MESSAGE.format('Graphviz')))

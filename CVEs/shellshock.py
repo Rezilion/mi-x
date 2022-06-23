@@ -4,7 +4,7 @@ Support for subprocess, semver, graphviz and other modules which written for avo
 import subprocess
 import semver
 import graphviz
-from Modules import os_type, run_command, commons, constants
+from Modules import run_command, commons, constants
 
 CVE_ID = 'Shellshock'
 DESCRIPTION = f'''your system will be scanned for all ShellShock related CVEs.
@@ -198,7 +198,7 @@ def bash_installed(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to shellshock vulnerabilities."""
-    if os_type.is_linux(debug, container_name):
+    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
         bash_version = bash_installed(debug, container_name)
         if bash_version:
             is_bash_affected(bash_version)
@@ -212,8 +212,6 @@ def validate(debug, container_name):
                 print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
         else:
             print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
-    else:
-        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
 def validation_flow_chart():

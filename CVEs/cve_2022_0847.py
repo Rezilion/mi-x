@@ -3,7 +3,7 @@ Support for semver, graphviz and other modules which written for avoiding repeti
 """
 import semver
 import graphviz
-from Modules import os_type, kernel_version, commons, constants
+from Modules import kernel_version, commons, constants
 
 CVE_ID = 'CVE-2022-0847'
 DESCRIPTION = f'''{CVE_ID} - Dirty Pipe
@@ -45,7 +45,7 @@ def check_kernel_version(debug):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2022-0847."""
-    if os_type.is_linux(debug, container_name):
+    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
         vulnerable = check_kernel_version(debug)
         if vulnerable == constants.UNSUPPORTED:
             print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
@@ -53,8 +53,6 @@ def validate(debug, container_name):
             print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
         else:
             print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
-    else:
-        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
 def validation_flow_chart():

@@ -3,7 +3,7 @@ Support for importlib, graphviz and other modules which written for avoiding rep
 """
 import importlib
 import graphviz
-from Modules import os_type, run_command, kernel_version, commons, os_release, constants
+from Modules import run_command, kernel_version, commons, os_release, constants
 
 CVE_ID = 'CVE-2016-5195'
 NEXT_VULNERABILITY = 'cve_2017_1000405'
@@ -134,7 +134,7 @@ def check_release(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2016-5195."""
-    if os_type.is_linux(debug, container_name):
+    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
         fixed_release = check_release(debug, container_name)
         if fixed_release == constants.UNSUPPORTED:
             print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
@@ -152,8 +152,6 @@ def validate(debug, container_name):
                 print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
         else:
             print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
-    else:
-        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
 def validation_flow_chart():

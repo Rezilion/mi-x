@@ -2,7 +2,7 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from Modules import os_type, commons, constants
+from Modules import commons, constants
 
 CVE_ID = 'CVE-2017-5754'
 DESCRIPTION = f'''{CVE_ID} - Meltdown
@@ -51,7 +51,7 @@ def check_vendor(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to Meltdown."""
-    if os_type.is_linux(debug, container_name):
+    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
         vendor = check_vendor(debug, container_name)
         if vendor == constants.UNSUPPORTED:
             print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
@@ -65,8 +65,6 @@ def validate(debug, container_name):
                 print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
         else:
             print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
-    else:
-        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
 def validation_flow_chart():

@@ -2,7 +2,7 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from Modules import os_type, kernel_version, commons, constants
+from Modules import kernel_version, commons, constants
 
 CVE_ID = 'CVE-2017-1000405'
 DESCRIPTION = f'''{CVE_ID} - Huge Dirty COW
@@ -75,7 +75,7 @@ def zero_page(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2017-1000405."""
-    if os_type.is_linux(debug, container_name):
+    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
         kernel_version_output = kernel_version.check_kernel(MIN_KERNEL_VERSION, MAX_KERNEL_VERSION, debug)
         if kernel_version_output == constants.UNSUPPORTED:
             print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
@@ -96,8 +96,6 @@ def validate(debug, container_name):
                 print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(f'huge pages manipulation in {CVE_ID}'))
         else:
             print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
-    else:
-        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
 def validation_flow_chart():

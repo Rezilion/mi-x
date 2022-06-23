@@ -3,7 +3,7 @@ Support for graphviz, version from packaging and other modules which written for
 """
 import graphviz
 from packaging import version
-from Modules import os_type, run_command, commons, constants
+from Modules import run_command, commons, constants
 
 CVE_ID = 'CVE-2015-0235'
 DESCRIPTION = f'''Ghost
@@ -57,7 +57,7 @@ def glibc_exist(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to Ghost vulnerabilities."""
-    if os_type.is_linux(debug, container_name):
+    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
         glibc_value = glibc_exist(debug, container_name)
         if glibc_value == constants.UNSUPPORTED:
             print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
@@ -68,8 +68,6 @@ def validate(debug, container_name):
                 print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
         else:
             print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
-    else:
-        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
 def validation_flow_chart():

@@ -3,7 +3,7 @@ Support for graphviz, version from packaging and other modules which written for
 """
 import graphviz
 from packaging import version
-from Modules import os_type, commons, os_release, constants, receive_package
+from Modules import commons, os_release, constants, receive_package
 
 CVE_ID = 'NIMBUSPWN'
 DESCRIPTION = f'''{CVE_ID} - CVE-2022-29799, CVE-2022-29800
@@ -92,7 +92,7 @@ def distribution_version_affected(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if an instance is vulnerable to NIMBUSPWN."""
-    if os_type.is_linux(debug, container_name):
+    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
         host_information = distribution_version_affected(debug, container_name)
         if host_information:
             if check_networkd_version(host_information, debug, container_name):
@@ -101,8 +101,6 @@ def validate(debug, container_name):
                 print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
         else:
             print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
-    else:
-        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
 def validation_flow_chart():

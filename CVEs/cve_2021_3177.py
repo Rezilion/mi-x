@@ -2,7 +2,7 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from Modules import os_type, run_command, get_pids, commons, constants, docker_commands
+from Modules import run_command, get_pids, commons, constants, docker_commands
 
 CVE_ID = 'CVE-2021-3711'
 DESCRIPTION = f'''{CVE_ID}
@@ -123,14 +123,12 @@ def validate_processes(pids, debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2021-3177."""
-    if os_type.is_linux(debug, container_name):
+    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
         pids = get_pids.pids_consolidation('python', debug, container_name)
         if pids:
             validate_processes(pids, debug, container_name)
         else:
             print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
-    else:
-        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
 def validation_flow_chart():

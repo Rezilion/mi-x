@@ -4,7 +4,7 @@ Support for os, semver, graphviz and other modules which written for avoiding re
 import os
 import semver
 import graphviz
-from Modules import os_type, run_command, apache as apache_functions, commons, constants
+from Modules import run_command, apache as apache_functions, commons, constants
 
 CVE_ID_ONE = 'CVE-2021-41773'
 CVE_ID_TWO = 'CVE-2021-42013'
@@ -129,7 +129,7 @@ def apache_version(apache, debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2021-41773 or CVE-2021-42013."""
-    if os_type.is_linux(debug, container_name):
+    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
         apache = apache_functions.distribution_to_apache(debug, container_name)
         if apache == constants.UNSUPPORTED:
             print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
@@ -152,8 +152,6 @@ def validate(debug, container_name):
                 print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
         else:
             print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
-    else:
-        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
 def validation_flow_chart():

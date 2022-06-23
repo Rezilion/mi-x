@@ -2,7 +2,7 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from Modules import os_type, commons, constants, os_release
+from Modules import commons, constants, os_release
 
 
 CVE_ID = 'CVE-2017-5715'
@@ -170,7 +170,7 @@ def check_edge_case(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to Spectre Variant 2."""
-    if os_type.is_linux(debug, container_name):
+    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
         edge_case = check_edge_case(debug, container_name)
         if edge_case == constants.UNSUPPORTED or edge_case:
             spectre = spectre_file(debug, container_name)
@@ -182,8 +182,6 @@ def validate(debug, container_name):
                 print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
         else:
             print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
-    else:
-        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
 def validation_flow_chart():

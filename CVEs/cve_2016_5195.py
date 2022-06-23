@@ -134,7 +134,7 @@ def check_release(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2016-5195."""
-    if os_type.linux(debug, container_name):
+    if os_type.is_linux(debug, container_name):
         fixed_release = check_release(debug, container_name)
         if fixed_release == constants.UNSUPPORTED:
             print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))

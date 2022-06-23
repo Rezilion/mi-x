@@ -10,7 +10,7 @@ NEGATIVE_RESULT = '\033[91m'
 QUESTION = '\033[94m'
 
 
-def linux(debug, container_name):
+def is_linux(debug, container_name):
     """This function checks if the operation system is Linux."""
     os_type = 'uname -s'
     print(constants.FULL_QUESTION_MESSAGE.format('Is it Linux?'))

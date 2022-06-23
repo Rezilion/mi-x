@@ -57,7 +57,7 @@ def glibc_exist(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to Ghost vulnerabilities."""
-    if os_type.linux(debug, container_name):
+    if os_type.is_linux(debug, container_name):
         glibc_value = glibc_exist(debug, container_name)
         if glibc_value == constants.UNSUPPORTED:
             print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))

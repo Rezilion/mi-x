@@ -75,7 +75,7 @@ def zero_page(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2017-1000405."""
-    if os_type.linux(debug, container_name):
+    if os_type.is_linux(debug, container_name):
         kernel_version_output = kernel_version.check_kernel(MIN_KERNEL_VERSION, MAX_KERNEL_VERSION, debug)
         if kernel_version_output == constants.UNSUPPORTED:
             print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))

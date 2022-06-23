@@ -129,7 +129,7 @@ def apache_version(apache, debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2021-41773 or CVE-2021-42013."""
-    if os_type.linux(debug, container_name):
+    if os_type.is_linux(debug, container_name):
         apache = apache_functions.distribution_to_apache(debug, container_name)
         if apache == constants.UNSUPPORTED:
             print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))

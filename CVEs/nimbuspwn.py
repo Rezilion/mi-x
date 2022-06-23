@@ -92,7 +92,7 @@ def distribution_version_affected(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if an instance is vulnerable to NIMBUSPWN."""
-    if os_type.linux(debug, container_name):
+    if os_type.is_linux(debug, container_name):
         host_information = distribution_version_affected(debug, container_name)
         if host_information:
             if check_networkd_version(host_information, debug, container_name):

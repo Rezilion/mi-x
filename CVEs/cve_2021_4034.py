@@ -214,7 +214,7 @@ def distribution_version_affected(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to PwnKit."""
-    if os_type.linux(debug, container_name):
+    if os_type.is_linux(debug, container_name):
         host_information = distribution_version_affected(debug, container_name)
         if host_information == constants.UNSUPPORTED:
             print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))

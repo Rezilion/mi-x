@@ -83,7 +83,7 @@ def validate_processes(pids, debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if an instance is vulnerable to Log4Shell."""
-    if os_type.linux(debug, container_name):
+    if os_type.is_linux(debug, container_name):
         pids = get_pids.pids_consolidation('java', debug, container_name)
         if pids:
             validate_processes(pids, debug, container_name)

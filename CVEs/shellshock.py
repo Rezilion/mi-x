@@ -198,7 +198,7 @@ def bash_installed(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to shellshock vulnerabilities."""
-    if os_type.linux(debug, container_name):
+    if os_type.is_linux(debug, container_name):
         bash_version = bash_installed(debug, container_name)
         if bash_version:
             is_bash_affected(bash_version)

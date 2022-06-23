@@ -80,7 +80,7 @@ def check_kernel(debug):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2022-25636."""
-    if os_type.linux(debug, container_name):
+    if os_type.is_linux(debug, container_name):
         vulnerable_kernel_version = check_kernel(debug)
         if vulnerable_kernel_version == constants.UNSUPPORTED:
             print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))

@@ -1,5 +1,8 @@
-from Modules import os_type, commons, constants
+"""
+Support for graphviz and other modules which written for avoiding repetitive code.
+"""
 import graphviz
+from Modules import commons, constants
 
 CVE_ID = 'CVE-2017-5754'
 DESCRIPTION = f'''{CVE_ID} - Meltdown
@@ -13,46 +16,42 @@ program to access the memory, and thus also the secrets, of other programs and t
 '''
 
 
-# This function checks if the meltdown file contains the 'vulnerable' string in it.
 def meltdown_file(debug, container_name):
+    """This function checks if the meltdown file contains the 'vulnerable' string in it."""
     meltdown_path = '/sys/devices/system/cpu/vulnerabilities/meltdown'
     meltdown_content = commons.file_content(meltdown_path, debug, container_name)
-    if meltdown_content:
-        print(constants.FULL_QUESTION_MESSAGE.format(f'Does {meltdown_path} file contain the "vulnerable" string?'))
-        if meltdown_content.__contains__('vulnerable'):
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The "vulnerable" string exists it {meltdown_path} file'))
-            return meltdown_content
-        else:
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The "vulnerable" string does not exist it {meltdown_path}'
-                                                            f' file'))
-            return ''
-    else:
+    if not meltdown_content:
         return constants.UNSUPPORTED
+    print(constants.FULL_QUESTION_MESSAGE.format(f'Does the {meltdown_path} file contain the "vulnerable" string?'))
+    if 'vulnerable' in meltdown_content:
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The "vulnerable" string exists in the {meltdown_path} file'))
+        return meltdown_content
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'The "vulnerable" string does not exist in the {meltdown_path} '
+                                                    f'file'))
+    return ''
 
 
-# This function checks if the vendor is affected by the meltdown vulnerabilities.
 def check_vendor(debug, container_name):
+    """This function checks if the vendor is affected by the meltdown vulnerabilities."""
     cpuinfo_path = '/proc/cpuinfo'
     cpuinfo_content = commons.file_content(cpuinfo_path, debug, container_name)
-    if cpuinfo_content:
-        print(constants.FULL_QUESTION_MESSAGE.format('Does the system run with other processor than AMD?'))
-        if cpuinfo_content.__contains__('AuthenticAMD'):
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-            print(constants.FULL_EXPLANATION_MESSAGE.format('The system processor is AMD'))
-            return ''
-        else:
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-            print(constants.FULL_EXPLANATION_MESSAGE.format('The system processor is not AMD'))
-            return cpuinfo_content
-    else:
+    if not cpuinfo_content:
         return constants.UNSUPPORTED
+    print(constants.FULL_QUESTION_MESSAGE.format('Does the system run with other processor than AMD?'))
+    if 'AuthenticAMD' in cpuinfo_content:
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        print(constants.FULL_EXPLANATION_MESSAGE.format('The system processor is AMD'))
+        return ''
+    print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+    print(constants.FULL_EXPLANATION_MESSAGE.format('The system processor is not AMD'))
+    return cpuinfo_content
 
 
-# This function validates if the host is vulnerable to Meltdown.
 def validate(debug, container_name):
-    if os_type.linux(debug, container_name):
+    """This function validates if the host is vulnerable to Meltdown."""
+    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
         vendor = check_vendor(debug, container_name)
         if vendor == constants.UNSUPPORTED:
             print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
@@ -66,12 +65,10 @@ def validate(debug, container_name):
                 print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
         else:
             print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
-    else:
-        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
-# This function creates a graph that shows the vulnerability validation process of Meltdown.
 def validation_flow_chart():
+    """This function creates a graph that shows the vulnerability validation process of Meltdown."""
     meltdown_path = '/sys/devices/system/cpu/vulnerabilities/meltdown'
     vol_graph = graphviz.Digraph('G', filename=CVE_ID)
     commons.graph_start(CVE_ID, vol_graph)
@@ -85,12 +82,9 @@ def validation_flow_chart():
 
 
 def main(describe, graph, debug, container_name):
+    """This is the main function."""
     if describe:
         print(f'\n{DESCRIPTION}')
     validate(debug, container_name)
     if graph:
         validation_flow_chart()
-
-
-if __name__ == '__main__':
-    main()

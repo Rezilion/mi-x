@@ -1,6 +1,9 @@
-from Modules import os_type, run_command, commons, constants
-from packaging import version
+"""
+Support for graphviz, version from packaging and other modules which written for avoiding repetitive code.
+"""
 import graphviz
+from packaging import version
+from Modules import run_command, commons, constants
 
 CVE_ID = 'CVE-2015-0235'
 DESCRIPTION = f'''Ghost
@@ -17,8 +20,8 @@ MIN_AFFECTED_VERSION = '2.2'
 MAX_AFFECTED_VERSION = '2.17'
 
 
-# This function checks if the GLIBC version is affected.
 def glibc_version(glibc_value):
+    """This function checks if the GLIBC version is affected."""
     print(constants.FULL_QUESTION_MESSAGE.format('Is GLIBC version affected?'))
     if (version.parse(glibc_value) >= version.parse(MIN_AFFECTED_VERSION)) \
             and (version.parse(glibc_value) <= version.parse(MAX_AFFECTED_VERSION)):
@@ -27,37 +30,34 @@ def glibc_version(glibc_value):
                                                         f'to {MAX_AFFECTED_VERSION}'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your GLIBC version which is: {glibc_value} is affected'))
         return True
-    else:
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable GLIBC versions are between {MIN_AFFECTED_VERSION} '
-                                                        f'to {MAX_AFFECTED_VERSION}'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your GLIBC version which is: {glibc_value} is not affected'))
-        return False
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable GLIBC versions are between {MIN_AFFECTED_VERSION} '
+                                                    f'to {MAX_AFFECTED_VERSION}'))
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your GLIBC version which is: {glibc_value} is not affected'))
+    return False
 
 
-# This function checks if GLIBC exists.
 def glibc_exist(debug, container_name):
+    """This function checks if GLIBC exists."""
     glibc_command = 'ldd --version'
     pipe_glibc = run_command.command_output(glibc_command, debug, container_name)
     glibc_output = pipe_glibc.stdout
     print(constants.FULL_QUESTION_MESSAGE.format('There is GLIBC?'))
-    if glibc_output:
-        if glibc_output.__contains__('GLIBC') or glibc_output.__contains__('GNU libc'):
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-            print(constants.FULL_EXPLANATION_MESSAGE.format('GLIBC does exist'))
-            return glibc_output.split('\n')[constants.START].split(' ')[-1]
-        else:
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-            print(constants.FULL_EXPLANATION_MESSAGE.format('GLIBC does not exist'))
-            return ''
-    else:
+    if not glibc_output:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Unsupported GLIBC value'))
         return constants.UNSUPPORTED
+    if 'GLIBC' in glibc_output or 'GNU libc' in glibc_output:
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_EXPLANATION_MESSAGE.format('GLIBC does exist'))
+        return glibc_output.split('\n')[constants.START].split(' ')[-1]
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+    print(constants.FULL_EXPLANATION_MESSAGE.format('GLIBC does not exist'))
+    return ''
 
 
-# This function validates if the host is vulnerable to Ghost vulnerabilities.
 def validate(debug, container_name):
-    if os_type.linux(debug, container_name):
+    """This function validates if the host is vulnerable to Ghost vulnerabilities."""
+    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
         glibc_value = glibc_exist(debug, container_name)
         if glibc_value == constants.UNSUPPORTED:
             print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
@@ -68,12 +68,10 @@ def validate(debug, container_name):
                 print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
         else:
             print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
-    else:
-        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
-# This function creates graph that shows the vulnerability validation process of Ghost.
 def validation_flow_chart():
+    """This function creates graph that shows the vulnerability validation process of Ghost."""
     vol_graph = graphviz.Digraph('G', filename=CVE_ID)
     commons.graph_start(CVE_ID, vol_graph)
     vol_graph.edge('Is it Linux?', 'Is there GLIBC?', label='Yes')
@@ -86,12 +84,9 @@ def validation_flow_chart():
 
 
 def main(describe, graph, debug, container_name):
+    """This is the main function."""
     if describe:
         print(f'\n{DESCRIPTION}')
     validate(debug, container_name)
     if graph:
         validation_flow_chart()
-
-
-if __name__ == '__main__':
-    main()

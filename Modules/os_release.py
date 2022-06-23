@@ -1,3 +1,6 @@
+"""
+Support for modules which written for avoiding repetitive code.
+"""
 from Modules import commons, constants
 
 NAME_FIELD = 'NAME='
@@ -7,15 +10,15 @@ BASIC_COLOR = '\033[00m'
 EXPLANATION = '\033[90m'
 
 
-# This function receives the requested field information.
 def get_field(information_fields, debug, container_name):
+    """This function receives the requested field information."""
     os_release_path = '/etc/os-release'
     release_information = commons.file_content(os_release_path, debug, container_name)
     host_information = ''
     if release_information:
         for field in release_information:
             if 'Distribution' in information_fields and field.startswith(NAME_FIELD):
-                distribution = field.split('=')[constants.END][constants.FIRST:constants.END].split(' ')[constants.START]
+                distribution = field.split('=')[constants.END][constants.FIRST:-2].split(' ')[constants.START]
                 if distribution == 'Debian' and field.endswith('sid"'):
                     return 'Debian unstable'
                 host_information += distribution

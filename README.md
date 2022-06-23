@@ -45,6 +45,13 @@ Everyone is free to use 'Am I Really Vulnerable?' under the conditions of the AG
 Modules are code implementations which are used in different CVE files.
 
 
+# Support Distributions
+
+The tool support on the following Linux distributions:
+
+Ubuntu, Debian, Red, Centos, Fedora, SUSE, SLES, Amazon
+
+
 # Color Legend
 
 <img width="341" alt="colors" src="https://user-images.githubusercontent.com/104366208/165800276-f31d063b-f031-4569-8f61-72832c602031.png">
@@ -60,12 +67,12 @@ In order to install the requirements:
    ```
    cat /etc/os-release
    ```
-2. Understand which package manager your os distbution is using:
+2. Understand which package manager your os distribution is using:
 
    apt - Ubuntu, Debian
    
-   yum - Red Hat, CentOS, Fedora, Amazon
-3. Install the relevant package using your os distribution pacakage manager
+   yum - Red Hat, CentOS, Fedora, SUSE, SLES, Amazon
+3. Install the relevant package using your os distribution package manager
 
 # Dependencies Installation
 - semver

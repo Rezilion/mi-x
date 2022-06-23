@@ -1,8 +1,10 @@
-import Modules.constants as constants
-import Modules.run_command as run_command
+"""
+Support for os, importlib, argparse and other modules which written for avoiding repetitive code.
+"""
+import os
 import importlib
 import argparse
-import os
+from Modules import constants, run_command
 
 MENU_MESSAGE = '''The 'Am I Really Vulnerable?' CVEs database:
 Remote Code Execution (RCE):
@@ -31,15 +33,15 @@ name - run specific vulnerability check by inserting its name (for example - Log
 ALL = 'all'
 
 
-# This function run the cve file that matches the entered vulnerability name.
 def run_cve_check(cve_id, describe, graph, debug, container_name):
+    """This function run the cve file that matches the entered vulnerability name."""
     cve_path = f'CVEs.{cve_id}'
     cve_validation = importlib.import_module(cve_path)
     cve_validation.main(describe, graph, debug, container_name)
 
 
-# This function checks if the cve_id that received has a file with its name.
 def run(cve_id, describe, graph, debug, container_name):
+    """This function checks if the cve_id that received has a file with its name."""
     cve_dir_path = f"{os.getcwd()}/CVEs"
     cve_validation_files = os.listdir(cve_dir_path)
     cves_files = [f.split('.')[constants.START] for f in cve_validation_files]
@@ -49,23 +51,23 @@ def run(cve_id, describe, graph, debug, container_name):
         print(constants.FULL_EXPLANATION_MESSAGE.format('Vulnerability name does not match the CVEs files'))
 
 
-# This function fixes the cve format so all cases will be included.
 def fix_cve_format(cve_id):
+    """This function fixes the cve format so all cases will be included."""
     cve_id = cve_id.lower()
-    if cve_id.startswith('cve') and cve_id.__contains__('-'):
+    if cve_id.startswith('cve') and '-' in cve_id:
         cve_id = cve_id.replace('-', '_')
     return cve_id
 
 
-# This function run the next function according to the cve_id parameter.
 def checks_cve_id_parameter(cve_id, describe, debug, graph, container_name):
+    """This function run the next function according to the cve_id parameter."""
     fixed_cve = fix_cve_format(cve_id)
     if fixed_cve == ALL:
         for vulnerability in constants.ALL_VULNERABILITIES:
             run(vulnerability, describe, graph, debug, container_name)
     elif fixed_cve in constants.ALL_VULNERABILITIES:
         run(fixed_cve, describe, graph, debug, container_name)
-    elif fixed_cve in constants.DUPLICATE_VULNERABILITIES_NAMES.keys():
+    elif fixed_cve in constants.DUPLICATE_VULNERABILITIES_NAMES:
         run(constants.DUPLICATE_VULNERABILITIES_NAMES[fixed_cve], describe, graph, debug, container_name)
     elif fixed_cve == 'spectre':
         for spectre_cve in constants.SPECTRE:
@@ -77,25 +79,27 @@ def checks_cve_id_parameter(cve_id, describe, debug, graph, container_name):
         print(constants.FULL_EXPLANATION_MESSAGE.format('The vulnerability name does not exists in the database'))
 
 
-# This function checks if the dependencies can run successfully.
 def check_dependencies(graph):
+    """This function checks if the dependencies can run successfully."""
     if graph:
         try:
             import graphviz
         except NameError:
-            print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format(constants.NOT_INSTALLED_MESSAGE.format('Graphviz')))
+            print(constants.FULL_EXPLANATION_MESSAGE.format(constants.NOT_INSTALLED_MESSAGE.format('Graphviz',
+                                                                                                   'Graphviz')))
     try:
         import semver
     except ModuleNotFoundError:
-        print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format(constants.NOT_INSTALLED_MESSAGE.format('Semver')))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(constants.NOT_INSTALLED_MESSAGE.format('Semver', 'Semver')))
     try:
         from packaging import version
     except ModuleNotFoundError:
-        print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format(constants.NOT_INSTALLED_MESSAGE.format('Packaging')))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(constants.NOT_INSTALLED_MESSAGE.format('Packaging',
+                                                                                               'Packaging')))
 
 
-# This function sets the arguments.
 def arguments():
+    """This function sets the arguments."""
     parser = argparse.ArgumentParser(description="'AM I Really Vulnerable?' is a service that let's you validate "
                                                  "whether or not your system is susceptible to a given CVE")
     parser.add_argument('--cve_id', type=str, default='', help='Enter CVE name according to the following format:'
@@ -111,6 +115,7 @@ def arguments():
 
 
 def main():
+    """This is the main function."""
     args = arguments()
     check_dependencies(args.graph)
     if args.container:
@@ -125,7 +130,7 @@ def main():
                 print(f'\nScanning vulnerabilities on {container_name} container')
                 checks_cve_id_parameter(args.cve_id, args.describe, args.debug, args.graph, container_name)
         else:
-            print('Docker containers where not found, unsupported value')
+            print(constants.FULL_EXPLANATION_MESSAGE.format('Docker containers where not found, unsupported value'))
     else:
         checks_cve_id_parameter(args.cve_id, args.describe, args.debug, args.graph, container_name='')
 
@@ -133,5 +138,3 @@ def main():
 if __name__ == '__main__':
     print("Welcome to Rezilion's 'Am I Really Vulnerable?' Service")
     main()
-
-

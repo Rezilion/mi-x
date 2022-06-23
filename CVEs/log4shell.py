@@ -1,8 +1,11 @@
-from Modules import os_type, get_pids, commons, constants
+"""
+Support for graphviz and other modules which written for avoiding repetitive code.
+"""
 import graphviz
+from Modules import get_pids, commons, constants
 
 CVE_ID = 'Log4Shell'
-DESCRIPTION = f'''your system will be scanned for all Log4Shell related CVEs. 
+DESCRIPTION = f'''your system will be scanned for all Log4Shell related CVEs.
 
 {CVE_ID}
 Remote code execution (RCE) vulnerability affecting Apache’s Log4j library, versions 2.0-beta9 to 2.17.0.
@@ -59,40 +62,37 @@ CLASS_CVE = {'org.apache.logging.log4j.core.lookup.JndiLookup': 'CVE-2021-44228 
 VM_CLASS_HIERARCHY = 'VM.class_hierarchy'
 
 
-# This function loops over all java processes and checks if they are vulnerable.
 def validate_processes(pids, debug, container_name):
+    """This function loops over all java processes and checks if they are vulnerable."""
     for pid in pids:
         if container_name:
             jcmd_path = commons.get_jcmd(pid, debug, container_name)
         else:
             jcmd_path = 'jcmd'
-        if not jcmd_path == constants.UNSUPPORTED:
-            jcmd_command = f'sudo {jcmd_path} {pid} "{VM_CLASS_HIERARCHY}"'
-            cves = commons.check_loaded_classes(pid, jcmd_command, CLASS_CVE, debug)
-            if cves == constants.UNSUPPORTED:
-                print('hello')
-            elif cves:
-                print(constants.FULL_PROCESS_VULNERABLE_MESSAGE.format(pid, cves))
-            else:
-                print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, CVE_ID))
-        else:
+        if jcmd_path == constants.UNSUPPORTED:
             print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
+        jcmd_command = f'sudo {jcmd_path} {pid} "{VM_CLASS_HIERARCHY}"'
+        cves = commons.check_loaded_classes(pid, jcmd_command, CLASS_CVE, debug)
+        if cves == constants.UNSUPPORTED:
+            print('hello')
+        elif cves:
+            print(constants.FULL_PROCESS_VULNERABLE_MESSAGE.format(pid, cves))
+        else:
+            print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, CVE_ID))
 
 
-# This function validates if an instance is vulnerable to Log4Shell.
 def validate(debug, container_name):
-    if os_type.linux(debug, container_name):
+    """This function validates if an instance is vulnerable to Log4Shell."""
+    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
         pids = get_pids.pids_consolidation('java', debug, container_name)
         if pids:
             validate_processes(pids, debug, container_name)
         else:
             print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
-    else:
-        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
-# This function creates graph that shows the vulnerability validation process of Log4Shell.
 def validation_flow_chart():
+    """This function creates graph that shows the vulnerability validation process of Log4Shell."""
     vol_graph = graphviz.Digraph('G', filename=CVE_ID)
     commons.graph_start(CVE_ID, vol_graph)
     vol_graph.edge('Is it Linux?', 'Are there running Java processes?', label='Yes')
@@ -105,12 +105,9 @@ def validation_flow_chart():
 
 
 def main(describe, graph, debug, container_name):
+    """This is the main function."""
     if describe:
         print(f'\n{DESCRIPTION}')
     validate(debug, container_name)
     if graph:
         validation_flow_chart()
-
-
-if __name__ == '__main__':
-    main()

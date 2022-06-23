@@ -1,3 +1,6 @@
+"""
+This file stores all of the repetitive constant variables.
+"""
 # Colors.
 VULNERABLE = '\033[101m'
 NOT_DETERMINED = '\033[103m'
@@ -38,7 +41,7 @@ FULL_NEUTRAL_RESULT_MESSAGE = f'{NEUTRAL_RESULT}{NEUTRAL_RESULT_MESSAGE}{BASIC_C
 FULL_NEGATIVE_RESULT_MESSAGE = f'{NEGATIVE_RESULT}Yes{BASIC_COLOR}'
 FULL_QUESTION_MESSAGE = f'{QUESTION}{QUESTION_MESSAGE}{BASIC_COLOR}'
 FULL_EXPLANATION_MESSAGE = f'{EXPLANATION}{EXPLANATION_MESSAGE}{BASIC_COLOR}'
-NOT_INSTALLED_MESSAGE = '{} is not installed on your system'
+NOT_INSTALLED_MESSAGE = '{} is not installed on your system\nYou can install it using pip command:\npip install {}'
 
 # Docker commands.
 DOCKER_EXEC_COMMAND = 'sudo docker exec -it {} /bin/{} -c "{}"'

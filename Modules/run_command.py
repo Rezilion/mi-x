@@ -26,7 +26,7 @@ def command_output(command, debug, container_name):
             converted_command = shlex.split(docker_command)
         else:
             converted_command = shlex.split(command)
-        pipe_command = subprocess.run(converted_command, check=True, capture_output=True, text=True)
+        pipe_command = subprocess.run(converted_command, capture_output=True, text=True)
         if debug:
             print(constants.FULL_EXPLANATION_MESSAGE.format(pipe_command.stderr))
         if pipe_command.stdout.endswith('not found\n'):

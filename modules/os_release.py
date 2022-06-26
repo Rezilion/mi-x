@@ -1,7 +1,7 @@
 """
 Support for modules which written for avoiding repetitive code.
 """
-from Modules import commons, constants
+from modules import commons, constants
 
 NAME_FIELD = 'NAME='
 VERSION_FIELD = 'VERSION_ID='

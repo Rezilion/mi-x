@@ -2,7 +2,7 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from Modules import run_command, get_pids, commons, constants, docker_commands
+from modules import run_command, get_pids, commons, constants, docker_commands
 
 CVE_ID = 'CVE-2021-3711'
 DESCRIPTION = f'''{CVE_ID}

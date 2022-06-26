@@ -2,7 +2,7 @@
 Support for semver and other modules which written for avoiding repetitive code.
 """
 import semver
-from Modules import run_command, commons, constants
+from modules import run_command, commons, constants
 
 BASIC_COLOR = '\033[00m'
 EXPLANATION = '\033[90m'

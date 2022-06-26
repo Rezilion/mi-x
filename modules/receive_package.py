@@ -1,7 +1,7 @@
 """
 Support for modules which written for avoiding repetitive code.
 """
-from Modules import run_command, constants
+from modules import run_command, constants
 
 PACKAGE_VERSION_FIELD = 'Version'
 PACKAGE_RELEASE_FIELD = 'Release'

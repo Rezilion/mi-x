@@ -3,7 +3,7 @@ Support for graphviz, version from packaging and other modules which written for
 """
 import graphviz
 from packaging import version
-from Modules import commons, os_release, constants, receive_package
+from modules import commons, os_release, constants, receive_package
 
 CVE_ID = 'NIMBUSPWN'
 DESCRIPTION = f'''{CVE_ID} - CVE-2022-29799, CVE-2022-29800

@@ -1,8 +1,7 @@
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+![pylint](https://user-images.githubusercontent.com/15197376/175817365-150e2500-693d-47d6-94ee-03a96ef36c73.svg)
 
 # **Am I Really Vulnerable?**
-
- Author:                   2022 - Now, Rezilion
 
  Description:              Vulnerabilities validation
 
@@ -36,7 +35,7 @@ Everyone is free to use 'Am I Really Vulnerable?' under the conditions of the AG
    - **Type**:      vulnerability validation
    - **License**:   GNU AFFERO GENERAL PUBLIC LICENSE
    - **Language**:  Python3
-   - **Author**:    Ofri Ouzan, Rezilion
+   - **Author**:    Rezilion
    - **Required Permissions**: root preferred, not needed (may use sudo)
    
 # Files

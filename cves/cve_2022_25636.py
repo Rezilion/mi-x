@@ -3,7 +3,7 @@ Support for semver, graphviz and other modules which written for avoiding repeti
 """
 import semver
 import graphviz
-from Modules import run_command, kernel_version, commons, constants
+from modules import run_command, kernel_version, commons, constants
 
 CVE_ID = 'CVE-2022-25636'
 DESCRIPTION = f'''{CVE_ID}

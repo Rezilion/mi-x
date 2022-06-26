@@ -1,7 +1,7 @@
 """
 Support for modules which written for avoiding repetitive code.
 """
-from Modules import run_command, constants
+from modules import run_command, constants
 
 
 def get_merge_dir(container_name, debug):

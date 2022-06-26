@@ -5,7 +5,7 @@ import os
 import re
 import semver
 from packaging import version
-from Modules import run_command, constants, docker_commands, os_type
+from modules import run_command, constants, docker_commands, os_type
 
 
 def check_linux_and_affected_distribution(cve, debug, container_name):

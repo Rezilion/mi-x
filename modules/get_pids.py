@@ -1,7 +1,7 @@
 """
 Support for modules which written for avoiding repetitive code.
 """
-from Modules import run_command, commons, constants
+from modules import run_command, commons, constants
 
 
 def get_pids_by_name(process_type, debug, container_name):

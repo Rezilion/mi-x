@@ -4,7 +4,7 @@ Support for subprocess, semver, graphviz and other modules which written for avo
 import subprocess
 import semver
 import graphviz
-from Modules import run_command, commons, constants
+from modules import run_command, commons, constants
 
 CVE_ID = 'Shellshock'
 DESCRIPTION = f'''your system will be scanned for all ShellShock related CVEs.

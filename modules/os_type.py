@@ -1,7 +1,7 @@
 """
 Support for modules which written for avoiding repetitive code.
 """
-from Modules import run_command, constants, os_release
+from modules import run_command, constants, os_release
 
 BASIC_COLOR = '\033[00m'
 EXPLANATION = '\033[90m'

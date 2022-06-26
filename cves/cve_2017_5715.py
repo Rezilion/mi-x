@@ -2,7 +2,7 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from Modules import commons, constants, os_release
+from modules import commons, constants, os_release
 
 
 CVE_ID = 'CVE-2017-5715'

@@ -4,7 +4,7 @@ Support for os, semver, graphviz and other modules which written for avoiding re
 import os
 import semver
 import graphviz
-from Modules import run_command, apache as apache_functions, commons, constants
+from modules import run_command, apache as apache_functions, commons, constants
 
 CVE_ID_ONE = 'CVE-2021-41773'
 CVE_ID_TWO = 'CVE-2021-42013'

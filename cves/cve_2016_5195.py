@@ -3,7 +3,7 @@ Support for importlib, graphviz and other modules which written for avoiding rep
 """
 import importlib
 import graphviz
-from Modules import run_command, kernel_version, commons, os_release, constants
+from modules import run_command, kernel_version, commons, os_release, constants
 
 CVE_ID = 'CVE-2016-5195'
 NEXT_VULNERABILITY = 'cve_2017_1000405'

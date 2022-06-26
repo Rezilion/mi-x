@@ -3,7 +3,7 @@ Support for graphviz, version from packaging and other modules which written for
 """
 import graphviz
 from packaging import version
-from Modules import run_command, commons, constants
+from modules import run_command, commons, constants
 
 CVE_ID = 'CVE-2015-0235'
 DESCRIPTION = f'''Ghost

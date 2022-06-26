@@ -2,7 +2,7 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from Modules import run_command, get_pids, commons, constants
+from modules import run_command, get_pids, commons, constants
 
 CVE_ID = 'CVE-2022-22965'
 DESCRIPTION = f'''{CVE_ID} - Spring4Shell

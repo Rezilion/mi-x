@@ -50,7 +50,7 @@ Modules are code implementations which are used in different CVE files.
 
 The tool support on the following Linux distributions:
 
-Ubuntu, Debian, Red, Centos, Fedora, SUSE, SLES, Amazon
+Ubuntu, Debian, Red Hat, Centos, Fedora, SUSE, SLES, Amazon
 
 
 # Color Legend

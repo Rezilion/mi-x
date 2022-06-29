@@ -4,7 +4,7 @@ Support for os, importlib, argparse and other modules which written for avoiding
 import os
 import importlib
 import argparse
-from Modules import constants, run_command
+from modules import constants, run_command
 
 MENU_MESSAGE = '''The 'Am I Really Vulnerable?' CVEs database:
 Remote Code Execution (RCE):

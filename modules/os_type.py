@@ -26,7 +26,7 @@ def is_supported_distribution(debug, container_name):
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'The os distribution you are running on is {host_information} '
                                                         f'which is one of the supported distributions'))
         return True
-    print(constants.FULL_EXPLANATION_MESSAGE.format('Can not determine vulnerability status, unsupported distribution'
+    print(constants.FULL_EXPLANATION_MESSAGE.format('Can not determine vulnerability status, unsupported distribution '
                                                     'value'))
     return False
 

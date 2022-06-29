@@ -18,7 +18,8 @@ def get_field(information_fields, debug, container_name):
     if release_information:
         for field in release_information:
             if 'Distribution' in information_fields and field.startswith(NAME_FIELD):
-                distribution = field.split('=')[constants.END][constants.FIRST:-2].split(' ')[constants.START]
+                distribution = field.split('=')[constants.END][constants.FIRST:constants.END]
+                distribution = distribution.split(' ')[constants.START]
                 if distribution == 'Debian' and field.endswith('sid"'):
                     return 'Debian unstable'
                 host_information += distribution

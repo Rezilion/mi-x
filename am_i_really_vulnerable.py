@@ -35,14 +35,14 @@ ALL = 'all'
 
 def run_cve_check(cve_id, describe, graph, debug, container_name):
     """This function run the cve file that matches the entered vulnerability name."""
-    cve_path = f'CVEs.{cve_id}'
+    cve_path = f'cves.{cve_id}'
     cve_validation = importlib.import_module(cve_path)
     cve_validation.main(describe, graph, debug, container_name)
 
 
 def run(cve_id, describe, graph, debug, container_name):
     """This function checks if the cve_id that received has a file with its name."""
-    cve_dir_path = f"{os.getcwd()}/CVEs"
+    cve_dir_path = f"{os.getcwd()}/cves"
     cve_validation_files = os.listdir(cve_dir_path)
     cves_files = [f.split('.')[constants.START] for f in cve_validation_files]
     if cve_id in cves_files:

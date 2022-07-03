@@ -69,17 +69,10 @@ def validate_processes(pids, debug, container_name):
     for pid in pids:
         jcmd_path = 'jcmd'
         if container_name:
-            jdk_version = commons.get_java_version(debug, container_name)
-            if jdk_version:
-                if JDK_MINIMUM_VERSION < jdk_version:
-                    jcmd_path = commons.get_jcmd(pid, debug, container_name)
-            else:
+            jcmd_path = commons.build_jcmd_path(pid, debug, container_name)
+            if jcmd_path == constants.UNSUPPORTED:
                 print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
                 break
-        else:
-            jcmd_path = 'jcmd'
-        if jcmd_path == constants.UNSUPPORTED:
-            print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
         jcmd_command = f'sudo {jcmd_path} {pid} {VM_VERSION}'
         version_affected = check_java_version(pid, jcmd_command, debug)
         if version_affected == constants.UNSUPPORTED:

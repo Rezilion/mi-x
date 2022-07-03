@@ -67,29 +67,23 @@ def validate_processes(pids, debug, container_name):
     for pid in pids:
         jcmd_path = 'jcmd'
         if container_name:
-            jdk_version = commons.get_java_version(debug, container_name)
-            if jdk_version:
-                if JDK_MINIMUM_VERSION < jdk_version:
-                    jcmd_path = commons.get_jcmd(pid, debug, container_name)
-            else:
+            jcmd_path = commons.build_jcmd_path(pid, debug, container_name)
+            if jcmd_path == constants.UNSUPPORTED:
                 print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
                 break
-        if jcmd_path == constants.UNSUPPORTED:
-            print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
-        else:
-            jcmd_command = f'sudo {jcmd_path} {pid} '
-            utility = commons.available_jcmd_utilities(jcmd_command, debug)
-            if utility:
-                full_jcmd_command = jcmd_command + utility
-                cves = commons.check_loaded_classes(pid, full_jcmd_command, CLASS_CVE, debug)
-                if cves == constants.UNSUPPORTED:
-                    print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
-                elif cves:
-                    print(constants.FULL_PROCESS_VULNERABLE_MESSAGE.format(pid, cves))
-                else:
-                    print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, CVE_ID))
-            else:
+        jcmd_command = f'sudo {jcmd_path} {pid} '
+        utility = commons.available_jcmd_utilities(jcmd_command, debug)
+        if utility:
+            full_jcmd_command = jcmd_command + utility
+            cves = commons.check_loaded_classes(pid, full_jcmd_command, CLASS_CVE, debug)
+            if cves == constants.UNSUPPORTED:
                 print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
+            elif cves:
+                print(constants.FULL_PROCESS_VULNERABLE_MESSAGE.format(pid, cves))
+            else:
+                print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, CVE_ID))
+        else:
+            print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
 
 
 def validate(debug, container_name):

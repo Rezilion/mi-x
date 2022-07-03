@@ -9,6 +9,7 @@ from modules import run_command, constants, docker_commands, os_type
 VM_CLASS_HIERARCHY = 'VM.class_hierarchy'
 GC_CLASS_HISTOGRAM = 'GC.class_histogram'
 HELP = 'help'
+JDK_MINIMUM_VERSION = '10.0.0'
 
 
 def check_linux_and_affected_distribution(cve, debug, container_name):
@@ -42,6 +43,7 @@ def graph_end(vol_graph):
 
 
 def get_java_version(debug, container_name):
+    """This function returns the java version."""
     java_version_command = 'java -version'
     pipe_version = run_command.command_output(java_version_command, debug, container_name)
     java_version = pipe_version.stdout
@@ -54,6 +56,18 @@ def get_java_version(debug, container_name):
                 if re.search(r'\d*\.\d*.\d*', value):
                     return value
     return ''
+
+
+def build_jcmd_path(pid, debug, container_name):
+    """"This function build the jcmd path."""
+    jcmd_path = 'jcmd'
+    jdk_version = get_java_version(debug, container_name)
+    if jdk_version:
+        if JDK_MINIMUM_VERSION < jdk_version:
+            jcmd_path = get_jcmd(pid, debug, container_name)
+    else:
+        return constants.UNSUPPORTED
+    return jcmd_path
 
 
 def get_jcmd(pid, debug, container_name):
@@ -94,8 +108,7 @@ def available_jcmd_utilities(jcmd_command, debug):
         return VM_CLASS_HIERARCHY
     if GC_CLASS_HISTOGRAM in available_utilities_output:
         return GC_CLASS_HISTOGRAM
-    else:
-        print(constants.FULL_EXPLANATION_MESSAGE.format('The jcmd class utilities were not found'))
+    print(constants.FULL_EXPLANATION_MESSAGE.format('The jcmd class utilities were not found'))
     return ''
 
 

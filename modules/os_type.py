@@ -16,6 +16,8 @@ def is_supported_distribution(debug, container_name):
     host_information = os_release.get_field(information_fields, debug, container_name)
     print(constants.FULL_QUESTION_MESSAGE.format('Is the os distributions one of Ubuntu, Debian, Red, Centos, Fedora, '
                                                  'SUSE, SLES, Amazon supported distributions?'))
+    if not host_information:
+        return constants.UNSUPPORTED
     if host_information == constants.UNSUPPORTED or not host_information:
         print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'The os distribution you are running on is {host_information} '

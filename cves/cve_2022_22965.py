@@ -18,8 +18,7 @@ server and run on JDK 9 and higher.
 MIN_AFFECTED_VERSION = 9
 CLASSES = {'org.springframework.web.servlet.mvc.method.annotation.ServletModelAttributeMethodProcessor': 'webmvc',
            'org.springframework.web.reactive.result.method.annotation.ModelAttributeMethodArgumentResolver': 'webflux'}
-VM_VERSION = 'VM.version'
-VM_CLASS_HIERARCHY = 'VM.class_hierarchy'
+VM_VERSION = '"VM.version"'
 PATCHED_VERSIONS = ['8.5.78', '9.0.62', '10.0.20']
 
 
@@ -73,21 +72,26 @@ def validate_processes(pids, debug, container_name):
             jcmd_path = 'jcmd'
         if jcmd_path == constants.UNSUPPORTED:
             print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
-        jcmd_command = f'sudo {jcmd_path} {pid} "{VM_VERSION}"'
+        jcmd_command = f'sudo {jcmd_path} {pid} {VM_VERSION}'
         version_affected = check_java_version(pid, jcmd_command, debug)
         if not version_affected == constants.UNSUPPORTED:
             if not version_affected:
                 print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, CVE_ID))
-            jcmd_command = f'sudo {jcmd_path} {pid} "{VM_CLASS_HIERARCHY}"'
-            webmvc_webflux = commons.check_loaded_classes(pid, jcmd_command, CLASSES, debug)
-            if webmvc_webflux == constants.UNSUPPORTED:
-                print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
-            elif webmvc_webflux:
-                print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} process use the {webmvc_webflux} '
-                                                                f'dependency'))
-                print(constants.FULL_PROCESS_VULNERABLE_MESSAGE.format(pid, CVE_ID))
+            jcmd_command = f'sudo {jcmd_path} {pid} '
+            utility = commons.available_jcmd_utilities(jcmd_command, debug, container_name)
+            if utility:
+                full_jcmd_command = jcmd_command + utility
+                webmvc_webflux = commons.check_loaded_classes(pid, full_jcmd_command, CLASSES, debug)
+                if webmvc_webflux == constants.UNSUPPORTED:
+                    print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
+                elif webmvc_webflux:
+                    print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} process use the {webmvc_webflux} '
+                                                                    f'dependency'))
+                    print(constants.FULL_PROCESS_VULNERABLE_MESSAGE.format(pid, CVE_ID))
+                else:
+                    print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, CVE_ID))
             else:
-                print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, CVE_ID))
+                print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
         else:
             print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
 

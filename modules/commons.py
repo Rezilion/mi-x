@@ -6,15 +6,19 @@ import re
 import semver
 from packaging import version
 from modules import run_command, constants, docker_commands, os_type
+VM_CLASS_HIERARCHY = '"VM.class_hierarchy"'
+GC_CLASS_HISTOGRAM = '"GC.class_histogram"'
+HELP = '"help"'
 
 
 def check_linux_and_affected_distribution(cve, debug, container_name):
     """This function checks if the machine is running on linux and if the os distribution is supported."""
     if os_type.is_linux(debug, container_name):
-        if os_type.is_supported_distribution(debug, container_name):
-            return True
-        print(constants.FULL_NOT_DETERMINED_MESSAGE.format(cve))
-        return False
+        supported_distribution = os_type.is_supported_distribution(debug, container_name)
+        if supported_distribution == constants.UNSUPPORTED or not supported_distribution:
+            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(cve))
+            return False
+        return True
     print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(cve))
     return False
 
@@ -55,6 +59,18 @@ def get_jcmd(pid, debug, container_name):
         return full_container_jcmd_path
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'Unsupported "/proc/{pid}/exe" value'))
     return constants.UNSUPPORTED
+
+
+def available_jcmd_utilities(jcmd_command, debug, container_name):
+    """This checks the utility name in which it can take the classes from."""
+    full_help_command = jcmd_command + HELP
+    available_utilities = run_command.command_output(full_help_command, debug, container_name)
+    available_utilities_output = available_utilities.stdout
+    if VM_CLASS_HIERARCHY in available_utilities_output:
+        return VM_CLASS_HIERARCHY
+    if GC_CLASS_HISTOGRAM in available_utilities_output:
+        return GC_CLASS_HISTOGRAM
+    return ''
 
 
 def check_loaded_classes(pid, jcmd_command, classes, debug):

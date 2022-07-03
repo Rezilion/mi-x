@@ -24,6 +24,7 @@ Dirty_Pipe - CVE-2022-0847
 CVE-2022-25636
 NimbusPWN - CVE-2022-29799, CVE-2022-29800
 Meltdown - CVE-2017-5754
+Spectre - CVE-2017-5715, CVE-2017-5753, CVE-2017-5754
 
 Run options:
 all - runs checks for all the CVEs in the database

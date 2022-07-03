@@ -61,6 +61,7 @@ Ubuntu, Debian, Red Hat, Centos, Fedora, SUSE, SLES, Amazon
 1. Python version 3
 2. Graphviz (optional, needed only for the graph capabilities) 
 3. Xdg-utils (optional, needed only for the graph capabilities)
+4. openjdk with jcmd support (needed when running on container mode and the openjdk version on the container is lower than openjdk10)
 
 In order to install the requirements:
 1. Check your os distribution you can use the following command:
@@ -73,6 +74,7 @@ In order to install the requirements:
    
    yum - Red Hat, CentOS, Fedora, SUSE, SLES, Amazon
 3. Install the relevant package using your os distribution package manager
+4. Install the relevant package using your os distribution package manager
 
 # Dependencies Installation
 - semver

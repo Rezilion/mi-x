@@ -79,18 +79,19 @@ def validate_processes(pids, debug, container_name):
                 print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, CVE_ID))
             jcmd_command = f'sudo {jcmd_path} {pid} '
             utility = commons.available_jcmd_utilities(jcmd_command, debug, container_name)
-            if not utility:
-                print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
-            full_jcmd_command = jcmd_command + utility
-            webmvc_webflux = commons.check_loaded_classes(pid, full_jcmd_command, CLASSES, debug)
-            if webmvc_webflux == constants.UNSUPPORTED:
-                print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
-            elif webmvc_webflux:
-                print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} process use the {webmvc_webflux} '
-                                                                f'dependency'))
-                print(constants.FULL_PROCESS_VULNERABLE_MESSAGE.format(pid, CVE_ID))
+            if utility:
+                full_jcmd_command = jcmd_command + utility
+                webmvc_webflux = commons.check_loaded_classes(pid, full_jcmd_command, CLASSES, debug)
+                if webmvc_webflux == constants.UNSUPPORTED:
+                    print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
+                elif webmvc_webflux:
+                    print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} process use the {webmvc_webflux} '
+                                                                    f'dependency'))
+                    print(constants.FULL_PROCESS_VULNERABLE_MESSAGE.format(pid, CVE_ID))
+                else:
+                    print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, CVE_ID))
             else:
-                print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, CVE_ID))
+                print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
         else:
             print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
 

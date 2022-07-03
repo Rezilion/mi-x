@@ -6,9 +6,9 @@ import re
 import semver
 from packaging import version
 from modules import run_command, constants, docker_commands, os_type
-VM_CLASS_HIERARCHY = '"VM.class_hierarchy"'
-GC_CLASS_HISTOGRAM = '"GC.class_histogram"'
-HELP = '"help"'
+VM_CLASS_HIERARCHY = 'VM.class_hierarchy'
+GC_CLASS_HISTOGRAM = 'GC.class_histogram'
+HELP = 'help'
 
 
 def check_linux_and_affected_distribution(cve, debug, container_name):
@@ -41,6 +41,21 @@ def graph_end(vol_graph):
         print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format(constants.NOT_INSTALLED_MESSAGE.format('Graphviz')))
 
 
+def get_java_version(debug, container_name):
+    java_version_command = 'java -version'
+    pipe_version = run_command.command_output(java_version_command, debug, container_name)
+    java_version = pipe_version.stdout
+    if not java_version:
+        java_version = pipe_version.stderr
+    for line in java_version.split('\n'):
+        if 'openjdk version' in line.lower():
+            values = line.split('"')
+            for value in values:
+                if re.search(r'\d*\.\d*.\d*', value):
+                    return value
+    return ''
+
+
 def get_jcmd(pid, debug, container_name):
     """This function returns the full path of the jcmd application in a container."""
     merged_dir_path = docker_commands.get_merge_dir(container_name, debug)
@@ -54,32 +69,43 @@ def get_jcmd(pid, debug, container_name):
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Unsupported "/proc/{pid}/exe" value'))
         return constants.UNSUPPORTED
     if '->' in get_jcmd_path:
-        jcmd_path = get_jcmd_path.split(' ')[constants.END].split('/java')[constants.START] + '/jcmd'
-        full_container_jcmd_path = merged_dir_path + jcmd_path
-        return full_container_jcmd_path
+        jcmd_path = merged_dir_path + get_jcmd_path.split(' ')[constants.END].rsplit('jdk', 1)[constants.START] + \
+                    'jdk/bin'
+        if os.path.isdir(jcmd_path):
+            jcmd_path = jcmd_path + '/jcmd'
+            if not os.path.isfile(jcmd_path):
+                jcmd_path = 'jcmd'
+        else:
+            jcmd_path = 'jcmd'
+        return jcmd_path
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'Unsupported "/proc/{pid}/exe" value'))
     return constants.UNSUPPORTED
 
 
-def available_jcmd_utilities(jcmd_command, debug, container_name):
+def available_jcmd_utilities(jcmd_command, debug):
     """This checks the utility name in which it can take the classes from."""
     full_help_command = jcmd_command + HELP
-    available_utilities = run_command.command_output(full_help_command, debug, container_name)
+    available_utilities = run_command.command_output(full_help_command, debug, container_name=False)
+    if available_utilities.stderr:
+        print(constants.FULL_EXPLANATION_MESSAGE.format('The jcmd command is not available, try to download jdk tool'))
+        return ''
     available_utilities_output = available_utilities.stdout
     if VM_CLASS_HIERARCHY in available_utilities_output:
         return VM_CLASS_HIERARCHY
     if GC_CLASS_HISTOGRAM in available_utilities_output:
         return GC_CLASS_HISTOGRAM
+    else:
+        print(constants.FULL_EXPLANATION_MESSAGE.format('The jcmd class utilities were not found'))
     return ''
 
 
 def check_loaded_classes(pid, jcmd_command, classes, debug):
-    """This function checks if the process is using the webmvc or webflux dependencies."""
+    """This function checks if the process is using the affected class."""
     pipe_jcmd = run_command.command_output(jcmd_command, debug, container_name=False)
     jcmd = pipe_jcmd.stdout
     values = ''
     if not jcmd:
-        print(constants.FULL_EXPLANATION_MESSAGE.format('Unsupported "VM.class_hierarchy" value'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format('Unsupported class value'))
         return constants.UNSUPPORTED
     for affected_class in classes.keys():
         print(constants.FULL_QUESTION_MESSAGE.format(f'Does {pid} process load {affected_class}?'))

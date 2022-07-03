@@ -20,6 +20,7 @@ CLASSES = {'org.springframework.web.servlet.mvc.method.annotation.ServletModelAt
            'org.springframework.web.reactive.result.method.annotation.ModelAttributeMethodArgumentResolver': 'webflux'}
 VM_VERSION = '"VM.version"'
 PATCHED_VERSIONS = ['8.5.78', '9.0.62', '10.0.20']
+JDK_MINIMUM_VERSION = '10.0.0'
 
 
 def check_tomcat(debug, container_name):
@@ -51,7 +52,7 @@ def check_java_version(pid, jcmd_command, debug):
         return constants.UNSUPPORTED
     version = jcmd.split('\n')[2].split(' ')[constants.END]
     start_of_version = int(version.split('.')[constants.START])
-    if start_of_version < MIN_AFFECTED_VERSION:
+    if start_of_version > MIN_AFFECTED_VERSION:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'The minimum affected java version is: '
                                                         f'{MIN_AFFECTED_VERSION}, the process`s java version which is: '
@@ -59,39 +60,47 @@ def check_java_version(pid, jcmd_command, debug):
         return False
     print(constants.FULL_POSITIVE_RESULT_MESSAGE)
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'The minimum affected java version is: {MIN_AFFECTED_VERSION}, the'
-                                                    f'process`s java version which is: {version}, is affected'))
+                                                    f' process`s java version which is: {version}, is affected'))
     return True
 
 
 def validate_processes(pids, debug, container_name):
     """This function loops over all java processes and checks if they are vulnerable."""
     for pid in pids:
+        jcmd_path = 'jcmd'
         if container_name:
-            jcmd_path = commons.get_jcmd(pid, debug, container_name)
+            jdk_version = commons.get_java_version(debug, container_name)
+            if jdk_version:
+                if JDK_MINIMUM_VERSION < jdk_version:
+                    jcmd_path = commons.get_jcmd(pid, debug, container_name)
+            else:
+                print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
+                break
         else:
             jcmd_path = 'jcmd'
         if jcmd_path == constants.UNSUPPORTED:
             print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
         jcmd_command = f'sudo {jcmd_path} {pid} {VM_VERSION}'
         version_affected = check_java_version(pid, jcmd_command, debug)
-        if not version_affected == constants.UNSUPPORTED:
-            if not version_affected:
-                print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, CVE_ID))
-            jcmd_command = f'sudo {jcmd_path} {pid} '
-            utility = commons.available_jcmd_utilities(jcmd_command, debug, container_name)
-            if utility:
-                full_jcmd_command = jcmd_command + utility
-                webmvc_webflux = commons.check_loaded_classes(pid, full_jcmd_command, CLASSES, debug)
-                if webmvc_webflux == constants.UNSUPPORTED:
-                    print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
-                elif webmvc_webflux:
-                    print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} process use the {webmvc_webflux} '
-                                                                    f'dependency'))
-                    print(constants.FULL_PROCESS_VULNERABLE_MESSAGE.format(pid, CVE_ID))
-                else:
-                    print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, CVE_ID))
-            else:
+        if version_affected == constants.UNSUPPORTED:
+            print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
+            break
+        if not version_affected:
+            print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, CVE_ID))
+            break
+        jcmd_command = f'sudo {jcmd_path} {pid} '
+        utility = commons.available_jcmd_utilities(jcmd_command, debug)
+        if utility:
+            full_jcmd_command = jcmd_command + utility
+            webmvc_webflux = commons.check_loaded_classes(pid, full_jcmd_command, CLASSES, debug)
+            if webmvc_webflux == constants.UNSUPPORTED:
                 print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
+            elif webmvc_webflux:
+                print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} process use the {webmvc_webflux} '
+                                                                f'dependency'))
+                print(constants.FULL_PROCESS_VULNERABLE_MESSAGE.format(pid, CVE_ID))
+            else:
+                print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, CVE_ID))
         else:
             print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
 

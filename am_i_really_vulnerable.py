@@ -99,7 +99,6 @@ def arguments():
 def main():
     """This is the main function."""
     args = arguments()
-    check_dependencies(args.graph)
     if args.container:
         container_names = []
         docker_ps_command = 'sudo docker ps -f status=running'

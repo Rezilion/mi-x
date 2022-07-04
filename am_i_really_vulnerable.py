@@ -80,25 +80,6 @@ def checks_cve_id_parameter(cve_id, describe, debug, graph, container_name):
         print(constants.FULL_EXPLANATION_MESSAGE.format('The vulnerability name does not exists in the database'))
 
 
-def check_dependencies(graph):
-    """This function checks if the dependencies can run successfully."""
-    if graph:
-        try:
-            import graphviz
-        except NameError:
-            print(constants.FULL_EXPLANATION_MESSAGE.format(constants.NOT_INSTALLED_MESSAGE.format('Graphviz',
-                                                                                                   'Graphviz')))
-    try:
-        import semver
-    except ModuleNotFoundError:
-        print(constants.FULL_EXPLANATION_MESSAGE.format(constants.NOT_INSTALLED_MESSAGE.format('Semver', 'Semver')))
-    try:
-        from packaging import version
-    except ModuleNotFoundError:
-        print(constants.FULL_EXPLANATION_MESSAGE.format(constants.NOT_INSTALLED_MESSAGE.format('Packaging',
-                                                                                               'Packaging')))
-
-
 def arguments():
     """This function sets the arguments."""
     parser = argparse.ArgumentParser(description="'AM I Really Vulnerable?' is a service that let's you validate "

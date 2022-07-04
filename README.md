@@ -79,9 +79,7 @@ In order to install the requirements:
 4. Install the relevant package using your os distribution package manager
 
 # Dependencies Installation
-- semver
-- packaging
-- graphviz (only if the graph parameter is set to True)
+- graphviz
 ```
 pip install -r requirements.txt
 ```

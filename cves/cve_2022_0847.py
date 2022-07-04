@@ -1,7 +1,6 @@
 """
 Support for semver, graphviz and other modules which written for avoiding repetitive code.
 """
-import semver
 import graphviz
 from modules import kernel_version, commons, constants
 
@@ -31,8 +30,7 @@ def check_kernel_version(debug):
         print(constants.FULL_EXPLANATION_MESSAGE.format('Unsupported kernel version value'))
         return constants.UNSUPPORTED
     valid_kernel_version = commons.valid_kernel_version(host_kernel_version)
-    if (not semver.compare(valid_kernel_version, FIXED_VERSION) == -1) or \
-            (semver.compare(valid_kernel_version, FIRST_VULNERABLE_VERSION) == -1):
+    if valid_kernel_version >= FIXED_VERSION or valid_kernel_version < FIRST_VULNERABLE_VERSION:
         print(constants.FULL_QUESTION_MESSAGE.format('Is kernel version affected?'))
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your kernel version which is: {valid_kernel_version}, is not'

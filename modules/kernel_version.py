@@ -1,7 +1,6 @@
 """
 Support for semver and other modules which written for avoiding repetitive code.
 """
-import semver
 from modules import run_command, commons, constants
 
 BASIC_COLOR = '\033[00m'
@@ -22,8 +21,7 @@ def check_kernel(min_kernel_version, max_kernel_version, debug):
     if not valid_kernel_version:
         print(f'{EXPLANATION}Kernel version unsupported value{BASIC_COLOR}')
         return 'Unsupported'
-    if semver.compare(max_kernel_version, valid_kernel_version) == 1 and \
-            semver.compare(min_kernel_version, valid_kernel_version) == -1:
+    if max_kernel_version > valid_kernel_version > min_kernel_version:
         vulnerable = True
         print(f'{NEGATIVE_RESULT}Yes{BASIC_COLOR}')
     else:

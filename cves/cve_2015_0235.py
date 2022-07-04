@@ -2,7 +2,6 @@
 Support for graphviz, version from packaging and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from packaging import version
 from modules import run_command, commons, constants
 
 CVE_ID = 'CVE-2015-0235'
@@ -23,8 +22,7 @@ MAX_AFFECTED_VERSION = '2.17'
 def glibc_version(glibc_value):
     """This function checks if the GLIBC version is affected."""
     print(constants.FULL_QUESTION_MESSAGE.format('Is GLIBC version affected?'))
-    if (version.parse(glibc_value) >= version.parse(MIN_AFFECTED_VERSION)) \
-            and (version.parse(glibc_value) <= version.parse(MAX_AFFECTED_VERSION)):
+    if MAX_AFFECTED_VERSION <= glibc_value <=  MAX_AFFECTED_VERSION:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable GLIBC versions are between {MIN_AFFECTED_VERSION} '
                                                         f'to {MAX_AFFECTED_VERSION}'))

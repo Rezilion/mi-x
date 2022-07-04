@@ -1,7 +1,6 @@
 """
 Support for semver, graphviz and other modules which written for avoiding repetitive code.
 """
-import semver
 import graphviz
 from modules import run_command, kernel_version, commons, constants
 
@@ -54,28 +53,25 @@ def nf_tables_affected(nf_tables_path, debug, container_name):
 
 def check_kernel(debug):
     """This function checks if the kernel version is vulnerable."""
-    affected = ''
     print(constants.FULL_QUESTION_MESSAGE.format('Is kernel version vulnerable?'))
     host_kernel_version = kernel_version.get_kernel_version(debug)
     if not host_kernel_version:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Kernel version unsupported value'))
         return constants.UNSUPPORTED
     valid_kernel_version = commons.valid_kernel_version(host_kernel_version)
-    if semver.compare(valid_kernel_version, MAX_VULNERABLE_VERSION) == 1 or \
-            semver.compare(valid_kernel_version, MIN_VULNERABLE_VERSION) == -1:
+    if valid_kernel_version > MAX_VULNERABLE_VERSION or valid_kernel_version < MIN_VULNERABLE_VERSION:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'According to your os release, vulnerable kernel versions '
                                                         f'range is: {MIN_VULNERABLE_VERSION} to '
                                                         f'{MAX_VULNERABLE_VERSION}\nYour kernel version: '
                                                         f'{valid_kernel_version[:constants.END]}'))
-    else:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'According to your os release, vulnerable kernel versions '
-                                                        f'range is: {MIN_VULNERABLE_VERSION} to '
-                                                        f'{MAX_VULNERABLE_VERSION}\nYour kernel version: '
-                                                        f'{valid_kernel_version[:constants.END]}'))
-        return host_kernel_version
-    return affected
+        return ''
+    print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'According to your os release, vulnerable kernel versions '
+                                                    f'range is: {MIN_VULNERABLE_VERSION} to '
+                                                    f'{MAX_VULNERABLE_VERSION}\nYour kernel version: '
+                                                    f'{valid_kernel_version[:constants.END]}'))
+    return host_kernel_version
 
 
 def validate(debug, container_name):

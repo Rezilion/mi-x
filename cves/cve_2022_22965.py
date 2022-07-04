@@ -2,7 +2,7 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import run_command, get_pids, commons, constants
+from modules import run_command, get_pids, commons, constants, os_release
 
 CVE_ID = 'CVE-2022-22965'
 DESCRIPTION = f'''{CVE_ID} - Spring4Shell
@@ -21,6 +21,7 @@ CLASSES = {'org.springframework.web.servlet.mvc.method.annotation.ServletModelAt
 VM_VERSION = '"VM.version"'
 PATCHED_VERSIONS = ['8.5.78', '9.0.62', '10.0.20']
 JDK_MINIMUM_VERSION = '10.0.0'
+ALPINE = 'alpine'
 
 
 def check_tomcat(debug, container_name):
@@ -99,8 +100,9 @@ def validate_processes(pids, debug, container_name):
 
 
 def validate(debug, container_name):
-    """This function validates if the instance is vulnerable to Spring4Shell."""
-    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
+    """This function validates if an instance is vulnerable to Log4Shell."""
+    distribution = os_release.get_field(['Distribution'], debug, container_name).lower()
+    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name) or distribution == ALPINE:
         pids = get_pids.pids_consolidation('java', debug, container_name)
         if pids:
             validate_processes(pids, debug, container_name)

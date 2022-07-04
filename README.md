@@ -47,9 +47,11 @@ Modules are code implementations which are used in different CVE files.
 
 # Support Distributions
 
-The tool support on the following Linux distributions:
+The tool supports the following Linux distributions:
 
 Ubuntu, Debian, Red Hat, Centos, Fedora, SUSE, SLES, Amazon
+
+Partial support for Alpine
 
 
 # Color Legend

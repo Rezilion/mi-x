@@ -3,11 +3,12 @@ Support for os, re, semver, version from packaging and other modules which writt
 """
 import os
 import re
-from modules import run_command, constants, docker_commands, os_type
+from modules import run_command, constants, docker_commands, os_type, os_release
 VM_CLASS_HIERARCHY = 'VM.class_hierarchy'
 GC_CLASS_HISTOGRAM = 'GC.class_histogram'
 HELP = 'help'
 JDK_MINIMUM_VERSION = '10.0.0'
+ALPINE = 'alpine'
 
 
 def check_linux_and_affected_distribution(cve, debug, container_name):
@@ -19,6 +20,19 @@ def check_linux_and_affected_distribution(cve, debug, container_name):
             return False
         return True
     print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(cve))
+    return False
+
+
+def check_distribution_with_alpine_support(debug, container_name):
+    """This function checks if the machine is running on linux and if the os distribution is supported include alpine
+    which has partial support."""
+    if os_type.is_linux(debug, container_name):
+        distribution = os_release.get_field(['Distribution'], debug, container_name).lower()
+        if distribution != ALPINE:
+            if not os_type.is_supported_distribution(debug, container_name):
+                return False
+            return True
+        return True
     return False
 
 

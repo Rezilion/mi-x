@@ -2,7 +2,7 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import get_pids, commons, constants, os_release
+from modules import get_pids, commons, constants
 
 CVE_ID = 'Log4Shell'
 DESCRIPTION = f'''your system will be scanned for all Log4Shell related CVEs.
@@ -60,7 +60,6 @@ CLASS_CVE = {'org.apache.logging.log4j.core.lookup.JndiLookup': 'CVE-2021-44228 
              'org.apache.logging.log4j.core.lookup.ContextMapLookup': 'CVE-2021-45105',
              'org.apache.logging.log4j.core.appender.db.jdbc.JdbcAppender': 'CVE-2021-44832'}
 JDK_MINIMUM_VERSION = '10.0.0'
-ALPINE = 'alpine'
 
 
 def validate_processes(pids, debug, container_name):
@@ -89,8 +88,7 @@ def validate_processes(pids, debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if an instance is vulnerable to Log4Shell."""
-    distribution = os_release.get_field(['Distribution'], debug, container_name).lower()
-    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name) or distribution == ALPINE:
+    if commons.check_distribution_with_alpine_support(debug, container_name):
         pids = get_pids.pids_consolidation('java', debug, container_name)
         if pids:
             validate_processes(pids, debug, container_name)

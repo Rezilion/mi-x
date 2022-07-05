@@ -27,11 +27,16 @@ def check_distribution_with_alpine_support(debug, container_name):
     """This function checks if the machine is running on linux and if the os distribution is supported include alpine
     which has partial support."""
     if os_type.is_linux(debug, container_name):
-        distribution = os_release.get_field(['Distribution'], debug, container_name).lower()
-        if distribution != ALPINE:
+        distribution = os_release.get_field(['Distribution'], debug, container_name)
+        if distribution.lower() != ALPINE:
             if not os_type.is_supported_distribution(debug, container_name):
                 return False
             return True
+        print(constants.FULL_QUESTION_MESSAGE.format('Is the os distributions one of Ubuntu, Debian, Red, Centos, '
+                                                     'Fedora, SUSE, SLES, Amazon, Alpine supported distributions?'))
+        print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The os distribution you are running on is Alpine which is one'
+                                                        f' of the supported distributions'))
         return True
     return False
 

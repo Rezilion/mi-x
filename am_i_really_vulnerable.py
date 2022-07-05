@@ -107,9 +107,12 @@ def main():
         if docker_ps:
             for field in docker_ps.split('\n')[constants.FIRST:constants.END]:
                 container_names.append(field.split(' ')[constants.END])
-            for container_name in container_names:
-                print(f'\nScanning vulnerabilities on {container_name} container')
-                checks_cve_id_parameter(args.cve_id, args.describe, args.debug, args.graph, container_name)
+            if container_names:
+                for container_name in container_names:
+                    print(f'\nScanning vulnerabilities on {container_name} container')
+                    checks_cve_id_parameter(args.cve_id, args.describe, args.debug, args.graph, container_name)
+            else:
+                print(constants.FULL_EXPLANATION_MESSAGE.format('Docker containers where not found, unsupported value'))
         else:
             print(constants.FULL_EXPLANATION_MESSAGE.format('Docker containers where not found, unsupported value'))
     else:

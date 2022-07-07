@@ -13,17 +13,16 @@ NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2022-25636
 A heap overflow Linux kernel bug due to an incorrect flow offload action array size in the `nf_tables_offload`
 function of the file `net/netfilter/nf_dup_netdev.c` of the Netfilter component.
 It impacts Linux kernel versions 5.4 through 5.6.10 and can be leveraged by a local adversary to gain elevated 
-privileges on vulnerable systems to execute arbitrary code, escape containers, or induce a kernel panic.
+privileges on affected systems to execute arbitrary code, escape containers, or induce a kernel panic.
 '''
-MIN_VULNERABLE_VERSION = '5.4.0'
-MAX_VULNERABLE_VERSION = '5.6.10'
-VULNERABLE_VARIABLE = 'offload_flags'
-INVULNERABLE_VARIABLE = 'offload_action'
+MIN_AFFECTED_VERSION = '5.4.0'
+MAX_AFFECTED_VERSION = '5.6.10'
+AFFECTED_VARIABLE = 'offload_flags'
+FIXED_VARIABLE = 'offload_action'
 
 
 def nf_tables_affected(nf_tables_path, debug, container_name):
-    """This function checks if the vulnerable variable - offload_flags or invulnerable variable - offload_action are
-    in use."""
+    """This function checks if the affected variable - offload_flags or fixed variable - offload_action are in use."""
     strings_command = f'strings {nf_tables_path}'
     pipe_strings_command = run_command.command_output(strings_command, debug, container_name)
     strings_output = pipe_strings_command.stdout
@@ -33,21 +32,19 @@ def nf_tables_affected(nf_tables_path, debug, container_name):
                                                         'nf_tables.ko strings value'))
         return constants.UNSUPPORTED
     for string in strings_output.split('\n'):
-        if string == VULNERABLE_VARIABLE:
+        if string == AFFECTED_VARIABLE:
             print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The `nf_tables.ko` file is affected because it uses '
-                                                            f'the vulnerable variable which is - '
-                                                            f'{VULNERABLE_VARIABLE}'))
+            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The `nf_tables.ko` file is affected because it uses the '
+                                                            f'affected variable which is - {AFFECTED_VARIABLE}'))
             return True
-        if string == INVULNERABLE_VARIABLE:
+        if string == FIXED_VARIABLE:
             print(constants.FULL_POSITIVE_RESULT_MESSAGE)
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'The `nf_tables.ko` file is fixed because it uses the'
-                                                            f'invulnerable variable which is - '
-                                                            f'{INVULNERABLE_VARIABLE}'))
+                                                            f'fixed variable which is - {FIXED_VARIABLE}'))
             return False
-    print(constants.FULL_EXPLANATION_MESSAGE.format(f'The vulnerable - {VULNERABLE_VARIABLE} and invulnerable - '
-                                                    f'{INVULNERABLE_VARIABLE} variables were not found in the '
-                                                    f'`nf_tables.ko` file.. unsupported case'))
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'The affected - {AFFECTED_VARIABLE} and fixed - {FIXED_VARIABLE} '
+                                                    f'variables were not found in the `nf_tables.ko` file.. unsupported'
+                                                    f' case'))
     return constants.UNSUPPORTED
 
 
@@ -59,18 +56,16 @@ def check_kernel(debug):
         print(constants.FULL_EXPLANATION_MESSAGE.format('Kernel version unsupported value'))
         return constants.UNSUPPORTED
     valid_kernel_version = commons.valid_kernel_version(host_kernel_version)
-    if valid_kernel_version > MAX_VULNERABLE_VERSION or valid_kernel_version < MIN_VULNERABLE_VERSION:
+    if valid_kernel_version > MAX_AFFECTED_VERSION or valid_kernel_version < MIN_AFFECTED_VERSION:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'According to your os release, affected kernel versions '
-                                                        f'range is: {MIN_VULNERABLE_VERSION} to '
-                                                        f'{MAX_VULNERABLE_VERSION}\nYour kernel version: '
-                                                        f'{valid_kernel_version[:constants.END]}'))
+                                                        f'range is: {MIN_AFFECTED_VERSION} to {MAX_AFFECTED_VERSION}\n'
+                                                        f'Your kernel version: {valid_kernel_version[:constants.END]}'))
         return ''
     print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-    print(constants.FULL_EXPLANATION_MESSAGE.format(f'According to your os release, affected kernel versions '
-                                                    f'range is: {MIN_VULNERABLE_VERSION} to '
-                                                    f'{MAX_VULNERABLE_VERSION}\nYour kernel version: '
-                                                    f'{valid_kernel_version[:constants.END]}'))
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'According to your os release, affected kernel versions range is: '
+                                                    f'{MIN_AFFECTED_VERSION} to {MAX_AFFECTED_VERSION}\nYour kernel '
+                                                    f'version: {valid_kernel_version[:constants.END]}'))
     return host_kernel_version
 
 

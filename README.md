@@ -34,7 +34,7 @@ Everyone is free to use 'Am I Really Vulnerable?' under the conditions of the AG
    - **Type**:      vulnerability validation
    - **License**:   GNU AFFERO GENERAL PUBLIC LICENSE
    - **Language**:  Python3
-   - **Author**:    Ofri Ouzan, Rezilion
+   - **Author**:    Rezilion
    - **Required Permissions**: root preferred, not needed (may use sudo)
    
 # Files

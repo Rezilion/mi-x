@@ -88,7 +88,7 @@ def apache_configuration_file(apache, debug, container_name):
 
 
 def apache_version(apache, debug, container_name):
-    """This function checks if the Apache HTTP Server version is vulnerable."""
+    """This function checks if the Apache HTTP Server version is exploitable."""
     apache_command = f'{apache} -v'
     pipe_apache = run_command.command_output(apache_command, debug, container_name)
     apache = pipe_apache.stdout
@@ -109,25 +109,25 @@ def apache_version(apache, debug, container_name):
         return constants.UNSUPPORTED
     if FIRST_AFFECTED_VERSION == version:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable apache versions : {FIRST_AFFECTED_VERSION} and'
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected apache versions : {FIRST_AFFECTED_VERSION} and'
                                                         f' {SECOND_AFFECTED_VERSION}\nYour apache version: '
                                                         f'{version}\nYour apache version is affected'))
         return 'CVE-2021-41773'
     if SECOND_AFFECTED_VERSION == version:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable apache versions : {FIRST_AFFECTED_VERSION} and'
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected apache versions : {FIRST_AFFECTED_VERSION} and'
                                                         f' {SECOND_AFFECTED_VERSION}\nYour apache version: '
                                                         f'{version}\nYour apache version is affected'))
         return 'CVE-2021-42013'
     print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable apache versions : {FIRST_AFFECTED_VERSION} and'
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected apache versions : {FIRST_AFFECTED_VERSION} and'
                                                     f' {SECOND_AFFECTED_VERSION}\nYour apache version: '
                                                     f'{version}\nYour apache version is not affected'))
     return False
 
 
 def validate(debug, container_name):
-    """This function validates if the host is vulnerable to CVE-2021-41773 or CVE-2021-42013."""
+    """This function validates if the host is exploitable to CVE-2021-41773 or CVE-2021-42013."""
     if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
         apache = apache_functions.distribution_to_apache(debug, container_name)
         if apache == constants.UNSUPPORTED:
@@ -141,16 +141,16 @@ def validate(debug, container_name):
                 elif permissions:
                     modules = apache_functions.loaded_modules(apache, 'cgi_module', debug, container_name)
                     if modules == constants.UNSUPPORTED or not modules:
-                        print(constants.FULL_VULNERABLE_MESSAGE.format(f'{CVE_ID} Path Traversal attack'))
+                        print(constants.FULL_EXPLOITABLE_MESSAGE.format(f'{CVE_ID} Path Traversal attack'))
                     else:
-                        print(constants.FULL_VULNERABLE_MESSAGE.format(f'{CVE_ID} Path Traversal attack and Remote Code'
+                        print(constants.FULL_EXPLOITABLE_MESSAGE.format(f'{CVE_ID} Path Traversal attack and Remote Code'
                                                                        f'Execution attacks'))
                 else:
-                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                    print(constants.FULL_NOT_EXPLOITABLE_MESSAGE.format(CVE_ID))
             else:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_NOT_EXPLOITABLE_MESSAGE.format(CVE_ID))
         else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_EXPLOITABLE_MESSAGE.format(CVE_ID))
 
 
 def validation_flow_chart():
@@ -159,20 +159,20 @@ def validation_flow_chart():
     vol_graph = graphviz.Digraph('G', filename=CVE_ID)
     commons.graph_start(CVE_ID, vol_graph)
     vol_graph.edge('Is it Linux?', 'Is host distribution affected?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vol_graph.edge('Is it Linux?', 'Not Exploitable', label='No')
     vol_graph.edge('Is host distribution affected?', 'Is Apache HTTP Server installed?', label='Yes')
-    vol_graph.edge('Is host distribution affected?', 'Not Vulnerable', label='No')
+    vol_graph.edge('Is host distribution affected?', 'Not Exploitable', label='No')
     vol_graph.edge('Is Apache HTTP Server installed?', 'Is apache version affected?', label='Yes')
-    vol_graph.edge('Is Apache HTTP Server installed?', 'Not Vulnerable', label='No')
+    vol_graph.edge('Is Apache HTTP Server installed?', 'Not Exploitable', label='No')
     vol_graph.edge('Is apache version affected?', 'Is configuration file set the filesystem directory "Require '
                                                   'all granted"?', label='Yes')
-    vol_graph.edge('Is apache version affected?', 'Not Vulnerable', label='No')
+    vol_graph.edge('Is apache version affected?', 'Not Exploitable', label='No')
     vol_graph.edge('Is configuration file set the filesystem directory "Require all granted"?', 'Is "cgi_module" '
                                                                                                 'loaded?', label='Yes')
-    vol_graph.edge('Is configuration file set the filesystem directory "Require all granted"?', 'Not Vulnerable',
+    vol_graph.edge('Is configuration file set the filesystem directory "Require all granted"?', 'Not Exploitable',
                    label='No')
-    vol_graph.edge('Is "cgi_module" loaded?', 'Vulnerable to Path Traversal and Remote Code Execution', label='Yes')
-    vol_graph.edge('Is "cgi_module" loaded?', 'Vulnerable to Path Traversal', label='No')
+    vol_graph.edge('Is "cgi_module" loaded?', 'Exploitable to Path Traversal and Remote Code Execution', label='Yes')
+    vol_graph.edge('Is "cgi_module" loaded?', 'Exploitable to Path Traversal', label='No')
     commons.graph_end(vol_graph)
 
 

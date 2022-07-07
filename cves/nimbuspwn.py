@@ -90,16 +90,16 @@ def distribution_version_affected(debug, container_name):
 
 
 def validate(debug, container_name):
-    """This function validates if an instance is vulnerable to NIMBUSPWN."""
+    """This function validates if an instance is exploitable to NIMBUSPWN."""
     if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
         host_information = distribution_version_affected(debug, container_name)
         if host_information:
             if check_networkd_version(host_information, debug, container_name):
-                print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_EXPLOITABLE_MESSAGE.format(CVE_ID))
             else:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_NOT_EXPLOITABLE_MESSAGE.format(CVE_ID))
         else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_EXPLOITABLE_MESSAGE.format(CVE_ID))
 
 
 def validation_flow_chart():
@@ -107,12 +107,12 @@ def validation_flow_chart():
     vol_graph = graphviz.Digraph('G', filename=CVE_ID)
     commons.graph_start(CVE_ID, vol_graph)
     vol_graph.edge('Is it Linux?', 'Are os distribution and version affected?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vol_graph.edge('Is it Linux?', 'Not Exploitable', label='No')
     vol_graph.edge('Are os distribution and version affected?', 'Is networkd-dispatcher policy version affected?',
                    label='Yes')
-    vol_graph.edge('Are os distribution and version affected?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is networkd-dispatcher policy version affected?', 'Vulnerable', label='Yes')
-    vol_graph.edge('Is networkd-dispatcher policy version affected?', 'Not Vulnerable', label='No')
+    vol_graph.edge('Are os distribution and version affected?', 'Not Exploitable', label='No')
+    vol_graph.edge('Is networkd-dispatcher policy version affected?', 'Exploitable', label='Yes')
+    vol_graph.edge('Is networkd-dispatcher policy version affected?', 'Not Exploitable', label='No')
     commons.graph_end(vol_graph)
 
 

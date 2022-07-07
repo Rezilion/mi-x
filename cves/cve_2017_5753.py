@@ -35,15 +35,15 @@ def spectre_file(debug, container_name):
 
 
 def validate(debug, container_name):
-    """This function validates if the host is vulnerable to Spectre Variant 1."""
+    """This function validates if the host is exploitable to Spectre Variant 1."""
     if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
         spectre = spectre_file(debug, container_name)
         if spectre == constants.UNSUPPORTED:
             print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
         elif spectre:
-            print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_EXPLOITABLE_MESSAGE.format(CVE_ID))
         else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_EXPLOITABLE_MESSAGE.format(CVE_ID))
 
 
 def validation_flow_chart():
@@ -52,9 +52,9 @@ def validation_flow_chart():
     vol_graph = graphviz.Digraph('G', filename=CVE_ID)
     commons.graph_start(CVE_ID, vol_graph)
     vol_graph.edge('Is it Linux?', f'Does {spectre_v1_path} file contain the "vulnerable" string?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge(f'Does {spectre_v1_path} file contain the "vulnerable" string?', 'Not Vulnerable', label='No')
-    vol_graph.edge(f'Does {spectre_v1_path} file contain the "vulnerable" string?', 'Vulnerable', label='Yes')
+    vol_graph.edge('Is it Linux?', 'Not Exploitable', label='No')
+    vol_graph.edge(f'Does {spectre_v1_path} file contain the "vulnerable" string?', 'Not Exploitable', label='No')
+    vol_graph.edge(f'Does {spectre_v1_path} file contain the "vulnerable" string?', 'Exploitable', label='Yes')
     commons.graph_end(vol_graph)
 
 

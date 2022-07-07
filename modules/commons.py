@@ -19,7 +19,7 @@ def check_linux_and_affected_distribution(cve, debug, container_name):
             print(constants.FULL_NOT_DETERMINED_MESSAGE.format(cve))
             return False
         return True
-    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(cve))
+    print(constants.FULL_NOT_EXPLOITABLE_MESSAGE.format(cve))
     return False
 
 
@@ -45,9 +45,9 @@ def graph_start(cve, vol_graph):
     """Graphviz start function."""
     vol_graph.attr(label=f'{cve}\n\n', labelloc='t')
     vol_graph.attr('node', shape='box', style='filled', color='red')
-    vol_graph.node(constants.GRAPH_VULNERABLE)
+    vol_graph.node(constants.GRAPH_EXPLOITABLE)
     vol_graph.attr('node', shape='box', style='filled', color='green')
-    vol_graph.node(constants.GRAPH_NOT_VULNERABLE)
+    vol_graph.node(constants.GRAPH_NOT_EXPLOITABLE)
     vol_graph.attr('node', shape='box', color='lightgrey')
 
 

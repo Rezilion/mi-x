@@ -52,8 +52,8 @@ def nf_tables_affected(nf_tables_path, debug, container_name):
 
 
 def check_kernel(debug):
-    """This function checks if the kernel version is vulnerable."""
-    print(constants.FULL_QUESTION_MESSAGE.format('Is kernel version vulnerable?'))
+    """This function checks if the kernel version is exploitable."""
+    print(constants.FULL_QUESTION_MESSAGE.format('Is kernel version affected?'))
     host_kernel_version = kernel_version.get_kernel_version(debug)
     if not host_kernel_version:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Kernel version unsupported value'))
@@ -61,13 +61,13 @@ def check_kernel(debug):
     valid_kernel_version = commons.valid_kernel_version(host_kernel_version)
     if valid_kernel_version > MAX_VULNERABLE_VERSION or valid_kernel_version < MIN_VULNERABLE_VERSION:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'According to your os release, vulnerable kernel versions '
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'According to your os release, affected kernel versions '
                                                         f'range is: {MIN_VULNERABLE_VERSION} to '
                                                         f'{MAX_VULNERABLE_VERSION}\nYour kernel version: '
                                                         f'{valid_kernel_version[:constants.END]}'))
         return ''
     print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-    print(constants.FULL_EXPLANATION_MESSAGE.format(f'According to your os release, vulnerable kernel versions '
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'According to your os release, affected kernel versions '
                                                     f'range is: {MIN_VULNERABLE_VERSION} to '
                                                     f'{MAX_VULNERABLE_VERSION}\nYour kernel version: '
                                                     f'{valid_kernel_version[:constants.END]}'))
@@ -75,26 +75,26 @@ def check_kernel(debug):
 
 
 def validate(debug, container_name):
-    """This function validates if the host is vulnerable to CVE-2022-25636."""
+    """This function validates if the host is exploitable to CVE-2022-25636."""
     if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
-        vulnerable_kernel_version = check_kernel(debug)
-        if vulnerable_kernel_version == constants.UNSUPPORTED:
+        affected_kernel_version = check_kernel(debug)
+        if affected_kernel_version == constants.UNSUPPORTED:
             print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
-        elif vulnerable_kernel_version:
-            nf_tables_path = f'/usr/lib/modules/{vulnerable_kernel_version}/kernel/net/netfilter/nf_tables.ko'
+        elif affected_kernel_version:
+            nf_tables_path = f'/usr/lib/modules/{affected_kernel_version}/kernel/net/netfilter/nf_tables.ko'
             nf_tables_file = commons.check_file_existence(nf_tables_path, debug, container_name)
             if nf_tables_file:
                 affected = nf_tables_affected(nf_tables_path, debug, container_name)
                 if affected == constants.UNSUPPORTED:
                     print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
                 elif affected:
-                    print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
+                    print(constants.FULL_EXPLOITABLE_MESSAGE.format(CVE_ID))
                 else:
-                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                    print(constants.FULL_NOT_EXPLOITABLE_MESSAGE.format(CVE_ID))
             else:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_NOT_EXPLOITABLE_MESSAGE.format(CVE_ID))
         else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_EXPLOITABLE_MESSAGE.format(CVE_ID))
 
 
 def validation_flow_chart():
@@ -102,13 +102,13 @@ def validation_flow_chart():
     vol_graph = graphviz.Digraph('G', filename=CVE_ID)
     commons.graph_start(CVE_ID, vol_graph)
     vol_graph.edge('Is it Linux?', 'Is the kernel version affected?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vol_graph.edge('Is it Linux?', 'Not Exploitable', label='No')
     vol_graph.edge('Is the kernel version affected?', 'Does the `nf_tables.ko` file exists?', label='Yes')
-    vol_graph.edge('Is the kernel version affected?', 'Not Vulnerable', label='No')
+    vol_graph.edge('Is the kernel version affected?', 'Not Exploitable', label='No')
     vol_graph.edge('Does the `nf_tables.ko` file exists?', 'Is `nf_tables.ko` file affected?', label='Yes')
-    vol_graph.edge('Does the `nf_tables.ko` file exists?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is `nf_tables.ko` file affected?', 'Vulnerable', label='Yes')
-    vol_graph.edge('Is `nf_tables.ko` file affected?', 'Not Vulnerable', label='No')
+    vol_graph.edge('Does the `nf_tables.ko` file exists?', 'Not Exploitable', label='No')
+    vol_graph.edge('Is `nf_tables.ko` file affected?', 'Exploitable', label='Yes')
+    vol_graph.edge('Is `nf_tables.ko` file affected?', 'Not Exploitable', label='No')
     commons.graph_end(vol_graph)
 
 

@@ -180,6 +180,6 @@ def main(describe, graph, debug, container_name):
     validate(debug, container_name)
     if graph:
         validation_flow_chart()
-    next_cve_path = 'CVEs.' + NEXT_VULNERABILITY
+    next_cve_path = 'cves.' + NEXT_VULNERABILITY
     cve_validation = importlib.import_module(next_cve_path)
     cve_validation.main(describe, graph, debug, container_name)

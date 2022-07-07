@@ -1,7 +1,8 @@
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 ![pylint](https://user-images.githubusercontent.com/15197376/175817365-150e2500-693d-47d6-94ee-03a96ef36c73.svg)
-
 # **Am I Really Vulnerable?**
+
+ Author:                   2022 - Now, Rezilion
 
  Description:              Vulnerabilities validation
 
@@ -48,9 +49,11 @@ Modules are code implementations which are used in different CVE files.
 
 # Support Distributions
 
-The tool support on the following Linux distributions:
+The tool supports the following Linux distributions:
 
 Ubuntu, Debian, Red Hat, Centos, Fedora, SUSE, SLES, Amazon
+
+Partial support for Alpine
 
 
 # Color Legend
@@ -62,6 +65,7 @@ Ubuntu, Debian, Red Hat, Centos, Fedora, SUSE, SLES, Amazon
 1. Python version 3
 2. Graphviz (optional, needed only for the graph capabilities) 
 3. Xdg-utils (optional, needed only for the graph capabilities)
+4. openjdk with jcmd support (needed when running in container mode and the openjdk version on the container is lower than `openjdk10`)
 
 In order to install the requirements:
 1. Check your os distribution you can use the following command:
@@ -74,11 +78,10 @@ In order to install the requirements:
    
    yum - Red Hat, CentOS, Fedora, SUSE, SLES, Amazon
 3. Install the relevant package using your os distribution package manager
+4. Install the relevant package using your os distribution package manager
 
 # Dependencies Installation
-- semver
-- packaging
-- graphviz (only if the graph parameter is set to True)
+- graphviz
 ```
 pip install -r requirements.txt
 ```

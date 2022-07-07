@@ -2,7 +2,6 @@
 Support for os, semver, graphviz and other modules which written for avoiding repetitive code.
 """
 import os
-import semver
 import graphviz
 from modules import run_command, apache as apache_functions, commons, constants
 
@@ -108,13 +107,13 @@ def apache_version(apache, debug, container_name):
     if not version:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Unsupported version value'))
         return constants.UNSUPPORTED
-    if semver.compare(FIRST_AFFECTED_VERSION, version) == 0:
+    if FIRST_AFFECTED_VERSION == version:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable apache versions : {FIRST_AFFECTED_VERSION} and'
                                                         f' {SECOND_AFFECTED_VERSION}\nYour apache version: '
                                                         f'{version}\nYour apache version is affected'))
         return 'CVE-2021-41773'
-    if semver.compare(SECOND_AFFECTED_VERSION, version) == 0:
+    if SECOND_AFFECTED_VERSION == version:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable apache versions : {FIRST_AFFECTED_VERSION} and'
                                                         f' {SECOND_AFFECTED_VERSION}\nYour apache version: '

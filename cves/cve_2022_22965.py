@@ -18,9 +18,9 @@ server and run on JDK 9 and higher.
 MIN_AFFECTED_VERSION = 9
 CLASSES = {'org.springframework.web.servlet.mvc.method.annotation.ServletModelAttributeMethodProcessor': 'webmvc',
            'org.springframework.web.reactive.result.method.annotation.ModelAttributeMethodArgumentResolver': 'webflux'}
-VM_VERSION = 'VM.version'
-VM_CLASS_HIERARCHY = 'VM.class_hierarchy'
+VM_VERSION = '"VM.version"'
 PATCHED_VERSIONS = ['8.5.78', '9.0.62', '10.0.20']
+JDK_MINIMUM_VERSION = '10.0.0'
 
 
 def check_tomcat(debug, container_name):
@@ -52,7 +52,7 @@ def check_java_version(pid, jcmd_command, debug):
         return constants.UNSUPPORTED
     version = jcmd.split('\n')[2].split(' ')[constants.END]
     start_of_version = int(version.split('.')[constants.START])
-    if start_of_version < MIN_AFFECTED_VERSION:
+    if start_of_version > MIN_AFFECTED_VERSION:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'The minimum affected java version is: '
                                                         f'{MIN_AFFECTED_VERSION}, the process`s java version which is: '
@@ -60,26 +60,32 @@ def check_java_version(pid, jcmd_command, debug):
         return False
     print(constants.FULL_POSITIVE_RESULT_MESSAGE)
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'The minimum affected java version is: {MIN_AFFECTED_VERSION}, the'
-                                                    f'process`s java version which is: {version}, is affected'))
+                                                    f' process`s java version which is: {version}, is affected'))
     return True
 
 
 def validate_processes(pids, debug, container_name):
     """This function loops over all java processes and checks if they are vulnerable."""
     for pid in pids:
+        jcmd_path = 'jcmd'
         if container_name:
-            jcmd_path = commons.get_jcmd(pid, debug, container_name)
-        else:
-            jcmd_path = 'jcmd'
-        if jcmd_path == constants.UNSUPPORTED:
-            print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
-        jcmd_command = f'sudo {jcmd_path} {pid} "{VM_VERSION}"'
+            jcmd_path = commons.build_jcmd_path(pid, debug, container_name)
+            if jcmd_path == constants.UNSUPPORTED:
+                print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
+                break
+        jcmd_command = f'sudo {jcmd_path} {pid} {VM_VERSION}'
         version_affected = check_java_version(pid, jcmd_command, debug)
-        if not version_affected == constants.UNSUPPORTED:
-            if not version_affected:
-                print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, CVE_ID))
-            jcmd_command = f'sudo {jcmd_path} {pid} "{VM_CLASS_HIERARCHY}"'
-            webmvc_webflux = commons.check_loaded_classes(pid, jcmd_command, CLASSES, debug)
+        if version_affected == constants.UNSUPPORTED:
+            print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
+            break
+        if not version_affected:
+            print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, CVE_ID))
+            break
+        jcmd_command = f'sudo {jcmd_path} {pid} '
+        utility = commons.available_jcmd_utilities(jcmd_command, debug)
+        if utility:
+            full_jcmd_command = jcmd_command + utility
+            webmvc_webflux = commons.check_loaded_classes(pid, full_jcmd_command, CLASSES, debug)
             if webmvc_webflux == constants.UNSUPPORTED:
                 print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
             elif webmvc_webflux:
@@ -93,8 +99,8 @@ def validate_processes(pids, debug, container_name):
 
 
 def validate(debug, container_name):
-    """This function validates if the instance is vulnerable to Spring4Shell."""
-    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
+    """This function validates if an instance is vulnerable to Log4Shell."""
+    if commons.check_distribution_with_alpine_support(debug, container_name):
         pids = get_pids.pids_consolidation('java', debug, container_name)
         if pids:
             validate_processes(pids, debug, container_name)

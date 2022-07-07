@@ -2,7 +2,6 @@
 Support for subprocess, semver, graphviz and other modules which written for avoiding repetitive code.
 """
 import subprocess
-import semver
 import graphviz
 from modules import run_command, commons, constants
 
@@ -170,8 +169,7 @@ def cve_2014_6271(container_name):
 def is_bash_affected(bash_version):
     """This function check the bash version."""
     print(constants.FULL_QUESTION_MESSAGE.format('Is bash version affected?'))
-    if (semver.compare(bash_version, MIN_BASH_VULNERABLE_VERSION) == -1) \
-            and (semver.compare(bash_version, MAX_BASH_VULNERABLE_VERSION) == 1):
+    if MIN_BASH_VULNERABLE_VERSION > bash_version > MAX_BASH_VULNERABLE_VERSION:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format('Your bash version is not affected'))
     else:

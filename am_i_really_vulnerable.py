@@ -24,6 +24,7 @@ Dirty_Pipe - CVE-2022-0847
 CVE-2022-25636
 NimbusPWN - CVE-2022-29799, CVE-2022-29800
 Meltdown - CVE-2017-5754
+Spectre - CVE-2017-5715, CVE-2017-5753, CVE-2017-5754
 
 Run options:
 all - runs checks for all the CVEs in the database
@@ -79,25 +80,6 @@ def checks_cve_id_parameter(cve_id, describe, debug, graph, container_name):
         print(constants.FULL_EXPLANATION_MESSAGE.format('The vulnerability name does not exists in the database'))
 
 
-def check_dependencies(graph):
-    """This function checks if the dependencies can run successfully."""
-    if graph:
-        try:
-            import graphviz
-        except NameError:
-            print(constants.FULL_EXPLANATION_MESSAGE.format(constants.NOT_INSTALLED_MESSAGE.format('Graphviz',
-                                                                                                   'Graphviz')))
-    try:
-        import semver
-    except ModuleNotFoundError:
-        print(constants.FULL_EXPLANATION_MESSAGE.format(constants.NOT_INSTALLED_MESSAGE.format('Semver', 'Semver')))
-    try:
-        from packaging import version
-    except ModuleNotFoundError:
-        print(constants.FULL_EXPLANATION_MESSAGE.format(constants.NOT_INSTALLED_MESSAGE.format('Packaging',
-                                                                                               'Packaging')))
-
-
 def arguments():
     """This function sets the arguments."""
     parser = argparse.ArgumentParser(description="'AM I Really Vulnerable?' is a service that let's you validate "
@@ -117,7 +99,6 @@ def arguments():
 def main():
     """This is the main function."""
     args = arguments()
-    check_dependencies(args.graph)
     if args.container:
         container_names = []
         docker_ps_command = 'sudo docker ps -f status=running'
@@ -126,11 +107,14 @@ def main():
         if docker_ps:
             for field in docker_ps.split('\n')[constants.FIRST:constants.END]:
                 container_names.append(field.split(' ')[constants.END])
-            for container_name in container_names:
-                print(f'\nScanning vulnerabilities on {container_name} container')
-                checks_cve_id_parameter(args.cve_id, args.describe, args.debug, args.graph, container_name)
+            if container_names:
+                for container_name in container_names:
+                    print(f'\nScanning vulnerabilities on {container_name} container')
+                    checks_cve_id_parameter(args.cve_id, args.describe, args.debug, args.graph, container_name)
+            else:
+                print(constants.FULL_EXPLANATION_MESSAGE.format('Docker containers were not found, unsupported value'))
         else:
-            print(constants.FULL_EXPLANATION_MESSAGE.format('Docker containers where not found, unsupported value'))
+            print(constants.FULL_EXPLANATION_MESSAGE.format('Docker containers were not found, unsupported value'))
     else:
         checks_cve_id_parameter(args.cve_id, args.describe, args.debug, args.graph, container_name='')
 

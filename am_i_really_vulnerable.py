@@ -114,7 +114,7 @@ def main():
             else:
                 print(constants.FULL_EXPLANATION_MESSAGE.format('Docker containers where not found, unsupported value'))
         else:
-            print(constants.FULL_EXPLANATION_MESSAGE.format('Docker containers where not found, unsupported value'))
+            print(constants.FULL_EXPLANATION_MESSAGE.format('Docker containers were not found, unsupported value'))
     else:
         checks_cve_id_parameter(args.cve_id, args.describe, args.debug, args.graph, container_name='')
 

@@ -1,6 +1,6 @@
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 ![pylint](https://user-images.githubusercontent.com/15197376/175817365-150e2500-693d-47d6-94ee-03a96ef36c73.svg)
-# **Am I Really Vulnerable?**
+# **Am I Exploitable?**
 
  Author:                   2022 - Now, Rezilion
 
@@ -14,25 +14,25 @@
 # Introduction
 
 ## Description
-‘Am I Really Vulnerable?’ is a python open source project that comes to meet the need of validating if your system is vulnerable to specific vulnerabilities.
-The project can help you understand whether you are vulnerable to a specific vulnerability and explain to you what is the vulnerable component or invulnerable component in your system.
+‘Am I Exploitable?’ is a python open source project that comes to meet the need of validating if your system is exploitable to specific vulnerabilities.
+The project can help you understand whether you are exploitable to a specific vulnerability and explain to you what is the vulnerable component or invulnerable component in your system.
 The project can create a graph that presents the validation flow according to the vulnerability checks we perform.
-We want to create a community of researchers and programmers that can add vulnerability checks for new vulnerabilities or critical or famous vulnerabilities. Whenever a new vulnerability comes up, we can offer this service that helps people validate if they are vulnerable or not.
+We want to create a community of researchers and programmers that can add vulnerability checks for new vulnerabilities or critical or famous vulnerabilities. Whenever a new vulnerability comes up, we can offer this service that helps people validate if they are exploitable or not.
 In addition, the vulnerabilities checks we wrote so far, can be expanded with some checks we might have missed.
 
 ## Features and usage options:
-* Validate if vulnerable to provided cve
-* Validate if vulnerable to category of cves
+* Validate if exploitable to provided cve
+* Validate if exploitable to category of cves
 * Get the vulnerability description
 * Validate the host containers
 * Present the validation flow logic as a graph. An example flow graph:
 
 ![PWNKIT_Flow](https://user-images.githubusercontent.com/15197376/165183294-45482743-1c92-4b24-8477-812a62537c71.png)
 
-Everyone is free to use 'Am I Really Vulnerable?' under the conditions of the AGPL-3.0 License (see [LICENSE](https://github.com/Rezilion/amireallyvulnerable/blob/main/LICENSE) file).
+Everyone is free to use 'Am I Exploitable?' under the conditions of the AGPL-3.0 License (see [LICENSE](https://github.com/Rezilion/mi-x/blob/main/LICENSE) file).
  
 ## Quick facts
-   - **Name**:      'Am I Really Vulnerable?'
+   - **Name**:      'Am I Exploitable?'
    - **Type**:      vulnerability validation
    - **License**:   GNU AFFERO GENERAL PUBLIC LICENSE
    - **Language**:  Python3
@@ -41,7 +41,7 @@ Everyone is free to use 'Am I Really Vulnerable?' under the conditions of the AG
    
 # Files
 
-- `am_i_really_vulnerable.py` - The main file which handles the user input and the CVEs calls.
+- `am_i_exploitable.py` - The main file which handles the user input and the CVEs calls.
 - `CVEs` - Python package that contains a python file for each currently supported CVE.
 - `Modules` - Python package that contains modules.
 Modules are code implementations which are used in different CVE files.
@@ -92,17 +92,17 @@ The very latest developments can be obtained via git.
 
 Clone or download the project files (no compilation nor installation is required) 
 ```
-git clone https://github.com/Rezilion/amireallyvulnerable.git
+git clone https://github.com/Rezilion/mi-x.git
 ```
 Execute:
 ```
-cd amireallyvulnerable && python3 am_i_really_vulnerable.py
+cd mi-x && python3 am_i_exploitable.py
 ```
 # Execution Example
 
 Execute the program using parameters
 ```
-python3 am_i_really_vulnerable.py --cve_id cve_yyyy_xxxx --container True --graph True
+python3 am_i_exploitable.py --cve_id cve_yyyy_xxxx --container True --graph True
 ```
 ![Executing](https://user-images.githubusercontent.com/15197376/165183169-6b33eae8-c4f2-4d55-80b8-c28840ca467f.gif)
 
@@ -138,7 +138,7 @@ Help to understand how to run the code
 
 # Supported Systems
 
-'Am I Really Vulnerable?' currently supports Linux.
+'Am I Exploitable?' currently supports Linux.
 
 This tool is tested or confirmed to work with Linux systems.
 
@@ -146,7 +146,7 @@ This tool is tested or confirmed to work with Linux systems.
 
 Found an issue, or have a great idea? Let us know:
 
-* GitHub - https://github.com/Rezilion/amireallyvulnerable.git
+* GitHub - https://github.com/Rezilion/mi-x.git
 * E-mail - ofrio@rezilion.com
 
 Contributions are appreciated and can be done via GitHub. 
@@ -155,7 +155,7 @@ See CONTRIBUTING.md for more information about how to submit them.
 
 # Support
 
-'Am I Really Vulnerable?' is tested on most common Linux operating systems. The documentation (README) and the debugging 
+'Am I Exploitable?' is tested on most common Linux operating systems. The documentation (README) and the debugging 
 information (set the debug parameter to 'True'), should cover most questions and problems. 
 
 Bugs can be reported via GitHub, or sending an e-mail to the email address above.

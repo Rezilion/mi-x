@@ -65,7 +65,7 @@ Partial support for Alpine
 1. Python version 3
 2. Graphviz (optional, needed only for the graph capabilities) 
 3. Xdg-utils (optional, needed only for the graph capabilities)
-4. openjdk with jcmd support (needed when running on container mode and the openjdk version on the container is lower than openjdk10)
+4. openjdk with jcmd support (needed when running in container mode and the openjdk version on the container is lower than `openjdk10`)
 
 In order to install the requirements:
 1. Check your os distribution you can use the following command:

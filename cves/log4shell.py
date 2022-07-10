@@ -104,7 +104,7 @@ def validation_flow_chart():
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge('Are there running Java processes?', 'Are the Vulnerable classes loaded?', label='Yes')
     vol_graph.edge('Are there running Java processes?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Are the Vulnerable classes loaded?', 'Vulnerable', label='Yes')
+    vol_graph.edge('Are the vulnerable classes loaded?', 'Vulnerable', label='Yes')
     vol_graph.edge('Are the Vulnerable classes loaded?', 'Not Vulnerable', label='No')
     commons.graph_end(vol_graph)
 

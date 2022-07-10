@@ -36,7 +36,7 @@ MIN_KERNEL_VERSION = '0'
 
 
 def check_requirements(execute, suid, root):
-    """This function checks the file requirements in order to be exploitable."""
+    """This function checks the pkexec file permissions for exploitable configuration."""
     affected = ''
     print(constants.FULL_QUESTION_MESSAGE.format('Does pkexec have execute permissions?'))
     if execute:

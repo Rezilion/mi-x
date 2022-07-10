@@ -63,7 +63,7 @@ JDK_MINIMUM_VERSION = '10.0.0'
 
 
 def validate_processes(pids, debug, container_name):
-    """This function loops over all java processes and checks if they are exploitable."""
+    """This function loops over all java processes and checks if they are vulnerable."""
     for pid in pids:
         jcmd_path = 'jcmd'
         if container_name:
@@ -79,21 +79,21 @@ def validate_processes(pids, debug, container_name):
             if cves == constants.UNSUPPORTED:
                 print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
             elif cves:
-                print(constants.FULL_PROCESS_EXPLOITABLE_MESSAGE.format(pid, cves))
+                print(constants.FULL_PROCESS_VULNERABLE_MESSAGE.format(pid, cves))
             else:
-                print(constants.FULL_PROCESS_NOT_EXPLOITABLE_MESSAGE.format(pid, CVE_ID))
+                print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, CVE_ID))
         else:
             print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
 
 
 def validate(debug, container_name):
-    """This function validates if an instance is exploitable to Log4Shell."""
+    """This function validates if an instance is vulnerable to Log4Shell."""
     if commons.check_distribution_with_alpine_support(debug, container_name):
         pids = get_pids.pids_consolidation('java', debug, container_name)
         if pids:
             validate_processes(pids, debug, container_name)
         else:
-            print(constants.FULL_NOT_EXPLOITABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
 def validation_flow_chart():
@@ -101,11 +101,11 @@ def validation_flow_chart():
     vol_graph = graphviz.Digraph('G', filename=CVE_ID)
     commons.graph_start(CVE_ID, vol_graph)
     vol_graph.edge('Is it Linux?', 'Are there running Java processes?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Exploitable', label='No')
-    vol_graph.edge('Are there running Java processes?', 'Are the exploitable classes loaded?', label='Yes')
-    vol_graph.edge('Are there running Java processes?', 'Not Exploitable', label='No')
-    vol_graph.edge('Are the exploitable classes loaded?', 'Exploitable', label='Yes')
-    vol_graph.edge('Are the exploitable classes loaded?', 'Not Exploitable', label='No')
+    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vol_graph.edge('Are there running Java processes?', 'Are the Vulnerable classes loaded?', label='Yes')
+    vol_graph.edge('Are there running Java processes?', 'Not Vulnerable', label='No')
+    vol_graph.edge('Are the Vulnerable classes loaded?', 'Vulnerable', label='Yes')
+    vol_graph.edge('Are the Vulnerable classes loaded?', 'Not Vulnerable', label='No')
     commons.graph_end(vol_graph)
 
 

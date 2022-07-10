@@ -212,7 +212,7 @@ def distribution_version_affected(debug, container_name):
 
 
 def validate(debug, container_name):
-    """This function validates if the host is exploitable to PwnKit."""
+    """This function validates if the host is vulnerable to PwnKit."""
     if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
         host_information = distribution_version_affected(debug, container_name)
         if host_information == constants.UNSUPPORTED:
@@ -226,13 +226,13 @@ def validate(debug, container_name):
                 if pkexec_info == constants.UNSUPPORTED:
                     print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
                 elif pkexec_info:
-                    print(constants.FULL_EXPLOITABLE_MESSAGE.format(CVE_ID))
+                    print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
                 else:
-                    print(constants.FULL_NOT_EXPLOITABLE_MESSAGE.format(CVE_ID))
+                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
             else:
-                print(constants.FULL_NOT_EXPLOITABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
         else:
-            print(constants.FULL_NOT_EXPLOITABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
 def validation_flow_chart():
@@ -240,16 +240,16 @@ def validation_flow_chart():
     vol_graph = graphviz.Digraph('G', filename=CVE_ID)
     commons.graph_start(CVE_ID, vol_graph)
     vol_graph.edge('Is it Linux?', 'Is there an affected PolicyKit package installed?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Exploitable', label='No')
+    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge('Is there an affected PolicyKit package installed?', 'Does pkexec have execute permissions?',
                    label='Yes')
-    vol_graph.edge('Is there an affected PolicyKit package installed?', 'Not Exploitable', label='No')
+    vol_graph.edge('Is there an affected PolicyKit package installed?', 'Not Vulnerable', label='No')
     vol_graph.edge('Does pkexec have execute permissions?', 'Does pkexec have suid bit?', label='Yes')
-    vol_graph.edge('Does pkexec have execute permissions?', 'Not Exploitable', label='No')
+    vol_graph.edge('Does pkexec have execute permissions?', 'Not Vulnerable', label='No')
     vol_graph.edge('Does pkexec have suid bit?', 'Is pkexec binary owner root?', label='Yes')
-    vol_graph.edge('Does pkexec have suid bit?', 'Not Exploitable', label='No')
-    vol_graph.edge('Is pkexec binary owner root?', 'Exploitable', label='Yes')
-    vol_graph.edge('Is pkexec binary owner root?', 'Not Exploitable', label='No')
+    vol_graph.edge('Does pkexec have suid bit?', 'Not Vulnerable', label='No')
+    vol_graph.edge('Is pkexec binary owner root?', 'Vulnerable', label='Yes')
+    vol_graph.edge('Is pkexec binary owner root?', 'Not Vulnerable', label='No')
     commons.graph_end(vol_graph)
 
 

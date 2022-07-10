@@ -22,7 +22,7 @@ FIXED_VERSION = '5.17.0-rc6'
 
 
 def check_kernel_version(debug):
-    """This function checks if the kernel version is exploitable to CVE-2022-0847."""
+    """This function checks if the kernel version is affected to CVE-2022-0847."""
     affected = False
     host_kernel_version = kernel_version.get_kernel_version(debug)
     if not host_kernel_version:
@@ -42,15 +42,15 @@ def check_kernel_version(debug):
 
 
 def validate(debug, container_name):
-    """This function validates if the host is exploitable to CVE-2022-0847."""
+    """This function validates if the host is vulnerable to CVE-2022-0847."""
     if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
         affected = check_kernel_version(debug)
         if affected == constants.UNSUPPORTED:
             print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
         elif affected:
-            print(constants.FULL_EXPLOITABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
         else:
-            print(constants.FULL_NOT_EXPLOITABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
 def validation_flow_chart():
@@ -58,9 +58,9 @@ def validation_flow_chart():
     vol_graph = graphviz.Digraph('G', filename=CVE_ID)
     commons.graph_start(CVE_ID, vol_graph)
     vol_graph.edge('Is it Linux?', 'Is the kernel version affected?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Exploitable', label='No')
-    vol_graph.edge('Is the kernel version affected?', 'Exploitable', label='Yes')
-    vol_graph.edge('Is the kernel version affected?', 'Not Exploitable', label='No')
+    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vol_graph.edge('Is the kernel version affected?', 'Vulnerable', label='Yes')
+    vol_graph.edge('Is the kernel version affected?', 'Not Vulnerable', label='No')
     commons.graph_end(vol_graph)
 
 

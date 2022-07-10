@@ -81,13 +81,13 @@ def validate_mitigations(debug, container_name):
             if spectre_v2_mitigation == constants.UNSUPPORTED:
                 print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
             elif spectre_v2_mitigation:
-                print(constants.FULL_NOT_EXPLOITABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
             else:
-                print(constants.FULL_EXPLOITABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
         else:
-            print(constants.FULL_EXPLOITABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
     else:
-        print(constants.FULL_EXPLOITABLE_MESSAGE.format(CVE_ID))
+        print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
 def spectre_file(debug, container_name):
@@ -169,7 +169,7 @@ def check_edge_case(debug, container_name):
 
 
 def validate(debug, container_name):
-    """This function validates if the host is exploitable to Spectre Variant 2."""
+    """This function validates if the host is vulnerable to Spectre Variant 2."""
     if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
         edge_case = check_edge_case(debug, container_name)
         if edge_case == constants.UNSUPPORTED or edge_case:
@@ -177,11 +177,11 @@ def validate(debug, container_name):
             if spectre == constants.UNSUPPORTED:
                 validate_mitigations(debug, container_name)
             elif spectre:
-                print(constants.FULL_NOT_EXPLOITABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
             else:
-                print(constants.FULL_EXPLOITABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
         else:
-            print(constants.FULL_EXPLOITABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
 def validation_flow_chart():
@@ -190,17 +190,17 @@ def validation_flow_chart():
     vol_graph = graphviz.Digraph('G', filename=CVE_ID)
     commons.graph_start(CVE_ID, vol_graph)
     vol_graph.edge('Is it Linux?', 'Does the system meet the edge case conditions?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Exploitable', label='No')
-    vol_graph.edge('Does the system meet the edge case conditions?', 'Exploitable', label='Yes')
+    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vol_graph.edge('Does the system meet the edge case conditions?', 'Vulnerable', label='Yes')
     vol_graph.edge('Does the system meet the edge case conditions?', f'Does {spectre_v2_path} file contain the '
                                                                      f'"vulnerable" string?', label='No')
     vol_graph.edge(f'Does {spectre_v2_path} file contain the "vulnerable" string?', 'Are ibpb or ibrs mitigations '
                                                                                     'enabled?', label='No')
-    vol_graph.edge(f'Does {spectre_v2_path} file contain the "vulnerable" string?', 'Exploitable', label='Yes')
+    vol_graph.edge(f'Does {spectre_v2_path} file contain the "vulnerable" string?', 'Vulnerable', label='Yes')
     vol_graph.edge('Are ibpb or ibrs mitigations enabled?', 'Is spectre_v2 mitigation enabled?', label='Yes')
-    vol_graph.edge('Are ibpb or ibrs mitigations enabled?', 'Exploitable', label='No')
-    vol_graph.edge('Is spectre_v2 mitigation enabled?', 'Not Exploitable', label='Yes')
-    vol_graph.edge('Is spectre_v2 mitigation enabled?', 'Exploitable', label='No')
+    vol_graph.edge('Are ibpb or ibrs mitigations enabled?', 'Vulnerable', label='No')
+    vol_graph.edge('Is spectre_v2 mitigation enabled?', 'Not Vulnerable', label='Yes')
+    vol_graph.edge('Is spectre_v2 mitigation enabled?', 'Vulnerable', label='No')
     commons.graph_end(vol_graph)
 
 

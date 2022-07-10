@@ -85,13 +85,13 @@ def validate_red_hat(fixed_release, debug, container_name):
             print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
         elif kpatch:
             print(constants.FULL_EXPLANATION_MESSAGE.format('Your kernel release has kpatch'))
-            print(constants.FULL_NOT_EXPLOITABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
         else:
             print(constants.FULL_EXPLANATION_MESSAGE.format('You do not have relevant kpatch'))
-            print(constants.FULL_EXPLOITABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
     else:
         print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('No'))
-        print(constants.FULL_EXPLOITABLE_MESSAGE.format(CVE_ID))
+        print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
 def check_release(debug, container_name):
@@ -133,7 +133,7 @@ def check_release(debug, container_name):
 
 
 def validate(debug, container_name):
-    """This function validates if the host is exploitable to CVE-2016-5195."""
+    """This function validates if the host is vulnerable to CVE-2016-5195."""
     if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
         fixed_release = check_release(debug, container_name)
         if fixed_release == constants.UNSUPPORTED:
@@ -149,27 +149,27 @@ def validate(debug, container_name):
                 validate_red_hat(fixed_release, debug, container_name)
             else:
                 print(constants.FULL_EXPLANATION_MESSAGE.format('Your kernel version is already patched'))
-                print(constants.FULL_NOT_EXPLOITABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
         else:
-            print(constants.FULL_NOT_EXPLOITABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of CVE-2016-5195."""
     vol_graph = graphviz.Digraph('G', filename=CVE_ID)
     commons.graph_start(CVE_ID, vol_graph)
-    vol_graph.edge('Is it Linux?', 'Not Exploitable', label='No')
+    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge('Is it Linux?', 'Is os release effected?', label='Yes')
     vol_graph.edge('Is os release effected?', 'Is the kernel release effected?', label='Yes')
-    vol_graph.edge('Is os release effected?', 'Not Exploitable', label='No')
+    vol_graph.edge('Is os release effected?', 'Not Vulnerable', label='No')
     vol_graph.edge('Is the kernel release effected?', 'Is it Red Hat?', label='Yes')
-    vol_graph.edge('Is the kernel release effected?', 'Not Exploitable', label='No')
+    vol_graph.edge('Is the kernel release effected?', 'Not Vulnerable', label='No')
     vol_graph.edge('Is it Red Hat?', 'Are There loaded modules?', label='Yes')
-    vol_graph.edge('Is it Red Hat?', 'Exploitable', label='No')
+    vol_graph.edge('Is it Red Hat?', 'Vulnerable', label='No')
     vol_graph.edge('Are There loaded modules?', 'Is it Patched with kpatch?', label='Yes')
-    vol_graph.edge('Are There loaded modules?', 'Exploitable', label='No')
-    vol_graph.edge('Is it Patched with kpatch?', 'Not Exploitable', label='Yes')
-    vol_graph.edge('Is it Patched with kpatch?', 'Exploitable', label='No')
+    vol_graph.edge('Are There loaded modules?', 'Vulnerable', label='No')
+    vol_graph.edge('Is it Patched with kpatch?', 'Not Vulnerable', label='Yes')
+    vol_graph.edge('Is it Patched with kpatch?', 'Vulnerable', label='No')
     commons.graph_end(vol_graph)
 
 

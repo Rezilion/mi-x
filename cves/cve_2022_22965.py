@@ -65,7 +65,7 @@ def check_java_version(pid, jcmd_command, debug):
 
 
 def validate_processes(pids, debug, container_name):
-    """This function loops over all java processes and checks if they are exploitable."""
+    """This function loops over all java processes and checks if they are vulnerable."""
     for pid in pids:
         jcmd_path = 'jcmd'
         if container_name:
@@ -79,7 +79,7 @@ def validate_processes(pids, debug, container_name):
             print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
             break
         if not version_affected:
-            print(constants.FULL_PROCESS_NOT_EXPLOITABLE_MESSAGE.format(pid, CVE_ID))
+            print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, CVE_ID))
             break
         jcmd_command = f'sudo {jcmd_path} {pid} '
         utility = commons.available_jcmd_utilities(jcmd_command, debug)
@@ -91,21 +91,21 @@ def validate_processes(pids, debug, container_name):
             elif webmvc_webflux:
                 print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} process use the {webmvc_webflux} '
                                                                 f'dependency'))
-                print(constants.FULL_PROCESS_EXPLOITABLE_MESSAGE.format(pid, CVE_ID))
+                print(constants.FULL_PROCESS_VULNERABLE_MESSAGE.format(pid, CVE_ID))
             else:
-                print(constants.FULL_PROCESS_NOT_EXPLOITABLE_MESSAGE.format(pid, CVE_ID))
+                print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, CVE_ID))
         else:
             print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
 
 
 def validate(debug, container_name):
-    """This function validates if an instance is exploitable to Log4Shell."""
+    """This function validates if an instance is vulnerable to Log4Shell."""
     if commons.check_distribution_with_alpine_support(debug, container_name):
         pids = get_pids.pids_consolidation('java', debug, container_name)
         if pids:
             validate_processes(pids, debug, container_name)
         else:
-            print(constants.FULL_NOT_EXPLOITABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
 def validation_flow_chart():
@@ -113,13 +113,13 @@ def validation_flow_chart():
     vol_graph = graphviz.Digraph('G', filename=CVE_ID)
     commons.graph_start(CVE_ID, vol_graph)
     vol_graph.edge('Is it Linux?', 'Are there running Java processes?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Exploitable', label='No')
+    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge('Are there running Java processes?', 'Is java version affected?', label='Yes')
-    vol_graph.edge('Are there running Java processes?', 'Not Exploitable', label='No')
+    vol_graph.edge('Are there running Java processes?', 'Not Vulnerable', label='No')
     vol_graph.edge('Is java version affected?', 'Does the process use webmvc or webflux dependencies?', label='Yes')
-    vol_graph.edge('Is java version affected?', 'Not Exploitable', label='No')
-    vol_graph.edge('Does the process use webmvc or webflux dependencies?', 'Exploitable', label='Yes')
-    vol_graph.edge('Does the process use webmvc or webflux dependencies?', 'Not Exploitable', label='No')
+    vol_graph.edge('Is java version affected?', 'Not Vulnerable', label='No')
+    vol_graph.edge('Does the process use webmvc or webflux dependencies?', 'Vulnerable', label='Yes')
+    vol_graph.edge('Does the process use webmvc or webflux dependencies?', 'Not Vulnerable', label='No')
     commons.graph_end(vol_graph)
 
 

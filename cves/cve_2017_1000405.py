@@ -74,7 +74,7 @@ def zero_page(debug, container_name):
 
 
 def validate(debug, container_name):
-    """This function validates if the host is exploitable to CVE-2017-1000405."""
+    """This function validates if the host is vulnerable to CVE-2017-1000405."""
     if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
         kernel_version_output = kernel_version.check_kernel(MIN_KERNEL_VERSION, MAX_KERNEL_VERSION, debug)
         if kernel_version_output == constants.UNSUPPORTED:
@@ -84,18 +84,18 @@ def validate(debug, container_name):
             if affected == constants.UNSUPPORTED:
                 print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
             elif affected:
-                print(constants.FULL_EXPLOITABLE_MESSAGE.format(f'{CVE_ID} zero pages manipulation'))
+                print(constants.FULL_VULNERABLE_MESSAGE.format(f'{CVE_ID} zero pages manipulation'))
             else:
-                print(constants.FULL_NOT_EXPLOITABLE_MESSAGE.format(f'zero pages manipulation in {CVE_ID}'))
+                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(f'zero pages manipulation in {CVE_ID}'))
             affected = huge_page(debug, container_name)
             if affected == constants.UNSUPPORTED:
                 print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
             elif affected:
-                print(constants.FULL_EXPLOITABLE_MESSAGE.format(f'{CVE_ID} huge pages manipulation'))
+                print(constants.FULL_VULNERABLE_MESSAGE.format(f'{CVE_ID} huge pages manipulation'))
             else:
-                print(constants.FULL_NOT_EXPLOITABLE_MESSAGE.format(f'huge pages manipulation in {CVE_ID}'))
+                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(f'huge pages manipulation in {CVE_ID}'))
         else:
-            print(constants.FULL_NOT_EXPLOITABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
 def validation_flow_chart():
@@ -103,15 +103,15 @@ def validation_flow_chart():
     vol_graph = graphviz.Digraph('G', filename=CVE_ID)
     commons.graph_start(CVE_ID, vol_graph)
     vol_graph.edge('Is it Linux?', 'Does your system has a Huge Zero Pages mechanism?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Exploitable', label='No')
+    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge('Does your system has a Huge Zero Pages mechanism?', 'Is Huge Zero Pages enabled?', label='Yes')
-    vol_graph.edge('Does your system has a Huge Zero Pages mechanism?', 'Not Exploitable', label='No')
+    vol_graph.edge('Does your system has a Huge Zero Pages mechanism?', 'Not Vulnerable', label='No')
     vol_graph.edge('Is Huge Zero Pages enabled?', 'Does your system has a Huge Pages mechanism?', label='Yes')
-    vol_graph.edge('Is Huge Zero Pages enabled?', 'Not Exploitable', label='No')
+    vol_graph.edge('Is Huge Zero Pages enabled?', 'Not Vulnerable', label='No')
     vol_graph.edge('Does your system has a Huge Pages mechanism?', 'Is Huge Pages enabled?', label='Yes')
-    vol_graph.edge('Does your system has a Huge Pages mechanism?', 'Not Exploitable', label='No')
-    vol_graph.edge('Is Huge Pages enabled?', 'Exploitable', label='Yes')
-    vol_graph.edge('Is Huge Pages enabled?', 'Not Exploitable', label='No')
+    vol_graph.edge('Does your system has a Huge Pages mechanism?', 'Not Vulnerable', label='No')
+    vol_graph.edge('Is Huge Pages enabled?', 'Vulnerable', label='Yes')
+    vol_graph.edge('Is Huge Pages enabled?', 'Not Vulnerable', label='No')
     commons.graph_end(vol_graph)
 
 

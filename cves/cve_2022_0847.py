@@ -22,7 +22,7 @@ FIXED_VERSION = '5.17.0-rc6'
 
 
 def check_kernel_version(debug):
-    """This function checks if the kernel version is affected to CVE-2022-0847."""
+    """This function checks if the kernel version is affected by CVE-2022-0847."""
     affected = False
     host_kernel_version = kernel_version.get_kernel_version(debug)
     if not host_kernel_version:

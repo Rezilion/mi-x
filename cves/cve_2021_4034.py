@@ -35,7 +35,7 @@ FIXED_RPM = {'Fedora 34': ['0.117', '3.fc34.2'], 'Fedora 35': ['0.120', '1.fc35.
 MIN_KERNEL_VERSION = '0'
 
 
-def check_requirements(execute, suid, root):
+def check_pkexec_permissions(execute, suid, root):
     """This function checks the file requirements in order to be exploitable."""
     affected = ''
     print(constants.FULL_QUESTION_MESSAGE.format('Does pkexec have execute permissions?'))

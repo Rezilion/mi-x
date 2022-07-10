@@ -13,7 +13,7 @@ NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2015-0235
 {CVE_ID} is a Heap-based buffer overflow vulnerability in the __nss_hostname_digits_dots function .
 This vulnerability allows a remote attacker that is able to make an application call to gethostbyname*() functions to
 execute arbitrary code with the permissions of the user running the application.
-The vulnerable glibc versions are between 2.2 to 2.17 (the fix was introduced in version 2.18).
+The affected glibc versions are between 2.2 to 2.17 (the fix was introduced in version 2.18).
 '''
 MIN_AFFECTED_VERSION = '2.2'
 MAX_AFFECTED_VERSION = '2.17'
@@ -24,12 +24,12 @@ def glibc_version(glibc_value):
     print(constants.FULL_QUESTION_MESSAGE.format('Is GLIBC version affected?'))
     if MAX_AFFECTED_VERSION <= glibc_value <=  MAX_AFFECTED_VERSION:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable GLIBC versions are between {MIN_AFFECTED_VERSION} '
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected GLIBC versions are between {MIN_AFFECTED_VERSION} '
                                                         f'to {MAX_AFFECTED_VERSION}'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your GLIBC version which is: {glibc_value} is affected'))
         return True
     print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable GLIBC versions are between {MIN_AFFECTED_VERSION} '
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected GLIBC versions are between {MIN_AFFECTED_VERSION} '
                                                     f'to {MAX_AFFECTED_VERSION}'))
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your GLIBC version which is: {glibc_value} is not affected'))
     return False

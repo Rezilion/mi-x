@@ -35,8 +35,8 @@ FIXED_RPM = {'Fedora 34': ['0.117', '3.fc34.2'], 'Fedora 35': ['0.120', '1.fc35.
 MIN_KERNEL_VERSION = '0'
 
 
-def check_requirements(execute, suid, root):
-    """This function checks the file requirements in order to be vulnerable."""
+def check_pkexec_permissions(execute, suid, root):
+    """This function checks the file requirements in order to be exploitable."""
     affected = ''
     print(constants.FULL_QUESTION_MESSAGE.format('Does pkexec have execute permissions?'))
     if execute:
@@ -83,7 +83,7 @@ def check_pkexec_using_ls(pkexec_path, debug, container_name):
         root = True
     if 's' in file_permissions:
         suid = True
-    if 'x'in file_permissions:
+    if 'x' in file_permissions:
         execute = True
     return check_requirements(execute, suid, root)
 
@@ -193,19 +193,19 @@ def distribution_version_affected(debug, container_name):
         return constants.UNSUPPORTED
     if host_information in FIXED_APT or host_information in FIXED_RPM:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable os releases: {list(FIXED_APT.keys())} '
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os releases: {list(FIXED_APT.keys())} '
                                                         f'{list(FIXED_RPM.keys())}\nYour os release: {host_information}'
                                                         f'\nThe os release you are running on is potentially affected'))
         return host_information
     if host_distribution not in constants.APT_DISTRIBUTIONS and \
             host_information not in constants.RPM_DISTRIBUTIONS:
         print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Can not determine'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable os releases: {list(FIXED_APT.keys())} '
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os releases: {list(FIXED_APT.keys())} '
                                                         f'{list(FIXED_RPM.keys())}\nYour os release: {host_information}'
                                                         f'\nThe os release you are running on is not supported'))
         return constants.UNSUPPORTED
     print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable os releases: {list(FIXED_APT.keys())} '
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os releases: {list(FIXED_APT.keys())} '
                                                     f'{list(FIXED_RPM.keys())}\nYour os release: {host_information}\n'
                                                     f'The os release you are running on is not affected'))
     return ''

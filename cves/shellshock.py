@@ -76,8 +76,8 @@ Off-by-one error in the read_token_word function in `parse.y` allows remote atta
 loops, aka the "word_lineno" issue.
 The vulnerability is relevant for GNU Bash through 4.3 bash43-026.
 '''
-MIN_BASH_VULNERABLE_VERSION = '1.0.3'
-MAX_BASH_VULNERABLE_VERSION = '4.3.0'
+MIN_BASH_AFFECTED_VERSION = '1.0.3'
+MAX_BASH_AFFECTED_VERSION = '4.3.0'
 
 
 def cve_2014_7187(container_name):
@@ -169,7 +169,7 @@ def cve_2014_6271(container_name):
 def is_bash_affected(bash_version):
     """This function check the bash version."""
     print(constants.FULL_QUESTION_MESSAGE.format('Is bash version affected?'))
-    if MIN_BASH_VULNERABLE_VERSION > bash_version > MAX_BASH_VULNERABLE_VERSION:
+    if MIN_BASH_AFFECTED_VERSION > bash_version > MAX_BASH_AFFECTED_VERSION:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format('Your bash version is not affected'))
     else:
@@ -242,23 +242,23 @@ def validation_flow_chart():
     vol_graph.edge('Is it Linux?', 'Not Vulnerable to shellshock vulnerabilities', label='No')
     vol_graph.edge('Is it Linux?', 'Is bash version affected?', label='Yes')
     vol_graph.edge('Is bash version affected?', 'Not Vulnerable to shellshock vulnerabilities', label='No')
-    vol_graph.edge('Is bash version affected?', 'Is vulnerable to CVE-2014-6271', label='Yes')
-    vol_graph.edge('Is vulnerable to CVE-2014-6271', 'Vulnerable to CVE-2014-6271', label='Yes')
-    vol_graph.edge('Is vulnerable to CVE-2014-6271', 'Not Vulnerable to CVE-2014-6271', label='No')
-    vol_graph.edge('Is bash version affected?', 'Is vulnerable to CVE-2014-6277 or CVE-2014-6278', label='Yes')
-    vol_graph.edge('Is vulnerable to CVE-2014-6277 or CVE-2014-6278', 'Vulnerable to CVE-2014-6277 and CVE-2014-6278',
+    vol_graph.edge('Is bash version affected?', 'Is Vulnerable to CVE-2014-6271', label='Yes')
+    vol_graph.edge('Is Vulnerable to CVE-2014-6271', 'Vulnerable to CVE-2014-6271', label='Yes')
+    vol_graph.edge('Is Vulnerable to CVE-2014-6271', 'Not Vulnerable to CVE-2014-6271', label='No')
+    vol_graph.edge('Is bash version affected?', 'Is Vulnerable to CVE-2014-6277 or CVE-2014-6278', label='Yes')
+    vol_graph.edge('Is Vulnerable to CVE-2014-6277 or CVE-2014-6278', 'Vulnerable to CVE-2014-6277 and CVE-2014-6278',
                    label='Yes')
-    vol_graph.edge('Is vulnerable to CVE-2014-6277 or CVE-2014-6278', 'Not Vulnerable to CVE-2014-6277 and '
+    vol_graph.edge('Is Vulnerable to CVE-2014-6277 or CVE-2014-6278', 'Not Vulnerable to CVE-2014-6277 and '
                                                                       'CVE-2014-6278', label='No')
-    vol_graph.edge('Is bash version affected?', 'Is vulnerable to CVE-2014-7169', label='Yes')
-    vol_graph.edge('Is vulnerable to CVE-2014-7169', 'Vulnerable to CVE-2014-7169', label='Yes')
-    vol_graph.edge('Is vulnerable to CVE-2014-7169', 'Not Vulnerable to CVE-2014-7169', label='No')
-    vol_graph.edge('Is bash version affected?', 'Is vulnerable to CVE-2014-7186', label='Yes')
-    vol_graph.edge('Is vulnerable to CVE-2014-7186', 'Vulnerable to CVE-2014-7186', label='Yes')
-    vol_graph.edge('Is vulnerable to CVE-2014-7186', 'Not Vulnerable to CVE-2014-7186', label='No')
-    vol_graph.edge('Is bash version affected?', 'Is vulnerable to CVE-2014-7187', label='Yes')
-    vol_graph.edge('Is vulnerable to CVE-2014-7187', 'Vulnerable to CVE-2014-7187', label='Yes')
-    vol_graph.edge('Is vulnerable to CVE-2014-7187', 'Not Vulnerable to CVE-2014-7187', label='No')
+    vol_graph.edge('Is bash version affected?', 'Is Vulnerable to CVE-2014-7169', label='Yes')
+    vol_graph.edge('Is Vulnerable to CVE-2014-7169', 'Vulnerable to CVE-2014-7169', label='Yes')
+    vol_graph.edge('Is Vulnerable to CVE-2014-7169', 'Not Vulnerable to CVE-2014-7169', label='No')
+    vol_graph.edge('Is bash version affected?', 'Is Vulnerable to CVE-2014-7186', label='Yes')
+    vol_graph.edge('Is Vulnerable to CVE-2014-7186', 'Vulnerable to CVE-2014-7186', label='Yes')
+    vol_graph.edge('Is Vulnerable to CVE-2014-7186', 'Not Vulnerable to CVE-2014-7186', label='No')
+    vol_graph.edge('Is bash version affected?', 'Is Vulnerable to CVE-2014-7187', label='Yes')
+    vol_graph.edge('Is Vulnerable to CVE-2014-7187', 'Vulnerable to CVE-2014-7187', label='Yes')
+    vol_graph.edge('Is Vulnerable to CVE-2014-7187', 'Not Vulnerable to CVE-2014-7187', label='No')
     commons.graph_end(vol_graph)
 
 

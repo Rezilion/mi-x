@@ -1,6 +1,6 @@
-# How to contribute to Am I Really Vulnerable?
+# How to contribute to Am I Exploitable?
 
-'Am I Really Vulnerable?' is an open source project. As such, all contributions and suggestions are welcome.
+'Am I Exploitable?' is an open source project. As such, all contributions and suggestions are welcome.
 You can contribute in many ways: giving ideas, answering questions, reporting bugs, proposing enhancements, 
 improving the documentation, fixing bugs, etc...
 Many thanks in advance for every contribution.
@@ -10,7 +10,7 @@ we all respect and abide by our code of conduct.
 
 ## How to work on an open Issue?
 
-The list of open issues can be found at: `https://github.com/rezilion/amireallyvulnerable/issues`
+The list of open issues can be found at: `https://github.com/rezilion/mi-x/issues`
 
 Some of them may have the label `help wanted`: that means that any contributor is welcomed!
 If you would like to work on any of the open Issues:
@@ -26,9 +26,9 @@ The assignee (if any) can be found on the top of the right column of the Issue p
 2. Clone your fork to your local disk, and add the base repository as a remote:
 
 ```
-git clone git@github.com:<your GitHub handle>/amireallyvulnerable.git
+git clone git@github.com:<your GitHub handle>/mi-x.git
 cd datasets
-git remote add upstream https://github.com/rezilion/amireallyvulnerable.git
+git remote add upstream https://github.com/rezilion/mi-x.git
 ```
 
 3. Create a new branch to hold your development changes:
@@ -41,8 +41,8 @@ Make sure the branch name references the vulnerability CVE or name.
 
 5. Set up a development environment by running the following command in a virtual environment:
 `pip install -e ".[dev]"`
-(If amireallyvulnerable was already installed in the virtual environment, remove it with 
-`pip uninstall amireallyvulnerable` before reinstalling it in editable mode with the -e flag.)
+(If mi-x was already installed in the virtual environment, remove it with 
+`pip uninstall mi-x` before reinstalling it in editable mode with the -e flag.)
 
 6. Develop the features in your branch. 
 If you want to add a CVE file or module see more detailed instructions in the `How to add a CVE file or module` section.

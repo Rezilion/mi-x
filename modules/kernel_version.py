@@ -11,8 +11,8 @@ QUESTION = '\033[94m'
 
 
 def check_kernel(min_kernel_version, max_kernel_version, debug):
-    """This function checks if the host kernel is vulnerable according to the fixed kernel release."""
-    vulnerable = False
+    """This function checks if the host kernel is affected according to the fixed kernel release."""
+    affected = False
     kernel_version_command = 'uname -r'
     print(constants.FULL_QUESTION_MESSAGE.format('Is kernel version affected?'))
     pipe_kernel_version = run_command.command_output(kernel_version_command, debug, container_name=False)
@@ -22,14 +22,14 @@ def check_kernel(min_kernel_version, max_kernel_version, debug):
         print(f'{EXPLANATION}Kernel version unsupported value{BASIC_COLOR}')
         return 'Unsupported'
     if max_kernel_version > valid_kernel_version > min_kernel_version:
-        vulnerable = True
+        affected = True
         print(f'{NEGATIVE_RESULT}Yes{BASIC_COLOR}')
     else:
         print(f'{POSITIVE_RESULT}No{BASIC_COLOR}')
-    print(f'{EXPLANATION}According to your os release, vulnerable kernel versions are between: {min_kernel_version}'
+    print(f'{EXPLANATION}According to your os release, affected kernel versions are between: {min_kernel_version}'
           f' to {max_kernel_version}')
     print(f'Your kernel version: {valid_kernel_version[:constants.END]}{BASIC_COLOR}')
-    return vulnerable
+    return affected
 
 
 def get_kernel_version(debug):

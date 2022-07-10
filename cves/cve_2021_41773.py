@@ -88,7 +88,7 @@ def apache_configuration_file(apache, debug, container_name):
 
 
 def apache_version(apache, debug, container_name):
-    """This function checks if the Apache HTTP Server version is vulnerable."""
+    """This function checks if the Apache HTTP Server version is affected."""
     apache_command = f'{apache} -v'
     pipe_apache = run_command.command_output(apache_command, debug, container_name)
     apache = pipe_apache.stdout
@@ -109,18 +109,18 @@ def apache_version(apache, debug, container_name):
         return constants.UNSUPPORTED
     if FIRST_AFFECTED_VERSION == version:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable apache versions : {FIRST_AFFECTED_VERSION} and'
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected apache versions : {FIRST_AFFECTED_VERSION} and'
                                                         f' {SECOND_AFFECTED_VERSION}\nYour apache version: '
                                                         f'{version}\nYour apache version is affected'))
         return 'CVE-2021-41773'
     if SECOND_AFFECTED_VERSION == version:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable apache versions : {FIRST_AFFECTED_VERSION} and'
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected apache versions : {FIRST_AFFECTED_VERSION} and'
                                                         f' {SECOND_AFFECTED_VERSION}\nYour apache version: '
                                                         f'{version}\nYour apache version is affected'))
         return 'CVE-2021-42013'
     print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable apache versions : {FIRST_AFFECTED_VERSION} and'
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected apache versions : {FIRST_AFFECTED_VERSION} and'
                                                     f' {SECOND_AFFECTED_VERSION}\nYour apache version: '
                                                     f'{version}\nYour apache version is not affected'))
     return False

@@ -16,13 +16,13 @@ process, and through doing so, escalate privileges by getting write permissions 
 used in order to modify files in container images on the host, effectively poisoning any new containers based on the 
 modified image.
 '''
-FIRST_VULNERABLE_VERSION = '5.8.0'
+FIRST_AFFECTED_VERSION = '5.8.0'
 PATCHED_VERSIONS = ['5.10.102', '5.15.25', '5.16.11']
 FIXED_VERSION = '5.17.0-rc6'
 
 
 def check_kernel_version(debug):
-    """This function checks if the kernel version is vulnerable to CVE-2022-0847."""
+    """This function checks if the kernel version is affected by CVE-2022-0847."""
     affected = False
     host_kernel_version = kernel_version.get_kernel_version(debug)
     if not host_kernel_version:
@@ -30,12 +30,12 @@ def check_kernel_version(debug):
         print(constants.FULL_EXPLANATION_MESSAGE.format('Unsupported kernel version value'))
         return constants.UNSUPPORTED
     valid_kernel_version = commons.valid_kernel_version(host_kernel_version)
-    if valid_kernel_version >= FIXED_VERSION or valid_kernel_version < FIRST_VULNERABLE_VERSION:
+    if valid_kernel_version >= FIXED_VERSION or valid_kernel_version < FIRST_AFFECTED_VERSION:
         print(constants.FULL_QUESTION_MESSAGE.format('Is kernel version affected?'))
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your kernel version which is: {valid_kernel_version}, is not'
                                                         f'in the affected kernel versions range which is: '
-                                                        f'{FIRST_VULNERABLE_VERSION} to {FIXED_VERSION}'))
+                                                        f'{FIRST_AFFECTED_VERSION} to {FIXED_VERSION}'))
     else:
         return commons.check_patched_version('Kernel', valid_kernel_version, PATCHED_VERSIONS)
     return affected
@@ -44,10 +44,10 @@ def check_kernel_version(debug):
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2022-0847."""
     if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
-        vulnerable = check_kernel_version(debug)
-        if vulnerable == constants.UNSUPPORTED:
+        affected = check_kernel_version(debug)
+        if affected == constants.UNSUPPORTED:
             print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
-        elif vulnerable:
+        elif affected:
             print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
         else:
             print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))

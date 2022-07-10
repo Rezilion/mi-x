@@ -6,7 +6,7 @@ import importlib
 import argparse
 from modules import constants, run_command
 
-MENU_MESSAGE = '''The 'Am I Really Vulnerable?' CVEs database:
+MENU_MESSAGE = '''The 'Am I Exploitable?' CVEs database:
 Remote Code Execution (RCE):
 Ghost - CVE-2015-0235
 CVE-2021-3711
@@ -82,7 +82,7 @@ def checks_cve_id_parameter(cve_id, describe, debug, graph, container_name):
 
 def arguments():
     """This function sets the arguments."""
-    parser = argparse.ArgumentParser(description="'AM I Really Vulnerable?' is a service that let's you validate "
+    parser = argparse.ArgumentParser(description="'AM I Exploitable?' is a service that let's you validate "
                                                  "whether or not your system is susceptible to a given CVE")
     parser.add_argument('--cve_id', type=str, default='', help='Enter CVE name according to the following format:'
                                                                'cve_<YEAR>_<NUMBER> '
@@ -120,5 +120,5 @@ def main():
 
 
 if __name__ == '__main__':
-    print("Welcome to Rezilion's 'Am I Really Vulnerable?' Service")
+    print("Welcome to Rezilion's 'Am I Exploitable?' Service")
     main()

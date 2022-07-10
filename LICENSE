@@ -627,7 +627,7 @@ attach them to the start of each source file to most effectively state
 the exclusion of warranty; and each file should have at least the
 "copyright" line and a pointer to where the full notice is found.
 
-        'Am I Really Vulnerable?', is an open source tool aimed to effectively determine whether a local host or a
+        'Am I Exploitable?', is an open source tool aimed to effectively determine whether a local host or a
         running container image is vulnerable to a given vulnerability.
         Copyright (C) 2022  Rezilion
 

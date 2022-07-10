@@ -95,7 +95,7 @@ def validate_red_hat(fixed_release, debug, container_name):
 
 
 def check_release(debug, container_name):
-    """This function checks if the host release is vulnerable according to the fixed os distributions and versions."""
+    """This function checks if the host release is affected according to the fixed os distributions and versions."""
     information_fields = ['Distribution', 'Version']
     host_information = os_release.get_field(information_fields, debug, container_name)
     if host_information.startswith('Debian'):
@@ -111,19 +111,19 @@ def check_release(debug, container_name):
         if host_distribution not in constants.APT_DISTRIBUTIONS and \
                 host_distribution not in constants.APT_DISTRIBUTIONS:
             print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Can not determine'))
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable os releases: {list(FIXED.keys())}\nYour os '
+            print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os releases: {list(FIXED.keys())}\nYour os '
                                                             f'release: {host_distribution}\nThe os release you are '
                                                             f'running on is not supported'))
             return constants.UNSUPPORTED
         for fixed_release in FIXED:
             if fixed_release == host_information:
                 print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-                print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable os releases: {list(FIXED.keys())}\nYour os'
+                print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os releases: {list(FIXED.keys())}\nYour os'
                                                                 f' release: {host_information}\nThe os release you are '
                                                                 f'running on is potentially affected'))
                 return fixed_release
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Vulnerable os releases: {list(FIXED.keys())}\nYour os '
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os releases: {list(FIXED.keys())}\nYour os '
                                                         f'release: {host_information}\nThe os release you are running '
                                                         f'on is not affected'))
     else:

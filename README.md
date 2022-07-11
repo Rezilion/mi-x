@@ -1,5 +1,6 @@
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-![pylint](https://user-images.githubusercontent.com/15197376/175817365-150e2500-693d-47d6-94ee-03a96ef36c73.svg)
+![pylint](https://user-images.githubusercontent.com/15197376/178207178-872a404a-a3c0-4442-b0ce-94a76e38848a.svg)
+
 # **Am I Exploitable?**
 
  Author:                   2022 - Now, Rezilion
@@ -104,7 +105,8 @@ Execute the program using parameters
 ```
 python3 am_i_exploitable.py --cve_id cve_yyyy_xxxx --container True --graph True
 ```
-![Executing](https://user-images.githubusercontent.com/15197376/165183169-6b33eae8-c4f2-4d55-80b8-c28840ca467f.gif)
+![Executing](https://user-images.githubusercontent.com/15197376/178207295-d1a5f251-063d-406d-8821-c7a7d6d4c39b.gif)
+
 
 # Arguments
 

@@ -34,7 +34,7 @@ In addition, the vulnerabilities checks we wrote so far, can be expanded with so
 
 An example flow graph for CVE-2021-4034 (aka PwnKit):
 
-![](../../../../../Desktop/flowchart.png)
+![PWNKIT_Flow](https://user-images.githubusercontent.com/15197376/165183294-45482743-1c92-4b24-8477-812a62537c71.png)
 
 Everyone is free to use 'Am I Exploitable?' under the conditions of the AGPL-3.0 License (see [LICENSE](https://github.com/Rezilion/mi-x/blob/main/LICENSE) file).
  

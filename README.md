@@ -114,12 +114,14 @@ The very latest developments can be obtained via git.
 Scanning command template
 ```
 python3 am_i_exploitable.py --cve_id cve_yyyy_xxxx --container True --graph True
+
 ```
 
 # Execute Scanning Example
 Scan the machine running containers for log4shell.
 ```
 python3 am_i_exploitable.py --cve_id log4shell --container True
+
 ```
 ![Executing](https://user-images.githubusercontent.com/15197376/178207295-d1a5f251-063d-406d-8821-c7a7d6d4c39b.gif)
 

@@ -67,11 +67,11 @@ def check_pkexec_permissions(execute, suid, root):
 
 def check_pkexec_using_ls(pkexec_path, debug, container_name):
     """This function checks file information using ls_output command."""
-    ls_command = f'ls_output -l {pkexec_path}'
+    ls_command = f'ls -l {pkexec_path}'
     pipe_ls = run_command.command_output(ls_command, debug, container_name)
     ls_output = pipe_ls.stdout
     if not ls_output:
-        print(constants.FULL_EXPLANATION_MESSAGE.format('Unsupported ls_output value'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format('Unsupported ls value'))
         return constants.UNSUPPORTED
     ls_split = ls_output.split(' ')
     file_permissions = ls_split[0]
@@ -85,7 +85,7 @@ def check_pkexec_using_ls(pkexec_path, debug, container_name):
         suid = True
     if 'x' in file_permissions:
         execute = True
-    return check_requirements(execute, suid, root)
+    return check_pkexec_permissions(execute, suid, root)
 
 
 def check_pkexec_using_getfacl(pkexec_path, debug, container_name):
@@ -110,7 +110,7 @@ def check_pkexec_using_getfacl(pkexec_path, debug, container_name):
         elif not field.startswith('#') and '::' in field and field.endswith('x'):
             execute = True
             break
-    return check_requirements(execute, suid, root)
+    return check_pkexec_permissions(execute, suid, root)
 
 
 def get_pkexec_path(debug, container_name):

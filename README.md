@@ -69,6 +69,7 @@ Partial support for Alpine
 
 # Installation Requirements
 
+Before installing MI-X, make sure your machine have the following:
 1. Python version 3
 2. pip
 3. Graphviz (optional, needed only for the graph capabilities) 

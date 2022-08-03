@@ -69,10 +69,12 @@ Partial support for Alpine
 
 # Installation Requirements
 
+Before installing MI-X, make sure your machine have the following:
 1. Python version 3
-2. Graphviz (optional, needed only for the graph capabilities) 
-3. Xdg-utils (optional, needed only for the graph capabilities)
-4. openjdk with jcmd support (needed when running in container mode and the openjdk version on the container is lower than `openjdk10`)
+2. pip
+3. Graphviz (optional, needed only for the graph capabilities) 
+4. Xdg-utils (optional, needed only for the graph capabilities)
+5. openjdk with jcmd support (needed when running in container mode and the openjdk version on the container is lower than `openjdk10`)
 
 In order to install the requirements:
 1. Check your os distribution you can use the following command:
@@ -84,32 +86,42 @@ In order to install the requirements:
    apt - Ubuntu, Debian
    
    yum - Red Hat, CentOS, Fedora, SUSE, SLES, Amazon
-3. Install the relevant package using your os distribution package manager
-4. Install the relevant package using your os distribution package manager
 
-# Dependencies Installation
-- graphviz
+   apk - Alpine
+3. Install the relevant packages using your os distribution package manager
+
+# Dependencies Installation Requirements
+In order to execute MI-X correctly, you have to install the graphviz python module requirement using pip: 
 ```
 pip install -r requirements.txt
 ```
 
-# Installation
+# Install MI-X
 
 The very latest developments can be obtained via git.
 
-Clone or download the project files (no compilation nor installation is required) 
-```
-git clone https://github.com/Rezilion/mi-x.git
-```
-Execute:
-```
-cd mi-x && python3 am_i_exploitable.py
-```
-# Execution Example
+1. Clone or download the project files (no compilation nor installation is required)
+   ```
+   git clone https://github.com/Rezilion/mi-x.git
+   ```
+3. Execute MI-X menu
+   ```
+   cd mi-x && python3 am_i_exploitable.py
+   ```
+   
+# Execute Scanning Template
 
-Execute the program using parameters
+Scanning command template
 ```
 python3 am_i_exploitable.py --cve_id cve_yyyy_xxxx --container True --graph True
+
+```
+
+# Execute Scanning Example
+Scan the machine running containers for log4shell.
+```
+python3 am_i_exploitable.py --cve_id log4shell --container True
+
 ```
 ![Executing](https://user-images.githubusercontent.com/15197376/178207295-d1a5f251-063d-406d-8821-c7a7d6d4c39b.gif)
 
@@ -138,7 +150,7 @@ The user needs to specify whether to see the CVE description or not (True by def
 
 ## --graph
 
-The user needs to specify whether to see the validation flow chart (False by default).
+The user needs to specify whether to see the validation flowchart (False by default).
 
 ## --help
 

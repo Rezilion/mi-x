@@ -4,7 +4,7 @@ Support for graphviz, version from packaging and other modules which written for
 import graphviz
 from modules import run_command, commons, constants
 
-CVE_ID = 'CVE-2010-1938'
+CVE_ID = 'CVE-2020-1938'
 DESCRIPTION = f'''{CVE_ID} - GhostCat
 
 CVSS Score: 9.8

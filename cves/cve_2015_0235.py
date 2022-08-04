@@ -14,6 +14,10 @@ NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2015-0235
 This vulnerability allows a remote attacker that is able to make an application call to gethostbyname*() functions to
 execute arbitrary code with the permissions of the user running the application.
 The affected glibc versions are between 2.2 to 2.17 (the fix was introduced in version 2.18).
+
+Related Links:
+https://blog.qualys.com/vulnerabilities-threat-research/2015/01/27/the-ghost-vulnerability
+https://www.indusface.com/blog/need-know-ghost-vulnerability/
 '''
 MIN_AFFECTED_VERSION = '2.2'
 MAX_AFFECTED_VERSION = '2.17'

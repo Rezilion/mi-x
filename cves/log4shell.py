@@ -54,6 +54,12 @@ Apache Log4j2 versions 2.0-beta7 through 2.17.0 (excluding security fix releases
 vulnerable to a remote code execution (RCE) attack where an attacker with permission to modify the logging configuration
 file can construct a malicious configuration using a JDBC Appender with a data source referencing a JNDI URI which can
 execute remote code.
+
+Related Links:
+https://www.rezilion.com/blog/log4shell-vulnerability-cve-2021-44228-should-you-worry/
+https://logging.apache.org/log4j/2.x/security.html
+https://www.rezilion.com/blog/months-later-are-you-still-vulnerable-to-log4shell/
+https://nakedsecurity.sophos.com/2021/12/13/log4shell-explained-how-it-works-why-you-need-to-know-and-how-to-fix-it/
 '''
 CLASS_CVE = {'org.apache.logging.log4j.core.lookup.JndiLookup': 'CVE-2021-44228 and CVE-2021-45046',
              'org.apache.log4j.net.JMSAppender': 'CVE-2021-4104',

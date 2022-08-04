@@ -15,6 +15,11 @@ Linux Kernel bug in the PIPE mechanism due to missing initialization of the `fla
 process, and through doing so, escalate privileges by getting write permissions to read-only files. This can also be 
 used in order to modify files in container images on the host, effectively poisoning any new containers based on the 
 modified image.
+
+Related Links:
+https://www.rezilion.com/blog/dirty-pipe-what-you-need-to-know/
+https://dirtypipe.cm4all.com/
+https://blog.malwarebytes.com/exploits-and-vulnerabilities/2022/03/linux-dirty-pipe-vulnerability-gives-unprivileged-users-root-access/
 '''
 FIRST_AFFECTED_VERSION = '5.8.0'
 PATCHED_VERSIONS = ['5.10.102', '5.15.25', '5.16.11']

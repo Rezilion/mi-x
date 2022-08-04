@@ -18,6 +18,10 @@ GhostCat allows an attacker to retrieve arbitrary files from anywhere in the web
 and `META-INF` directories and any other location that can be reached via ServletContext.getResourceAsStream(). 
 A remote, unauthenticated attacker could exploit this vulnerability to read web application files from a vulnerable 
 server, upload files and process them in the web application as JSP which can cause Remote Code Execution (RCE) attack.
+
+Related Links:
+https://www.tenable.com/blog/cve-2020-1938-ghostcat-apache-tomcat-ajp-file-readinclusion-vulnerability-cnvd-2020-10487
+https://www.trendmicro.com/en_us/research/20/c/busting-ghostcat-an-analysis-of-the-apache-tomcat-vulnerability-cve-2020-1938-and-cnvd-2020-10487.html
 '''
 HOST = 'host'
 TOMCAT_ENVIRONMENT = 'TOMCAT_VERSION='

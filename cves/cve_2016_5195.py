@@ -23,6 +23,10 @@ It means that if any of these processes tries to modify the shared pages, only a
 Then, modifications will be done on the copy of the pages by that process, thus not affecting the other process.
 The problem with the COW mechanism is that it also gives write permissions to copied pages, not only modified ones.
 Attackers can use the COW mechanism to copy read-only memory pages, get write permissions and modify them.
+
+Related Links:
+https://chao-tic.github.io/blog/2017/05/24/dirty-cow
+https://www.ncsc.gov.uk/news/dirty-cow-linux-privilege-escalation-vulnerability-being-actively-exploited
 '''
 NAME_FIELD = 'NAME='
 VERSION_FIELD = 'VERSION_ID='

@@ -19,6 +19,10 @@ Zero Huge Page is a Huge Page filled with zeros.
 The problem with the THP mechanism is that read-only huge pages can be rewritten as objects.
 Attackers can use the THP mechanism to write to read-only Huge Pages and Zero Pages.
 This can influence how user space applications behave or cause denial-of-service attacks.
+
+Related Links:
+https://medium.com/bindecy/huge-dirty-cow-cve-2017-1000405-110eca132de0
+https://threatpost.com/flaw-found-in-dirty-cow-patch/129064/
 '''
 MAX_KERNEL_VERSION = '4.15.0'
 MIN_KERNEL_VERSION = '2.6.37'

@@ -14,6 +14,10 @@ A heap overflow Linux kernel bug due to an incorrect flow offload action array s
 function of the file `net/netfilter/nf_dup_netdev.c` of the Netfilter component.
 It impacts Linux kernel versions 5.4 through 5.6.10 and can be leveraged by a local adversary to gain elevated 
 privileges on affected systems to execute arbitrary code, escape containers, or induce a kernel panic.
+
+Related Links:
+https://nickgregory.me/linux/security/2022/03/12/cve-2022-25636/
+https://support.f5.com/csp/article/K13559191
 '''
 MIN_AFFECTED_VERSION = '5.4.0'
 MAX_AFFECTED_VERSION = '5.6.10'

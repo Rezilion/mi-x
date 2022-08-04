@@ -14,6 +14,11 @@ A zero-day Remote Code Execution (RCE) vulnerability caused by an error in the m
 client-provided data to update the properties of an object in the Spring MVC or Spring WebFlux application. 
 The vulnerability can be exploited remotely only if a Spring application is deployed as a WAR on the Apache Tomcat 
 server and run on JDK 9 and higher.
+
+Related Links:
+https://www.rezilion.com/blog/spring4shell-what-you-need-to-know/
+https://securitylabs.datadoghq.com/articles/spring4shell-vulnerability-overview-and-remediation/
+https://www.upguard.com/blog/what-is-spring4shell
 '''
 MIN_AFFECTED_VERSION = 9
 CLASSES = {'org.springframework.web.servlet.mvc.method.annotation.ServletModelAttributeMethodProcessor': 'webmvc',

@@ -75,6 +75,12 @@ Off-by-one error in the read_token_word function in `parse.y` allows remote atta
 (out-of-bounds array access and application crash) or possibly have unspecified other impact via deeply nested for 
 loops, aka the "word_lineno" issue.
 The vulnerability is relevant for GNU Bash through 4.3 bash43-026.
+
+Related Links:
+https://owasp.org/www-pdf-archive/Shellshock_-_Tudor_Enache.pdf
+https://unix.stackexchange.com/questions/157477/how-can-shellshock-be-exploited-over-ssh
+https://www.jamieweb.net/blog/restricting-and-locking-down-ssh-users/#command
+https://tidbits.com/2014/09/30/how-to-test-bash-for-shellshock-vulnerabilities/
 '''
 MIN_BASH_AFFECTED_VERSION = '1.0.3'
 MAX_BASH_AFFECTED_VERSION = '4.3.0'

@@ -14,8 +14,12 @@ NVD Link: https://nvd.nist.gov/vuln/detail/cve-2014-0160
 the applications and services.
 Due to a missing/incorrect bounds check in the code, it is possible to return chunks of memory from a TLS peer (client 
 or server) by sending invalid requests which are incorrectly processed.
-Attackers can exploit the vulnerability and leak sensitive information such as the private key, account names and/or
- passwords.
+Attackers can exploit the vulnerability and leak sensitive information such as the private key, account names and/or 
+passwords.
+ 
+Related Links:
+https://heartbleed.com/
+https://www.synopsys.com/blogs/software-security/heartbleed-vulnerability-appsec-deep-dive/
 '''
 AFFECTED_VERSIONS_MESSAGE = '1.0.1 up to including 1.0.1g and 1.0.2 up to including 1.0.2beta1'
 AFFECTED_VERSIONS = ['1.0.1', '1.0.1f', '1.0.2', '1.0.2beta1']

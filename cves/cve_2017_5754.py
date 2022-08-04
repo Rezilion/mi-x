@@ -13,6 +13,11 @@ NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2017-5754
 Meltdown represents critical vulnerabilities in modern processors.
 Meltdown breaks the most fundamental isolation between user applications and the operating system. This attack allows a
 program to access the memory, and thus also the secrets, of other programs and the operating system.
+
+Related Links:
+https://meltdownattack.com/
+https://www.techrepublic.com/article/spectre-and-meltdown-explained-a-comprehensive-guide-for-professionals/
+https://events19.linuxfoundation.org/wp-content/uploads/2017/11/Spectre-Meltdown-Linux-Greg-Kroah-Hartman-The-Linux-Foundation.pdf
 '''
 
 

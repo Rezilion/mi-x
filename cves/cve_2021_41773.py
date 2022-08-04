@@ -39,6 +39,10 @@ So 2.4.50 apache version also misses the dot dot slash or Path Traversal attack 
 set to "Require all granted".
 Same as {CVE_ID_ONE}, if the ‘mod_cgi’ module is also enabled in the configuration file, the attacker will be able to 
 leverage the path traversal vulnerability and call any binary on the system using HTTP POST requests.
+
+Related Links:
+https://blog.qualys.com/vulnerabilities-threat-research/2021/10/27/apache-http-server-path-traversal-remote-code-execution-cve-2021-41773-cve-2021-42013
+https://blogs.juniper.net/en-us/threat-research/apache-http-server-cve-2021-42013-and-cve-2021-41773-exploited
 '''
 NAME_FIELD = 'NAME='
 FIRST_AFFECTED_VERSION = '2.4.49'

@@ -17,6 +17,12 @@ The pkexec file can run another process with higher privileges, the same as sudo
 Due to a missing input check of argv and the fact that there is a Linux mechanism that allows argv to be only
 NULL, an overflow can occur allowing reading and writing from unexpected memory regions.
 This overflow allows exploits to modify variables so that unprivileged users gain root privileges.
+
+Related Links:
+https://www.rezilion.com/blog/pwnkit-what-you-need-to-know-about-it/
+https://www.datadoghq.com/blog/pwnkit-vulnerability-overview-and-remediation/
+https://snyk.io/blog/pwnkit-linux-exploit-cve-2021-4034/
+https://blog.qualys.com/vulnerabilities-threat-research/2022/01/25/pwnkit-local-privilege-escalation-vulnerability-discovered-in-polkits-pkexec-cve-2021-4034
 '''
 FIXED_VERSION = '0.120'
 ROOT_OWNER = '# owner: root'

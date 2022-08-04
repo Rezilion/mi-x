@@ -24,6 +24,12 @@ The CVE-2022-29800 is a TOCTOU (Time of Check - Time of Use) race vulnerability,
 networkd-dispatcher performs in order to validate which scripts in the checked directory have root permissions. 
 If a large amount of scripts need to be validated, the checks take time and meanwhile, the attacker can replace the 
 subdirectory and cause malicious scripts to be executed instead.
+
+Related Links:
+https://www.rezilion.com/blog/nimbuspwn-what-you-need-to-know-now/
+https://thesecmaster.com/how-to-fix-nimbuspwn-vulnerability-in-linux-a-privilege-escalation-vulnerability-in-networkd-dispatcher/
+https://www.esecurityplanet.com/threats/nimbuspwn-root-privilege-escalation-linux/
+https://www.microsoft.com/security/blog/2022/04/26/microsoft-finds-new-elevation-of-privilege-linux-vulnerability-nimbuspwn/
 '''
 AFFECTED_VERSIONS = {'Debian 10': '2.0-2', 'Debian 11': '2.1-2', 'Debian 12': '2.1-2', 'Debian unstable': '2.1-2',
                      'Ubuntu 18.04': '1.7-0ubuntu3.4', 'Ubuntu 20.04': '2.1-2~ubuntu20.04.2',

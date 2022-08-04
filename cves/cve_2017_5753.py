@@ -14,6 +14,12 @@ Spectre represents critical vulnerabilities in modern processors.
 Spectre breaks the isolation between different applications. It allows an attacker to trick error-free programs, which 
 follow best practices, into leaking their secrets. In fact, the safety checks of said best practices actually increase 
 the attack surface and may make applications more susceptible to Spectre
+
+Related Links:
+https://meltdownattack.com/
+https://www.techrepublic.com/article/spectre-and-meltdown-explained-a-comprehensive-guide-for-professionals/
+https://events19.linuxfoundation.org/wp-content/uploads/2017/11/Spectre-Meltdown-Linux-Greg-Kroah-Hartman-The-Linux-Foundation.pdf
+https://www.kernel.org/doc/Documentation/admin-guide/hw-vuln/spectre.rst
 '''
 
 

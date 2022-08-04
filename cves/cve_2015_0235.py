@@ -22,7 +22,7 @@ MAX_AFFECTED_VERSION = '2.17'
 def glibc_version(glibc_value):
     """This function checks if the GLIBC version is affected."""
     print(constants.FULL_QUESTION_MESSAGE.format('Is GLIBC version affected?'))
-    if MAX_AFFECTED_VERSION <= glibc_value <= MAX_AFFECTED_VERSION:
+    if MIN_AFFECTED_VERSION <= glibc_value <= MAX_AFFECTED_VERSION:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected GLIBC versions are between {MIN_AFFECTED_VERSION} '
                                                         f'to {MAX_AFFECTED_VERSION}'))

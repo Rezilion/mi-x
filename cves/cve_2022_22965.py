@@ -2,6 +2,7 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
+from packaging import version
 from modules import run_command, get_pids, commons, constants
 
 CVE_ID = 'CVE-2022-22965'
@@ -55,13 +56,13 @@ def check_java_version(pid, jcmd_command, debug):
     if not jcmd:
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Unsupported {VM_VERSION} value'))
         return constants.UNSUPPORTED
-    version = jcmd.split('\n')[2].split(' ')[constants.END]
-    start_of_version = int(version.split('.')[constants.START])
-    if start_of_version > MIN_AFFECTED_VERSION:
+    java_version = jcmd.split('\n')[2].split(' ')[constants.END]
+    start_of_version = int(java_version.split('.')[constants.START])
+    if version.parse(start_of_version) > version.parse(MIN_AFFECTED_VERSION):
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'The minimum affected java version is: '
                                                         f'{MIN_AFFECTED_VERSION}, the process`s java version which is: '
-                                                        f'{version}, is not affected'))
+                                                        f'{java_version}, is not affected'))
         return False
     print(constants.FULL_POSITIVE_RESULT_MESSAGE)
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'The minimum affected java version is: {MIN_AFFECTED_VERSION}, the'

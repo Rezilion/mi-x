@@ -3,6 +3,7 @@ Support for subprocess, semver, graphviz and other modules which written for avo
 """
 import subprocess
 import graphviz
+from packaging import version
 from modules import run_command, commons, constants
 
 CVE_ID = 'Shellshock'
@@ -175,7 +176,8 @@ def cve_2014_6271(container_name):
 def is_bash_affected(bash_version):
     """This function check the bash version."""
     print(constants.FULL_QUESTION_MESSAGE.format('Is bash version affected?'))
-    if MIN_BASH_AFFECTED_VERSION > bash_version > MAX_BASH_AFFECTED_VERSION:
+    if version.parse(MIN_BASH_AFFECTED_VERSION) > version.parse(bash_version) > \
+            version.parse(MAX_BASH_AFFECTED_VERSION):
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format('Your bash version is not affected'))
     else:

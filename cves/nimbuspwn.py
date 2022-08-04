@@ -2,6 +2,7 @@
 Support for graphviz, version from packaging and other modules which written for avoiding repetitive code.
 """
 import graphviz
+from packaging import version
 from modules import commons, os_release, constants, receive_package
 
 CVE_ID = 'NIMBUSPWN'
@@ -45,12 +46,12 @@ def check_networkd_version(host_information, debug, container_name):
     if host_network_version:
         print(constants.FULL_QUESTION_MESSAGE.format('Is networkd-dispatcher policy version affected?'))
         affected_networkd_version = AFFECTED_VERSIONS[host_information]
-        if host_network_version > affected_networkd_version:
+        if version.parse(host_network_version) > version.parse(affected_networkd_version):
             print(constants.FULL_POSITIVE_RESULT_MESSAGE)
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is higher '
                                                             f'than the last affected version which is: '
                                                             f'{affected_networkd_version}'))
-        elif host_network_version == affected_networkd_version:
+        elif version.parse(host_network_version) == version.parse(affected_networkd_version):
             print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is '
                                                             f'affected'))

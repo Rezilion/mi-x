@@ -2,6 +2,7 @@
 Support for semver, graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
+from packaging import version
 from modules import run_command, kernel_version, commons, constants
 
 CVE_ID = 'CVE-2022-25636'
@@ -60,7 +61,8 @@ def check_kernel(debug):
         print(constants.FULL_EXPLANATION_MESSAGE.format('Kernel version unsupported value'))
         return constants.UNSUPPORTED
     valid_kernel_version = commons.valid_kernel_version(host_kernel_version)
-    if valid_kernel_version > MAX_AFFECTED_VERSION or valid_kernel_version < MIN_AFFECTED_VERSION:
+    if version.parse(valid_kernel_version) > version.parse(MAX_AFFECTED_VERSION) or \
+            version.parse(valid_kernel_version) < version.parse(MIN_AFFECTED_VERSION):
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'According to your os release, affected kernel versions '
                                                         f'range is: {MIN_AFFECTED_VERSION} to {MAX_AFFECTED_VERSION}\n'

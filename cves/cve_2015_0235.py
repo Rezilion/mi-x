@@ -28,12 +28,12 @@ def glibc_version(glibc_value):
     """This function checks if the GLIBC version is affected."""
     print(constants.FULL_QUESTION_MESSAGE.format('Is GLIBC version affected?'))
     if version.parse(MIN_AFFECTED_VERSION) <= version.parse(glibc_value) <= version.parse(MAX_AFFECTED_VERSION):
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected GLIBC versions are between {MIN_AFFECTED_VERSION} '
                                                         f'to {MAX_AFFECTED_VERSION}'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your GLIBC version which is: {glibc_value} is affected'))
         return True
-    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected GLIBC versions are between {MIN_AFFECTED_VERSION} '
                                                     f'to {MAX_AFFECTED_VERSION}'))
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your GLIBC version which is: {glibc_value} is not affected'))
@@ -50,10 +50,10 @@ def glibc_exist(debug, container_name):
         print(constants.FULL_EXPLANATION_MESSAGE.format('Unsupported GLIBC value'))
         return constants.UNSUPPORTED
     if 'GLIBC' in glibc_output or 'GNU libc' in glibc_output:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format('GLIBC does exist'))
         return glibc_output.split('\n')[constants.START].split(' ')[-1]
-    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
     print(constants.FULL_EXPLANATION_MESSAGE.format('GLIBC does not exist'))
     return ''
 

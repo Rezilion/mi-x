@@ -29,7 +29,7 @@ def package_version_rpm(distribution, package_name, debug, container_name):
     print(constants.FULL_QUESTION_MESSAGE.format(f'Is there an affected {package_name} package installed?'))
     package_info = package(distribution, package_name, debug, container_name)
     if not package_info:
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'{package_name} is not installed on the host'))
         return []
     check = False
@@ -43,7 +43,11 @@ def package_version_rpm(distribution, package_name, debug, container_name):
         if check:
             if PACKAGE_RELEASE_FIELD in field:
                 host_info.append(field.split(': ')[constants.FIRST])
+                print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
+                print(constants.FULL_EXPLANATION_MESSAGE.format(f'{package_name} is installed on the host'))
                 return host_info
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'{package_name} is not installed on the host'))
     return host_info
 
 
@@ -52,7 +56,7 @@ def package_version_apt(distribution, package_name, debug, container_name):
     print(constants.FULL_QUESTION_MESSAGE.format(f'Is there an affected {package_name} package installed?'))
     policy_info = package(distribution, package_name, debug, container_name)
     if not policy_info:
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'{package_name} is not installed on the host'))
         return ''
     package_version = ''
@@ -61,9 +65,9 @@ def package_version_apt(distribution, package_name, debug, container_name):
             package_version = field.split(': ')[constants.FIRST]
             break
     if not package_version or ERROR_MESSAGE in package_version or NONE in package_version:
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'{package_name} is not installed on the host'))
         return ''
-    print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+    print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'{package_name} is installed on the host'))
     return package_version

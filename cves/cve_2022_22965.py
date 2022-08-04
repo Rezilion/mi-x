@@ -21,11 +21,11 @@ https://www.rezilion.com/blog/spring4shell-what-you-need-to-know/
 https://securitylabs.datadoghq.com/articles/spring4shell-vulnerability-overview-and-remediation/
 https://www.upguard.com/blog/what-is-spring4shell
 '''
-MIN_AFFECTED_VERSION = 9
+MIN_AFFECTED_JAVA_VERSION = 9
 CLASSES = {'org.springframework.web.servlet.mvc.method.annotation.ServletModelAttributeMethodProcessor': 'webmvc',
            'org.springframework.web.reactive.result.method.annotation.ModelAttributeMethodArgumentResolver': 'webflux'}
 VM_VERSION = '"VM.version"'
-PATCHED_VERSIONS = ['8.5.78', '9.0.62', '10.0.20']
+TOMCAT_PATCHED_VERSIONS = ['8.5.78', '9.0.62', '10.0.20']
 JDK_MINIMUM_VERSION = '10.0.0'
 
 
@@ -45,7 +45,7 @@ def check_tomcat(debug, container_name):
             tomcat_version = field.split('/')[constants.END]
     if not tomcat_version:
         return constants.UNSUPPORTED
-    return commons.check_patched_version('Tomcat', tomcat_version, PATCHED_VERSIONS)
+    return commons.check_patched_version('Tomcat', tomcat_version, TOMCAT_PATCHED_VERSIONS)
 
 
 def check_java_version(pid, jcmd_command, debug):
@@ -58,15 +58,15 @@ def check_java_version(pid, jcmd_command, debug):
         return constants.UNSUPPORTED
     java_version = jcmd.split('\n')[2].split(' ')[constants.END]
     start_of_version = int(java_version.split('.')[constants.START])
-    if version.parse(start_of_version) > version.parse(MIN_AFFECTED_VERSION):
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+    if version.parse(start_of_version) < version.parse(MIN_AFFECTED_JAVA_VERSION):
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'The minimum affected java version is: '
-                                                        f'{MIN_AFFECTED_VERSION}, the process`s java version which is: '
-                                                        f'{java_version}, is not affected'))
+                                                        f'{MIN_AFFECTED_JAVA_VERSION}, the process`s java version which'
+                                                        f' is: {java_version}, is not affected'))
         return False
-    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-    print(constants.FULL_EXPLANATION_MESSAGE.format(f'The minimum affected java version is: {MIN_AFFECTED_VERSION}, the'
-                                                    f' process`s java version which is: {version}, is affected'))
+    print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'The minimum affected java version is: {MIN_AFFECTED_JAVA_VERSION}'
+                                                    f', the process`s java version which is: {version}, is affected'))
     return True
 
 

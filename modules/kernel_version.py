@@ -20,16 +20,21 @@ def check_kernel(min_kernel_version, max_kernel_version, debug):
     kernel_version = pipe_kernel_version.stdout
     valid_kernel_version = commons.valid_kernel_version(kernel_version)
     if not valid_kernel_version:
-        print(f'{EXPLANATION}Kernel version unsupported value{BASIC_COLOR}')
-        return 'Unsupported'
+        print(constants.FULL_EXPLANATION_MESSAGE.format('Kernel version unsupported value'))
+        return constants.UNSUPPORTED
     if version.parse(max_kernel_version) > version.parse(valid_kernel_version) > version.parse(min_kernel_version):
         affected = True
-        print(f'{NEGATIVE_RESULT}Yes{BASIC_COLOR}')
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'According to your os release, affected kernel versions are '
+                                                        f'between: {min_kernel_version} to {max_kernel_version}\nYour '
+                                                        f'kernel version which is{valid_kernel_version[:constants.END]}'
+                                                        f', is potentially affected'))
     else:
-        print(f'{POSITIVE_RESULT}No{BASIC_COLOR}')
-    print(f'{EXPLANATION}According to your os release, affected kernel versions are between: {min_kernel_version}'
-          f' to {max_kernel_version}')
-    print(f'Your kernel version: {valid_kernel_version[:constants.END]}{BASIC_COLOR}')
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'According to your os release, affected kernel versions are '
+                                                        f'between: {min_kernel_version} to {max_kernel_version}\nYour '
+                                                        f'kernel version which is{valid_kernel_version[:constants.END]}'
+                                                        f', is not affected'))
     return affected
 
 

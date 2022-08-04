@@ -38,14 +38,14 @@ def nf_tables_affected(nf_tables_path, debug, container_name):
         return constants.UNSUPPORTED
     for string in strings_output.split('\n'):
         if string == AFFECTED_VARIABLE:
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+            print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'The `nf_tables.ko` file is affected because it uses the '
                                                             f'affected variable which is - {AFFECTED_VARIABLE}'))
             return True
         if string == FIXED_VARIABLE:
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The `nf_tables.ko` file is fixed because it uses the'
-                                                            f'fixed variable which is - {FIXED_VARIABLE}'))
+            print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
+            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The `nf_tables.ko` file is not affected because it uses '
+                                                            f'the fixed variable which is - {FIXED_VARIABLE}'))
             return False
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'The affected - {AFFECTED_VARIABLE} and fixed - {FIXED_VARIABLE} '
                                                     f'variables were not found in the `nf_tables.ko` file.. unsupported'
@@ -63,15 +63,17 @@ def check_kernel(debug):
     valid_kernel_version = commons.valid_kernel_version(host_kernel_version)
     if version.parse(valid_kernel_version) > version.parse(MAX_AFFECTED_VERSION) or \
             version.parse(valid_kernel_version) < version.parse(MIN_AFFECTED_VERSION):
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'According to your os release, affected kernel versions '
                                                         f'range is: {MIN_AFFECTED_VERSION} to {MAX_AFFECTED_VERSION}\n'
-                                                        f'Your kernel version: {valid_kernel_version[:constants.END]}'))
+                                                        f'Your kernel version which is: '
+                                                        f'{valid_kernel_version[:constants.END]}, is not affected'))
         return ''
-    print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+    print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'According to your os release, affected kernel versions range is: '
                                                     f'{MIN_AFFECTED_VERSION} to {MAX_AFFECTED_VERSION}\nYour kernel '
-                                                    f'version: {valid_kernel_version[:constants.END]}'))
+                                                    f'version which is: {valid_kernel_version[:constants.END]}, is '
+                                                    f'potentially affected'))
     return host_kernel_version
 
 

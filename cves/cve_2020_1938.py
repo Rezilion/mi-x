@@ -51,7 +51,7 @@ def check_mitigation(printenv, debug, container_name):
     print(constants.FULL_QUESTION_MESSAGE.format('Is AJP in the server.xml file enabled?'))
     for line in content:
         if AJP_DEFAULT_LINE in line and MITIGATION in line:
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+            print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
             print(constants.FULL_EXPLANATION_MESSAGE.format('The default line enabling AJP in the server.xml is '
                                                             'disabled'))
             return True
@@ -62,7 +62,7 @@ def check_mitigation(printenv, debug, container_name):
                                                             'exploitability in this situations, however it is a '
                                                             'mitigation that hardens the attack'))
             return constants.UNSUPPORTED
-    print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+    print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
     print(constants.FULL_EXPLANATION_MESSAGE.format('The default line enabling AJP in the server.xml is enabled'))
     return False
 
@@ -75,10 +75,10 @@ def tomcat_version(printenv):
             version = value.split('=')[1]
     print(constants.FULL_QUESTION_MESSAGE.format('Is it Apache Tomcat?'))
     if not version:
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format('This is not an Apache Tomcat'))
         return version
-    print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+    print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
     print(constants.FULL_EXPLANATION_MESSAGE.format('This is an Apache Tomcat'))
     return commons.check_patched_version('Apache Tomcat', version, PATCHED_VERSIONS)
 

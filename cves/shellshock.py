@@ -98,10 +98,10 @@ def cve_2014_7187(container_name):
         exploit_out = pipe_exploit_out.communicate()[constants.START]
         print(constants.FULL_QUESTION_MESSAGE.format('Is vulnerable to CVE-2014-7187?'))
         if 'CVE-2014-7187 vulnerable, word_lineno' in exploit_out:
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+            print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
             print(constants.FULL_VULNERABLE_MESSAGE.format('CVE-2014-7187'))
         else:
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+            print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
             print(constants.FULL_NOT_VULNERABLE_MESSAGE.format('CVE-2014-7187'))
 
 
@@ -116,10 +116,10 @@ def cve_2014_7186(container_name):
         exploit_out = pipe_exploit_out.communicate()[constants.START]
         print(constants.FULL_QUESTION_MESSAGE.format('Is vulnerable to CVE-2014-7186?'))
         if 'echo' in exploit_out:
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+            print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
             print(constants.FULL_VULNERABLE_MESSAGE.format('CVE-2014-7186'))
         else:
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+            print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
             print(constants.FULL_NOT_VULNERABLE_MESSAGE.format('CVE-2014-7186'))
 
 
@@ -133,10 +133,10 @@ def cve_2014_7169(container_name):
         exploit_error = pipe_exploit_out.communicate()[constants.FIRST]
         print(constants.FULL_QUESTION_MESSAGE.format('Is vulnerable to CVE-2014-7169?'))
         if not exploit_error or 'No such file or directory' in exploit_error:
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+            print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
             print(constants.FULL_NOT_VULNERABLE_MESSAGE.format('CVE-2014-7169'))
         else:
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+            print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
             print(constants.FULL_VULNERABLE_MESSAGE.format('CVE-2014-7169'))
 
 
@@ -150,10 +150,10 @@ def cve_2014_6277_and_cve_2014_6278(container_name):
         exploit_out = pipe_exploit_out.communicate()[constants.START]
         print(constants.FULL_QUESTION_MESSAGE.format('Is vulnerable to CVE-2014-6277 or CVE-2014-6278?'))
         if 'vulnerable' in exploit_out:
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+            print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
             print(constants.FULL_VULNERABLE_MESSAGE.format('CVE-2014-6277 or CVE-2014-6278'))
         else:
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+            print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
             print(constants.FULL_NOT_VULNERABLE_MESSAGE.format('CVE-2014-6277 or CVE-2014-6278'))
 
 
@@ -166,10 +166,10 @@ def cve_2014_6271(container_name):
     exploit_out = pipe_exploit_out.stdout
     print(constants.FULL_QUESTION_MESSAGE.format('Is vulnerable to CVE-2014-6271?'))
     if 'vulnerable' in exploit_out:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_VULNERABLE_MESSAGE.format('CVE-2014-6271'))
     else:
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_NOT_VULNERABLE_MESSAGE.format('CVE-2014-6271'))
 
 
@@ -178,10 +178,10 @@ def is_bash_affected(bash_version):
     print(constants.FULL_QUESTION_MESSAGE.format('Is bash version affected?'))
     if version.parse(MIN_BASH_AFFECTED_VERSION) > version.parse(bash_version) > \
             version.parse(MAX_BASH_AFFECTED_VERSION):
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format('Your bash version is not affected'))
     else:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format('Your bash version is affected'))
 
 
@@ -192,12 +192,12 @@ def bash_installed(debug, container_name):
     bash_version_information = pipe_bash_version.stdout
     print(constants.FULL_QUESTION_MESSAGE.format('Is there bash installed?'))
     if bash_version_information and not 'failed' in bash_version_information:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format('Bash is installed on the system'))
         bash_version_information = bash_version_information.split('(')[constants.START]
         bash_version = bash_version_information.split(' ')[3]
         return bash_version
-    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
     print(constants.FULL_EXPLANATION_MESSAGE.format('There is no bash installed on the system'))
     return ''
 

@@ -47,19 +47,19 @@ def check_networkd_version(host_information, debug, container_name):
         print(constants.FULL_QUESTION_MESSAGE.format('Is networkd-dispatcher policy version affected?'))
         affected_networkd_version = AFFECTED_VERSIONS[host_information]
         if version.parse(host_network_version) > version.parse(affected_networkd_version):
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+            print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is higher '
-                                                            f'than the last affected version which is: '
+                                                            f'than the patched version which is: '
                                                             f'{affected_networkd_version}'))
         elif version.parse(host_network_version) == version.parse(affected_networkd_version):
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+            print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is '
                                                             f'affected'))
             affected = True
         else:
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+            print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is lower '
-                                                            f'than the last affected version which is: '
+                                                            f'than the patched version which is: '
                                                             f'{affected_networkd_version}'))
             affected = True
     return affected
@@ -77,19 +77,19 @@ def distribution_version_affected(debug, container_name):
                                                         'version values'))
         return constants.UNSUPPORTED
     if host_information in AFFECTED_VERSIONS:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os releases: {list(AFFECTED_VERSIONS.keys())}\n'
                                                         f'Your os release: {host_information}\nThe os release you '
                                                         f'are running on is potentially affected'))
         return host_information
     if host_information.split(' ')[constants.START] in constants.APT_DISTRIBUTIONS:
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your os distribution and version which is: '
                                                         f'{host_information}\nAffected distributions and versions: '
                                                         f'{list(AFFECTED_VERSIONS.keys())}\nYour distribution and '
                                                         f'version are not affected'))
         return ''
-    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os distributions: Ubuntu and Debian\nYour os '
                                                     f'distribution: {host_information}\nThe os distribution you'
                                                     f' are running on is not affected'))

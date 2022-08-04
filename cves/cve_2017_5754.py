@@ -29,10 +29,10 @@ def meltdown_file(debug, container_name):
         return constants.UNSUPPORTED
     print(constants.FULL_QUESTION_MESSAGE.format(f'Does the {meltdown_path} file contain the "vulnerable" string?'))
     if 'vulnerable' in meltdown_content:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'The "vulnerable" string exists in the {meltdown_path} file'))
         return meltdown_content
-    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'The "vulnerable" string does not exist in the {meltdown_path} '
                                                     f'file'))
     return ''
@@ -44,12 +44,12 @@ def check_vendor(debug, container_name):
     cpuinfo_content = commons.file_content(cpuinfo_path, debug, container_name)
     if not cpuinfo_content:
         return constants.UNSUPPORTED
-    print(constants.FULL_QUESTION_MESSAGE.format('Does the system run with other processor than AMD?'))
+    print(constants.FULL_QUESTION_MESSAGE.format('Does the system run with AMD processor?'))
     if 'AuthenticAMD' in cpuinfo_content:
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format('The system processor is AMD'))
         return ''
-    print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+    print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('No'))
     print(constants.FULL_EXPLANATION_MESSAGE.format('The system processor is not AMD'))
     return cpuinfo_content
 

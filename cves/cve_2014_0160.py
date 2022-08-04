@@ -34,12 +34,12 @@ def check_openssl_version(openssl_version):
             version.parse(AFFECTED_VERSIONS[constants.FIRST]) or \
             version.parse(openssl_version) == version.parse(AFFECTED_VERSIONS[2]) or \
             version.parse(openssl_version) == version.parse(AFFECTED_VERSIONS[constants.END]):
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected openssl versions are: {AFFECTED_VERSIONS_MESSAGE}\n'
                                                         f'Your openssl version which is: {openssl_version} is '
                                                         f'affected'))
         return True
-    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected openssl versions are between {AFFECTED_VERSIONS_MESSAGE}'
                                                     f'\nYour openssl version which is: {openssl_version} is not '
                                                     f'affected'))

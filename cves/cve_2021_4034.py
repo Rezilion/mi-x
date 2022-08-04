@@ -47,27 +47,27 @@ def check_pkexec_permissions(execute, suid, root):
     affected = ''
     print(constants.FULL_QUESTION_MESSAGE.format('Does pkexec have execute permissions?'))
     if execute:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format('Your pkexec file has execute permissions'))
         print(constants.FULL_QUESTION_MESSAGE.format('Does pkexec have suid bit?'))
         if suid:
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+            print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
             print(constants.FULL_EXPLANATION_MESSAGE.format('Your pkexec file has suid bit'))
             print(constants.FULL_QUESTION_MESSAGE.format('Is the pkexec binary owner root?'))
             if root:
                 affected = 'Yes'
-                print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+                print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
                 print(constants.FULL_EXPLANATION_MESSAGE.format('Your pkexec file is running with root '
                                                                 'privileges'))
             else:
-                print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+                print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
                 print(constants.FULL_EXPLANATION_MESSAGE.format('Your pkexec file is not running with root '
                                                                 'privileges'))
         else:
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+            print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
             print(constants.FULL_EXPLANATION_MESSAGE.format('Your pkexec file does not have suid bit'))
     else:
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format('Your pkexec file does not have execute permissions'))
     return affected
 
@@ -149,14 +149,14 @@ def policykit_affected_rpm(host_information, package_name, debug, container_name
         host_version = host_version[:constants.END]
     print(constants.FULL_QUESTION_MESSAGE.format(f'Is {package_name} version affected?'))
     if version.parse(host_version) > version.parse(fixed_version):
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: {host_version}, is '
                                                         f'higher than the patched version which is: {fixed_version}'))
     elif version.parse(host_version) == version.parse(fixed_version):
         patched_version = polkit_fixed_version[constants.FIRST]
         return commons.compare_versions(patched_version, host_release, package_name)
     else:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: {host_version}, is '
                                                         f'lower than the patched version which is: {fixed_version}'))
         affected = True
@@ -199,7 +199,7 @@ def distribution_version_affected(debug, container_name):
         print(constants.FULL_EXPLANATION_MESSAGE.format('Can not determine os release, unsupported value'))
         return constants.UNSUPPORTED
     if host_information in FIXED_APT or host_information in FIXED_RPM:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os releases: {list(FIXED_APT.keys())} '
                                                         f'{list(FIXED_RPM.keys())}\nYour os release: {host_information}'
                                                         f'\nThe os release you are running on is potentially affected'))
@@ -211,7 +211,7 @@ def distribution_version_affected(debug, container_name):
                                                         f'{list(FIXED_RPM.keys())}\nYour os release: {host_information}'
                                                         f'\nThe os release you are running on is not supported'))
         return constants.UNSUPPORTED
-    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os releases: {list(FIXED_APT.keys())} '
                                                     f'{list(FIXED_RPM.keys())}\nYour os release: {host_information}\n'
                                                     f'The os release you are running on is not affected'))

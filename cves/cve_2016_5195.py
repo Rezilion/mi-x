@@ -61,21 +61,20 @@ def check_kpatch(debug, container_name):
     pipe_modules = run_command.command_output(lsmod_command, debug, container_name)
     modules = pipe_modules.stdout
     if not modules:
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format('Can not determine loaded modules status, unsupported value'))
         return constants.UNSUPPORTED
-    print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+    print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
     print(constants.FULL_QUESTION_MESSAGE.format('Is it patched with kpatch?'))
     for kpatch in KPATCH_MODULE_NAMES:
         if kpatch in modules:
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+            print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('Yes'))
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'Red Hat relevant kpatch: {KPATCH_MODULE_NAMES}\nYour '
                                                             f'kpatch: {kpatch}'))
-            patched = True
-            break
+            return True
     if not patched:
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Red Hat relevant kpatch: {KPATCH_MODULE_NAMES}'))
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('No'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Red Hat relevant kpatch: {KPATCH_MODULE_NAMES}\nNo matches '
+                                                        f'kpatch was found'))
     return patched
 
 
@@ -121,12 +120,12 @@ def check_release(debug, container_name):
             return constants.UNSUPPORTED
         for fixed_release in FIXED:
             if fixed_release == host_information:
-                print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+                print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
                 print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os releases: {list(FIXED.keys())}\nYour os'
                                                                 f' release: {host_information}\nThe os release you are '
                                                                 f'running on is potentially affected'))
                 return fixed_release
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os releases: {list(FIXED.keys())}\nYour os '
                                                         f'release: {host_information}\nThe os release you are running '
                                                         f'on is not affected'))

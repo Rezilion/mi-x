@@ -62,12 +62,12 @@ def filesystem_directory_configuration(configuration_content):
         return constants.UNSUPPORTED
     for line in configuration_content[start:end]:
         if 'Require all granted' in line:
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+            print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
             print(constants.FULL_EXPLANATION_MESSAGE.format('Apache configuration file sets the filesystem '
                                                             'directory to "Require all granted"'))
             return True
         if 'Require all denied' in line:
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+            print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
             print(constants.FULL_EXPLANATION_MESSAGE.format('Apache configuration file sets the filesystem '
                                                             'directory to "Require all denied"'))
             return False
@@ -98,10 +98,10 @@ def apache_version(apache, debug, container_name):
     apache = pipe_apache.stdout
     print(constants.FULL_QUESTION_MESSAGE.format('Is Apache HTTP Server installed?'))
     if not apache:
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format('Apache HTTP Server is not installed'))
         return False
-    print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+    print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
     print(constants.FULL_EXPLANATION_MESSAGE.format('Apache HTTP Server is installed'))
     print(constants.FULL_QUESTION_MESSAGE.format('Is apache version affected?'))
     version = ''
@@ -112,18 +112,18 @@ def apache_version(apache, debug, container_name):
         print(constants.FULL_EXPLANATION_MESSAGE.format('Unsupported version value'))
         return constants.UNSUPPORTED
     if FIRST_AFFECTED_VERSION == version:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected apache versions : {FIRST_AFFECTED_VERSION} and'
                                                         f' {SECOND_AFFECTED_VERSION}\nYour apache version: '
                                                         f'{version}\nYour apache version is affected'))
         return 'CVE-2021-41773'
     if SECOND_AFFECTED_VERSION == version:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected apache versions : {FIRST_AFFECTED_VERSION} and'
                                                         f' {SECOND_AFFECTED_VERSION}\nYour apache version: '
                                                         f'{version}\nYour apache version is affected'))
         return 'CVE-2021-42013'
-    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected apache versions : {FIRST_AFFECTED_VERSION} and'
                                                     f' {SECOND_AFFECTED_VERSION}\nYour apache version: '
                                                     f'{version}\nYour apache version is not affected'))

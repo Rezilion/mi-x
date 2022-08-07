@@ -23,17 +23,27 @@ https://heartbleed.com/
 https://www.synopsys.com/blogs/software-security/heartbleed-vulnerability-appsec-deep-dive/
 '''
 AFFECTED_VERSIONS_MESSAGE = '1.0.1 up to including 1.0.1f and 1.0.2 up to including 1.0.2beta1'
-AFFECTED_VERSIONS = ['1.0.1', '1.0.1f', '1.0.2', '1.0.2beta1']
+AFFECTED_VERSION_START = '1.0.1'
+AFFECTED_VERSION_RANGE = ['a', 'f']
+AFFECTED_VERSIONS = ['1.0.2', '1.0.2beta1']
 MAX_AFFECTED_VERSION = '2.17'
 
 
 def check_openssl_version(openssl_version):
     """This function checks if the GLIBC version is affected."""
+    affected = False
     print(constants.FULL_QUESTION_MESSAGE.format('Is openssl version affected?'))
-    if version.parse(AFFECTED_VERSIONS[constants.START]) <= version.parse(openssl_version) <= \
-            version.parse(AFFECTED_VERSIONS[constants.FIRST]) or \
-            version.parse(openssl_version) == version.parse(AFFECTED_VERSIONS[2]) or \
-            version.parse(openssl_version) == version.parse(AFFECTED_VERSIONS[constants.END]):
+    if version.parse(AFFECTED_VERSION_START) == version.parse(openssl_version):
+        affected = True
+    elif AFFECTED_VERSION_START in openssl_version:
+        before_keyword, keyword, after_keyword = openssl_version.partition(AFFECTED_VERSION_START)
+        if version.parse(AFFECTED_VERSION_RANGE[constants.START]) <= version.parse(after_keyword) <= \
+                version.parse(AFFECTED_VERSION_RANGE[constants.END]):
+            affected = True
+    for affected_version in AFFECTED_VERSIONS:
+        if version.parse(affected_version) == version.parse(openssl_version):
+            affected = True
+    if affected:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected openssl versions are: {AFFECTED_VERSIONS_MESSAGE}\n'
                                                         f'Your openssl version which is: {openssl_version} is '

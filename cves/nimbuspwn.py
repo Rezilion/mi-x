@@ -2,6 +2,7 @@
 Support for graphviz, version from packaging and other modules which written for avoiding repetitive code.
 """
 import graphviz
+from packaging import version
 from modules import commons, os_release, constants, receive_package
 
 CVE_ID = 'NIMBUSPWN'
@@ -24,6 +25,12 @@ The CVE-2022-29800 is a TOCTOU (Time of Check - Time of Use) race vulnerability,
 networkd-dispatcher performs in order to validate which scripts in the checked directory have root permissions. 
 If a large amount of scripts need to be validated, the checks take time and meanwhile, the attacker can replace the 
 subdirectory and cause malicious scripts to be executed instead.
+
+Related Links:
+https://www.rezilion.com/blog/nimbuspwn-what-you-need-to-know-now/
+https://thesecmaster.com/how-to-fix-nimbuspwn-vulnerability-in-linux-a-privilege-escalation-vulnerability-in-networkd-dispatcher/
+https://www.esecurityplanet.com/threats/nimbuspwn-root-privilege-escalation-linux/
+https://www.microsoft.com/security/blog/2022/04/26/microsoft-finds-new-elevation-of-privilege-linux-vulnerability-nimbuspwn/
 '''
 AFFECTED_VERSIONS = {'Debian 10': '2.0-2', 'Debian 11': '2.1-2', 'Debian 12': '2.1-2', 'Debian unstable': '2.1-2',
                      'Ubuntu 18.04': '1.7-0ubuntu3.4', 'Ubuntu 20.04': '2.1-2~ubuntu20.04.2',
@@ -39,20 +46,20 @@ def check_networkd_version(host_information, debug, container_name):
     if host_network_version:
         print(constants.FULL_QUESTION_MESSAGE.format('Is networkd-dispatcher policy version affected?'))
         affected_networkd_version = AFFECTED_VERSIONS[host_information]
-        if host_network_version > affected_networkd_version:
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        if version.parse(host_network_version) > version.parse(affected_networkd_version):
+            print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is higher '
-                                                            f'than the last affected version which is: '
+                                                            f'than the patched version which is: '
                                                             f'{affected_networkd_version}'))
-        elif host_network_version == affected_networkd_version:
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        elif version.parse(host_network_version) == version.parse(affected_networkd_version):
+            print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is '
                                                             f'affected'))
             affected = True
         else:
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+            print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is lower '
-                                                            f'than the last affected version which is: '
+                                                            f'than the patched version which is: '
                                                             f'{affected_networkd_version}'))
             affected = True
     return affected
@@ -70,19 +77,19 @@ def distribution_version_affected(debug, container_name):
                                                         'version values'))
         return constants.UNSUPPORTED
     if host_information in AFFECTED_VERSIONS:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os releases: {list(AFFECTED_VERSIONS.keys())}\n'
                                                         f'Your os release: {host_information}\nThe os release you '
                                                         f'are running on is potentially affected'))
         return host_information
     if host_information.split(' ')[constants.START] in constants.APT_DISTRIBUTIONS:
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your os distribution and version which is: '
                                                         f'{host_information}\nAffected distributions and versions: '
                                                         f'{list(AFFECTED_VERSIONS.keys())}\nYour distribution and '
                                                         f'version are not affected'))
         return ''
-    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os distributions: Ubuntu and Debian\nYour os '
                                                     f'distribution: {host_information}\nThe os distribution you'
                                                     f' are running on is not affected'))

@@ -20,14 +20,14 @@ def distribution_to_apache(debug, container_name):
         return constants.UNSUPPORTED
     return_value = ''
     if host_information in constants.APT_DISTRIBUTIONS:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os distributions: {constants.APT_DISTRIBUTIONS} '
                                                         f'{constants.RPM_DISTRIBUTIONS}\nYour os distribution: '
                                                         f'{host_information}\nThe os distribution you are running '
                                                         f'on is potentially affected'))
         return_value = APACHE
     elif host_information in constants.RPM_DISTRIBUTIONS:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os distributions: {constants.APT_DISTRIBUTIONS} '
                                                         f'{constants.RPM_DISTRIBUTIONS}\nYour os distribution: '
                                                         f'{host_information}\nThe os distribution you are running '
@@ -42,7 +42,7 @@ def distribution_to_apache(debug, container_name):
                                                         f'on is not supported'))
         return_value = constants.UNSUPPORTED
     else:
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os distributions: {constants.APT_DISTRIBUTIONS} '
                                                         f'{constants.RPM_DISTRIBUTIONS}\nYour os distribution: '
                                                         f'{host_information}\nThe os distribution you are running '
@@ -60,9 +60,9 @@ def loaded_modules(apache, module_name, debug, container_name):
         return constants.UNSUPPORTED
     print(constants.FULL_QUESTION_MESSAGE.format(f'Is "{module_name}" module loaded?'))
     if module_name in modules:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'The "{module_name}" module is loaded'))
         return True
-    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'The "{module_name}" module is not loaded'))
     return False

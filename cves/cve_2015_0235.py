@@ -2,6 +2,7 @@
 Support for graphviz, version from packaging and other modules which written for avoiding repetitive code.
 """
 import graphviz
+from packaging import version
 from modules import run_command, commons, constants
 
 CVE_ID = 'CVE-2015-0235'
@@ -14,6 +15,10 @@ NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2015-0235
 This vulnerability allows a remote attacker that is able to make an application call to gethostbyname*() functions to
 execute arbitrary code with the permissions of the user running the application.
 The affected glibc versions are between 2.2 to 2.17 (the fix was introduced in version 2.18).
+
+Related Links:
+https://blog.qualys.com/vulnerabilities-threat-research/2015/01/27/the-ghost-vulnerability
+https://www.indusface.com/blog/need-know-ghost-vulnerability/
 '''
 MIN_AFFECTED_VERSION = '2.2'
 MAX_AFFECTED_VERSION = '2.17'
@@ -22,13 +27,13 @@ MAX_AFFECTED_VERSION = '2.17'
 def glibc_version(glibc_value):
     """This function checks if the GLIBC version is affected."""
     print(constants.FULL_QUESTION_MESSAGE.format('Is GLIBC version affected?'))
-    if MAX_AFFECTED_VERSION <= glibc_value <=  MAX_AFFECTED_VERSION:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+    if version.parse(MIN_AFFECTED_VERSION) <= version.parse(glibc_value) <= version.parse(MAX_AFFECTED_VERSION):
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected GLIBC versions are between {MIN_AFFECTED_VERSION} '
                                                         f'to {MAX_AFFECTED_VERSION}'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your GLIBC version which is: {glibc_value} is affected'))
         return True
-    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected GLIBC versions are between {MIN_AFFECTED_VERSION} '
                                                     f'to {MAX_AFFECTED_VERSION}'))
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your GLIBC version which is: {glibc_value} is not affected'))
@@ -45,10 +50,10 @@ def glibc_exist(debug, container_name):
         print(constants.FULL_EXPLANATION_MESSAGE.format('Unsupported GLIBC value'))
         return constants.UNSUPPORTED
     if 'GLIBC' in glibc_output or 'GNU libc' in glibc_output:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format('GLIBC does exist'))
         return glibc_output.split('\n')[constants.START].split(' ')[-1]
-    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
     print(constants.FULL_EXPLANATION_MESSAGE.format('GLIBC does not exist'))
     return ''
 

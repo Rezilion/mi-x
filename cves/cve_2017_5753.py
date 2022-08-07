@@ -14,6 +14,12 @@ Spectre represents critical vulnerabilities in modern processors.
 Spectre breaks the isolation between different applications. It allows an attacker to trick error-free programs, which 
 follow best practices, into leaking their secrets. In fact, the safety checks of said best practices actually increase 
 the attack surface and may make applications more susceptible to Spectre
+
+Related Links:
+https://meltdownattack.com/
+https://www.techrepublic.com/article/spectre-and-meltdown-explained-a-comprehensive-guide-for-professionals/
+https://events19.linuxfoundation.org/wp-content/uploads/2017/11/Spectre-Meltdown-Linux-Greg-Kroah-Hartman-The-Linux-Foundation.pdf
+https://www.kernel.org/doc/Documentation/admin-guide/hw-vuln/spectre.rst
 '''
 
 
@@ -25,10 +31,10 @@ def spectre_file(debug, container_name):
         return constants.UNSUPPORTED
     print(constants.FULL_QUESTION_MESSAGE.format(f'Does the {spectre_path} file contain the "vulnerable" string?'))
     if 'vulnerable' in spectre_content:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'The "vulnerable" string exists in the {spectre_path} file'))
         return spectre_content
-    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'The "vulnerable" string does not exist in the {spectre_path} '
                                                     f'file'))
     return ''

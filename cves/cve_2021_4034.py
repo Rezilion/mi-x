@@ -2,6 +2,7 @@
 Support for graphviz, version from packaging and other modules which written for avoiding repetitive code.
 """
 import graphviz
+from packaging import version
 from modules import run_command, commons, os_release, constants, receive_package
 
 CVE_ID = 'CVE-2021-4034'
@@ -17,6 +18,12 @@ The pkexec file can run another process with higher privileges, the same as sudo
 Due to a missing input check of argv and the fact that there is a Linux mechanism that allows argv to be only
 NULL, an overflow can occur allowing reading and writing from unexpected memory regions.
 This overflow allows exploits to modify variables so that unprivileged users gain root privileges.
+
+Related Links:
+https://www.rezilion.com/blog/pwnkit-what-you-need-to-know-about-it/
+https://www.datadoghq.com/blog/pwnkit-vulnerability-overview-and-remediation/
+https://snyk.io/blog/pwnkit-linux-exploit-cve-2021-4034/
+https://blog.qualys.com/vulnerabilities-threat-research/2022/01/25/pwnkit-local-privilege-escalation-vulnerability-discovered-in-polkits-pkexec-cve-2021-4034
 '''
 FIXED_VERSION = '0.120'
 ROOT_OWNER = '# owner: root'
@@ -40,38 +47,38 @@ def check_pkexec_permissions(execute, suid, root):
     affected = ''
     print(constants.FULL_QUESTION_MESSAGE.format('Does pkexec have execute permissions?'))
     if execute:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format('Your pkexec file has execute permissions'))
         print(constants.FULL_QUESTION_MESSAGE.format('Does pkexec have suid bit?'))
         if suid:
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+            print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
             print(constants.FULL_EXPLANATION_MESSAGE.format('Your pkexec file has suid bit'))
             print(constants.FULL_QUESTION_MESSAGE.format('Is the pkexec binary owner root?'))
             if root:
                 affected = 'Yes'
-                print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+                print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
                 print(constants.FULL_EXPLANATION_MESSAGE.format('Your pkexec file is running with root '
                                                                 'privileges'))
             else:
-                print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+                print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
                 print(constants.FULL_EXPLANATION_MESSAGE.format('Your pkexec file is not running with root '
                                                                 'privileges'))
         else:
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+            print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
             print(constants.FULL_EXPLANATION_MESSAGE.format('Your pkexec file does not have suid bit'))
     else:
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format('Your pkexec file does not have execute permissions'))
     return affected
 
 
 def check_pkexec_using_ls(pkexec_path, debug, container_name):
     """This function checks file information using ls_output command."""
-    ls_command = f'ls_output -l {pkexec_path}'
+    ls_command = f'ls -l {pkexec_path}'
     pipe_ls = run_command.command_output(ls_command, debug, container_name)
     ls_output = pipe_ls.stdout
     if not ls_output:
-        print(constants.FULL_EXPLANATION_MESSAGE.format('Unsupported ls_output value'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format('Unsupported ls value'))
         return constants.UNSUPPORTED
     ls_split = ls_output.split(' ')
     file_permissions = ls_split[0]
@@ -85,7 +92,7 @@ def check_pkexec_using_ls(pkexec_path, debug, container_name):
         suid = True
     if 'x' in file_permissions:
         execute = True
-    return check_requirements(execute, suid, root)
+    return check_pkexec_permissions(execute, suid, root)
 
 
 def check_pkexec_using_getfacl(pkexec_path, debug, container_name):
@@ -110,7 +117,7 @@ def check_pkexec_using_getfacl(pkexec_path, debug, container_name):
         elif not field.startswith('#') and '::' in field and field.endswith('x'):
             execute = True
             break
-    return check_requirements(execute, suid, root)
+    return check_pkexec_permissions(execute, suid, root)
 
 
 def get_pkexec_path(debug, container_name):
@@ -141,15 +148,15 @@ def policykit_affected_rpm(host_information, package_name, debug, container_name
     if host_version.endswith('\n'):
         host_version = host_version[:constants.END]
     print(constants.FULL_QUESTION_MESSAGE.format(f'Is {package_name} version affected?'))
-    if host_version > fixed_version:
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+    if version.parse(host_version) > version.parse(fixed_version):
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: {host_version}, is '
                                                         f'higher than the patched version which is: {fixed_version}'))
-    elif host_version == fixed_version:
+    elif version.parse(host_version) == version.parse(fixed_version):
         patched_version = polkit_fixed_version[constants.FIRST]
         return commons.compare_versions(patched_version, host_release, package_name)
     else:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: {host_version}, is '
                                                         f'lower than the patched version which is: {fixed_version}'))
         affected = True
@@ -192,7 +199,7 @@ def distribution_version_affected(debug, container_name):
         print(constants.FULL_EXPLANATION_MESSAGE.format('Can not determine os release, unsupported value'))
         return constants.UNSUPPORTED
     if host_information in FIXED_APT or host_information in FIXED_RPM:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os releases: {list(FIXED_APT.keys())} '
                                                         f'{list(FIXED_RPM.keys())}\nYour os release: {host_information}'
                                                         f'\nThe os release you are running on is potentially affected'))
@@ -204,7 +211,7 @@ def distribution_version_affected(debug, container_name):
                                                         f'{list(FIXED_RPM.keys())}\nYour os release: {host_information}'
                                                         f'\nThe os release you are running on is not supported'))
         return constants.UNSUPPORTED
-    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os releases: {list(FIXED_APT.keys())} '
                                                     f'{list(FIXED_RPM.keys())}\nYour os release: {host_information}\n'
                                                     f'The os release you are running on is not affected'))

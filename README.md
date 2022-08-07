@@ -91,7 +91,7 @@ In order to install the requirements:
 3. Install the relevant packages using your os distribution package manager
 
 # Dependencies Installation Requirements
-In order to execute MI-X correctly, you have to install the graphviz python module requirement using pip: 
+In order to execute MI-X correctly, you have to install graphviz and packaging python modules requirement using pip: 
 ```
 pip install -r requirements.txt
 ```

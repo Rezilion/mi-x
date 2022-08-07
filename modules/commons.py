@@ -3,6 +3,7 @@ Support for os, re, semver, version from packaging and other modules which writt
 """
 import os
 import re
+from packaging import version
 from modules import run_command, constants, docker_commands, os_type, os_release
 VM_CLASS_HIERARCHY = 'VM.class_hierarchy'
 GC_CLASS_HISTOGRAM = 'GC.class_histogram'
@@ -140,14 +141,14 @@ def check_loaded_classes(pid, jcmd_command, classes, debug):
     for affected_class in classes.keys():
         print(constants.FULL_QUESTION_MESSAGE.format(f'Does {pid} process load {affected_class}?'))
         if affected_class in jcmd:
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+            print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} process loads the {affected_class} class'))
             if values:
                 values += f', {classes[affected_class]}'
             else:
                 values = classes[affected_class]
         else:
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+            print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} process does not load the {affected_class}'
                                                             f' class'))
     return values
@@ -232,14 +233,15 @@ def check_patched_version(version_type, checked_version, patched_versions):
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {version_type} version which is: {checked_version} has '
                                                         f'the patched version which is: '
                                                         f'{patched_versions[constants.START]}'))
-    elif checked_version < patched_versions[constants.START]:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+    elif version.parse(checked_version) > version.parse(patched_versions[constants.START]):
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'The lowest patched version is: '
                                                         f'{patched_versions[constants.START]}\nYour {version_type}'
-                                                        f' version is: {checked_version}'))
+                                                        f' version which is: {checked_version}, is affected'))
         affected = True
-    elif checked_version > patched_versions[constants.END] or patched_versions[constants.END] in checked_version:
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+    elif version.parse(checked_version) > version.parse(patched_versions[constants.END]) or \
+            patched_versions[constants.END] in checked_version:
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'The highest patched version is: '
                                                         f'{patched_versions[constants.END]}\nYour {version_type}'
                                                         f' version is: {checked_version}'))
@@ -247,30 +249,30 @@ def check_patched_version(version_type, checked_version, patched_versions):
         for patched_version in patched_versions[constants.FIRST:]:
             start_of_checked_version = re_start_of_version(checked_version)
             start_of_patched_version = re_start_of_version(patched_version)
-            if start_of_checked_version < start_of_patched_version:
-                print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+            if version.parse(start_of_checked_version) < version.parse(start_of_patched_version):
+                print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
                 print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {version_type} version which is: '
                                                                 f'{checked_version} is not patched'))
                 affected = True
                 break
             if patched_version.startswith(start_of_checked_version):
-                if checked_version < patched_version:
-                    print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+                if version.parse(checked_version) < version.parse(patched_version):
+                    print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
                     affected = True
                     print(constants.FULL_EXPLANATION_MESSAGE.format(f'The lowest patched version is: {patched_version}'
                                                                     f'\nYour {version_type} version is: '
-                                                                    f'{checked_version}'))
+                                                                    f'{checked_version}, is affected'))
                     break
                 if patched_version in checked_version:
-                    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+                    print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
                     print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {version_type} version which is: '
                                                                     f'{checked_version} has the patched version which '
-                                                                    f'is: {patched_versions}'))
+                                                                    f'is: {patched_versions}, is not affected'))
                 else:
-                    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+                    print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
                     print(constants.FULL_EXPLANATION_MESSAGE.format(f'The lowest patched version is: {patched_version}'
-                                                                    f'\nYour {version_type} version is: '
-                                                                    f'{checked_version}'))
+                                                                    f'\nYour {version_type} version which is: '
+                                                                    f'{checked_version}, is not affected'))
                     break
     return affected
 
@@ -279,12 +281,12 @@ def compare_versions(fixed_version, host_version, package_name):
     """This function compares between the fixed version and the host's version."""
     affected = False
     print(constants.FULL_QUESTION_MESSAGE.format(f'Is {package_name} version affected?'))
-    if fixed_version < host_version:
+    if version.parse(fixed_version) < version.parse(host_version):
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: {host_version}, is '
                                                         f'higher than the patched version which is: '
                                                         f'{fixed_version}'))
-    elif fixed_version == host_version:
+    elif version.parse(fixed_version) == version.parse(host_version):
         print(constants.FULL_POSITIVE_RESULT_MESSAGE)
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your system has the {package_name} patched version which is: '
                                                         f'{fixed_version}'))

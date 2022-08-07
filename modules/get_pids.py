@@ -11,11 +11,11 @@ def get_pids_by_name(process_type, debug, container_name):
     pids = pipe_pids.stdout
     print(constants.FULL_QUESTION_MESSAGE.format(f'There are running {process_type} processes on the host?'))
     if not pids:
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'There are no running {process_type} processes'))
         return []
     pids_list = pids.split('\n')[:constants.END]
-    print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+    print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'The following PIDs are running {process_type} processes: '
                                                     f'{pids_list}'))
     relevant_pids = []
@@ -37,11 +37,11 @@ def get_pids_by_name(process_type, debug, container_name):
     print(constants.FULL_QUESTION_MESSAGE.format(f'There are relevant running {process_type} processes on the '
                                                  f'host?'))
     if relevant_pids:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'The following PIDs are relevant running {process_type} '
                                                         f'processes: {relevant_pids}'))
         return relevant_pids
-    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'There are no relevant running {process_type} processes'))
     return relevant_pids
 
@@ -54,10 +54,10 @@ def get_pids_by_name_container(process_type, debug, container_name):
     print(constants.FULL_QUESTION_MESSAGE.format(f'There are running {process_type} processes on the {container_name} '
                                                  f'container?'))
     if not pids_container:
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'There are no running {process_type} processes'))
         return []
-    print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
+    print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
     container_pids_list = pids_container.split('\n')[:constants.END]
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'The following PIDs are running {process_type} processes on '
                                                     f'the container: {container_pids_list}'))
@@ -81,11 +81,11 @@ def get_pids_by_name_container(process_type, debug, container_name):
             relevant_pids.append(host_pid)
     print(constants.FULL_QUESTION_MESSAGE.format('There is a match between container pids to host pids?'))
     if relevant_pids:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The following pids: {relevant_pids} have match with '
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The following pids: {relevant_pids} have a match with '
                                                         f'container pids'))
         return relevant_pids
-    print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
     print(constants.FULL_EXPLANATION_MESSAGE.format('There is no match between host pids and container pids'))
     return relevant_pids
 

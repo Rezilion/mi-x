@@ -22,7 +22,7 @@ Related Links:
 https://heartbleed.com/
 https://www.synopsys.com/blogs/software-security/heartbleed-vulnerability-appsec-deep-dive/
 '''
-AFFECTED_VERSIONS_MESSAGE = '1.0.1 up to including 1.0.1g and 1.0.2 up to including 1.0.2beta1'
+AFFECTED_VERSIONS_MESSAGE = '1.0.1 up to including 1.0.1f and 1.0.2 up to including 1.0.2beta1'
 AFFECTED_VERSIONS = ['1.0.1', '1.0.1f', '1.0.2', '1.0.2beta1']
 MAX_AFFECTED_VERSION = '2.17'
 

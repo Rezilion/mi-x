@@ -40,8 +40,8 @@ def check_openssl_version(openssl_version):
                                                         f'affected'))
         return True
     print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected openssl versions are between {AFFECTED_VERSIONS_MESSAGE}'
-                                                    f'\nYour openssl version which is: {openssl_version} is not '
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected openssl versions are {AFFECTED_VERSIONS_MESSAGE}\nYour '
+                                                    f'openssl version which is: {openssl_version} is not '
                                                     f'affected'))
     return False
 

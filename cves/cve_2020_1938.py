@@ -48,7 +48,7 @@ def check_mitigation(printenv, debug, container_name):
     content = commons.file_content(server_xml_path, debug, container_name)
     if not content:
         return constants.UNSUPPORTED
-    print(constants.FULL_QUESTION_MESSAGE.format('Is AJP in the server.xml file enabled?'))
+    print(constants.FULL_QUESTION_MESSAGE.format('Is AJP enabled in the server.xml file?'))
     for line in content:
         if AJP_DEFAULT_LINE in line and MITIGATION in line:
             print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))

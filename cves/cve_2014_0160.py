@@ -50,7 +50,11 @@ def get_openssl_version(debug, container_name):
     information_fields = ['Distribution']
     distribution = os_release.get_field(information_fields, debug, container_name)
     package_name = 'openssl'
-    return receive_package.package(distribution, package_name, debug, container_name)
+    if distribution in constants.APT_DISTRIBUTIONS:
+        return receive_package.package_version_apt(distribution, package_name, debug, container_name)
+    elif distribution in constants.RPM_DISTRIBUTIONS:
+        return receive_package.package_version_rpm(distribution, package_name, debug, container_name)
+    return ''
 
 
 def validate(debug, container_name):

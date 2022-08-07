@@ -107,27 +107,23 @@ def printenv_content(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to GhostCat vulnerabilities."""
-    if container_name:
-        if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
-            printenv = printenv_content(debug, container_name)
-            if printenv == constants.UNSUPPORTED:
-                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
-            elif printenv:
-                if tomcat_version(printenv):
-                    mitigation = check_mitigation(printenv, debug, container_name)
-                    if mitigation == constants.UNSUPPORTED:
-                        print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
-                    elif mitigation:
-                        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
-                    else:
-                        print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
-                else:
+    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
+        printenv = printenv_content(debug, container_name)
+        if printenv == constants.UNSUPPORTED:
+            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+        elif printenv:
+            if tomcat_version(printenv):
+                mitigation = check_mitigation(printenv, debug, container_name)
+                if mitigation == constants.UNSUPPORTED:
+                    print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+                elif mitigation:
                     print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                else:
+                    print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
             else:
                 print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
-    else:
-        print(constants.FULL_NOT_SUPPORTED_MESSAGE.format(HOST))
-        print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+        else:
+            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
 def validation_flow_chart():

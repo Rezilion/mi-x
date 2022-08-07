@@ -33,7 +33,7 @@ REQUIRED_SECRET_MITIGATION = 'requiredSecret='
 
 
 def check_mitigation(printenv, debug, container_name):
-    """This function checks the mitigation in server.xml file which is comment the default line that enables AJP and
+    """This function checks the mitigation in the server.xml file: commenting out the line that enables AJP by default and
     has the required secret parameter set."""
     tomcat_path = ''
     for value in printenv.split('\n'):

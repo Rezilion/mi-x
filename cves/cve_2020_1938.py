@@ -49,19 +49,27 @@ def check_mitigation(printenv, debug, container_name):
     if not content:
         return constants.UNSUPPORTED
     print(constants.FULL_QUESTION_MESSAGE.format('Is AJP in the server.xml file enabled?'))
+    ajp_line_exists = 0
     for line in content:
-        if AJP_DEFAULT_LINE in line and MITIGATION in line:
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-            print(constants.FULL_EXPLANATION_MESSAGE.format('The default line enabling AJP in the server.xml is '
-                                                            'disabled'))
-            return True
-        elif AJP_DEFAULT_LINE in line and MITIGATION not in line and REQUIRED_SECRET_MITIGATION in line:
-            print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
-            print(constants.FULL_EXPLANATION_MESSAGE.format('The default line enabling AJP in the server.xml set the '
-                                                            'required secret parameter enabled\nWe can not determine '
-                                                            'exploitability in this situations, however it is a '
-                                                            'mitigation that hardens the attack'))
-            return constants.UNSUPPORTED
+        if AJP_DEFAULT_LINE in line:
+            ajp_line_exists = 1
+            if MITIGATION in line:
+                print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
+                print(constants.FULL_EXPLANATION_MESSAGE.format('The default line enabling AJP in the server.xml is '
+                                                                'disabled'))
+                return True
+            elif MITIGATION not in line and REQUIRED_SECRET_MITIGATION in line:
+                print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
+                print(constants.FULL_EXPLANATION_MESSAGE.format('The default line enabling AJP in the server.xml set '
+                                                                'the required secret parameter enabled\nWe can not '
+                                                                'determine exploitability in this situations, however '
+                                                                'it is a mitigation that hardens the attack'))
+                return constants.UNSUPPORTED
+    if not ajp_line_exists:
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format('The default line enabling AJP in the server.xml does not '
+                                                        'exist'))
+        return True
     print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
     print(constants.FULL_EXPLANATION_MESSAGE.format('The default line enabling AJP in the server.xml is enabled'))
     return False

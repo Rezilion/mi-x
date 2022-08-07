@@ -25,27 +25,6 @@ MIN_AFFECTED_JAVA_VERSION = 9
 CLASSES = {'org.springframework.web.servlet.mvc.method.annotation.ServletModelAttributeMethodProcessor': 'webmvc',
            'org.springframework.web.reactive.result.method.annotation.ModelAttributeMethodArgumentResolver': 'webflux'}
 VM_VERSION = '"VM.version"'
-TOMCAT_PATCHED_VERSIONS = ['8.5.78', '9.0.62', '10.0.20']
-JDK_MINIMUM_VERSION = '10.0.0'
-
-
-def check_tomcat(debug, container_name):
-    """This function checks if the system runs affected tomcat version."""
-    print(constants.FULL_QUESTION_MESSAGE.format('Is it Tomcat?'))
-    tomcat_version_command = 'version.sh'
-    pipe_tomcat_version = run_command.command_output(tomcat_version_command, debug, container_name)
-    tomcat_version_output = pipe_tomcat_version.stdout
-    if tomcat_version_output.endswith(' not found\n'):
-        print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('No'))
-        return False
-    print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
-    tomcat_version = ''
-    for field in tomcat_version_output.split('\n'):
-        if field.startswith('Server version: '):
-            tomcat_version = field.split('/')[constants.END]
-    if not tomcat_version:
-        return constants.UNSUPPORTED
-    return commons.check_patched_version('Tomcat', tomcat_version, TOMCAT_PATCHED_VERSIONS)
 
 
 def check_java_version(pid, jcmd_command, debug):

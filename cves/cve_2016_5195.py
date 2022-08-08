@@ -137,24 +137,28 @@ def check_release(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2016-5195."""
-    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
-        fixed_release = check_release(debug, container_name)
-        if fixed_release == constants.UNSUPPORTED:
-            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
-        elif fixed_release:
-            max_kernel_version = FIXED[fixed_release]
-            check_kernel_version = kernel_version.check_kernel(MIN_KERNEL_VERSION, max_kernel_version, debug)
-            if check_kernel_version == constants.UNSUPPORTED:
+    if not container_name:
+        if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
+            fixed_release = check_release(debug, container_name)
+            if fixed_release == constants.UNSUPPORTED:
                 print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
-            elif check_kernel_version:
-                print(constants.FULL_EXPLANATION_MESSAGE.format('The os release you are running on is potentially '
-                                                                'affected'))
-                validate_red_hat(fixed_release, debug, container_name)
+            elif fixed_release:
+                max_kernel_version = FIXED[fixed_release]
+                check_kernel_version = kernel_version.check_kernel(MIN_KERNEL_VERSION, max_kernel_version, debug)
+                if check_kernel_version == constants.UNSUPPORTED:
+                    print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+                elif check_kernel_version:
+                    print(constants.FULL_EXPLANATION_MESSAGE.format('The os release you are running on is potentially '
+                                                                    'affected'))
+                    validate_red_hat(fixed_release, debug, container_name)
+                else:
+                    print(constants.FULL_EXPLANATION_MESSAGE.format('Your kernel version is already patched'))
+                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
             else:
-                print(constants.FULL_EXPLANATION_MESSAGE.format('Your kernel version is already patched'))
                 print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
-        else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+    else:
+        print(constants.FULL_EXPLANATION_MESSAGE.format('Containers are not affected by kernel vulnerabilities'))
+        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
 def validation_flow_chart():

@@ -229,11 +229,11 @@ def check_patched_version(version_type, checked_version, patched_versions):
     affected = False
     print(constants.FULL_QUESTION_MESSAGE.format(f'Is {version_type} version affected?'))
     if patched_versions[constants.START] in checked_version:
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {version_type} version which is: {checked_version} has '
                                                         f'the patched version which is: '
                                                         f'{patched_versions[constants.START]}'))
-    elif version.parse(checked_version) > version.parse(patched_versions[constants.START]):
+    elif version.parse(checked_version) < version.parse(patched_versions[constants.START]):
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'The lowest patched version is: '
                                                         f'{patched_versions[constants.START]}\nYour {version_type}'
@@ -258,10 +258,10 @@ def check_patched_version(version_type, checked_version, patched_versions):
             if patched_version.startswith(start_of_checked_version):
                 if version.parse(checked_version) < version.parse(patched_version):
                     print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-                    affected = True
                     print(constants.FULL_EXPLANATION_MESSAGE.format(f'The lowest patched version is: {patched_version}'
                                                                     f'\nYour {version_type} version is: '
                                                                     f'{checked_version}, is affected'))
+                    affected = True
                     break
                 if patched_version in checked_version:
                     print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))

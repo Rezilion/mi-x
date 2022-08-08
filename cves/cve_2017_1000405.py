@@ -79,27 +79,31 @@ def zero_page(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2017-1000405."""
-    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
-        kernel_version_output = kernel_version.check_kernel(MIN_KERNEL_VERSION, MAX_KERNEL_VERSION, debug)
-        if kernel_version_output == constants.UNSUPPORTED:
-            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
-        elif kernel_version_output:
-            affected = zero_page(debug, container_name)
-            if affected == constants.UNSUPPORTED:
+    if not container_name:
+        if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
+            kernel_version_output = kernel_version.check_kernel(MIN_KERNEL_VERSION, MAX_KERNEL_VERSION, debug)
+            if kernel_version_output == constants.UNSUPPORTED:
                 print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
-            elif affected:
-                print(constants.FULL_VULNERABLE_MESSAGE.format(f'{CVE_ID} zero pages manipulation'))
+            elif kernel_version_output:
+                affected = zero_page(debug, container_name)
+                if affected == constants.UNSUPPORTED:
+                    print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+                elif affected:
+                    print(constants.FULL_VULNERABLE_MESSAGE.format(f'{CVE_ID} zero pages manipulation'))
+                else:
+                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(f'zero pages manipulation in {CVE_ID}'))
+                affected = huge_page(debug, container_name)
+                if affected == constants.UNSUPPORTED:
+                    print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+                elif affected:
+                    print(constants.FULL_VULNERABLE_MESSAGE.format(f'{CVE_ID} huge pages manipulation'))
+                else:
+                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(f'huge pages manipulation in {CVE_ID}'))
             else:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(f'zero pages manipulation in {CVE_ID}'))
-            affected = huge_page(debug, container_name)
-            if affected == constants.UNSUPPORTED:
-                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
-            elif affected:
-                print(constants.FULL_VULNERABLE_MESSAGE.format(f'{CVE_ID} huge pages manipulation'))
-            else:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(f'huge pages manipulation in {CVE_ID}'))
-        else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+    else:
+        print(constants.FULL_EXPLANATION_MESSAGE.format('Containers are not affected by kernel vulnerabilities'))
+        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
 def validation_flow_chart():

@@ -282,18 +282,16 @@ def compare_versions(fixed_version, host_version, package_name):
     affected = False
     print(constants.FULL_QUESTION_MESSAGE.format(f'Is {package_name} version affected?'))
     if version.parse(fixed_version) < version.parse(host_version):
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: {host_version}, is '
-                                                        f'higher than the patched version which is: '
-                                                        f'{fixed_version}'))
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {package_name} patched versions is: {fixed_version}\nYour'
+                                                        f' versions which is: {host_version}, is not affected'))
     elif version.parse(fixed_version) == version.parse(host_version):
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE)
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your system has the {package_name} patched version which is: '
-                                                        f'{fixed_version}'))
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your system is not affected because it has the {package_name}'
+                                                        f' patched version which is: {fixed_version}'))
     else:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE)
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: {host_version}, is '
-                                                        f'lower than the patched version which is: '
-                                                        f'{fixed_version}'))
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {package_name} patched versions is: {fixed_version}\nYour'
+                                                        f' versions which is: {host_version}, is affected'))
         affected = True
     return affected

@@ -50,14 +50,18 @@ def check_kernel_version(debug):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2022-0847."""
-    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
-        affected = check_kernel_version(debug)
-        if affected == constants.UNSUPPORTED:
-            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
-        elif affected:
-            print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
-        else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+    if not container_name:
+        if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
+            affected = check_kernel_version(debug)
+            if affected == constants.UNSUPPORTED:
+                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+            elif affected:
+                print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
+            else:
+                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+    else:
+        print(constants.FULL_EXPLANATION_MESSAGE.format('Containers are not affected by kernel vulnerabilities'))
+        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
 def validation_flow_chart():

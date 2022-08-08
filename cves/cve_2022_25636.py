@@ -79,25 +79,29 @@ def check_kernel(debug):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2022-25636."""
-    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
-        affected_kernel_version = check_kernel(debug)
-        if affected_kernel_version == constants.UNSUPPORTED:
-            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
-        elif affected_kernel_version:
-            nf_tables_path = f'/usr/lib/modules/{affected_kernel_version}/kernel/net/netfilter/nf_tables.ko'
-            nf_tables_file = commons.check_file_existence(nf_tables_path, debug, container_name)
-            if nf_tables_file:
-                affected = nf_tables_affected(nf_tables_path, debug, container_name)
-                if affected == constants.UNSUPPORTED:
-                    print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
-                elif affected:
-                    print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
+    if not container_name:
+        if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
+            affected_kernel_version = check_kernel(debug)
+            if affected_kernel_version == constants.UNSUPPORTED:
+                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+            elif affected_kernel_version:
+                nf_tables_path = f'/usr/lib/modules/{affected_kernel_version}/kernel/net/netfilter/nf_tables.ko'
+                nf_tables_file = commons.check_file_existence(nf_tables_path, debug, container_name)
+                if nf_tables_file:
+                    affected = nf_tables_affected(nf_tables_path, debug, container_name)
+                    if affected == constants.UNSUPPORTED:
+                        print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+                    elif affected:
+                        print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
+                    else:
+                        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
                 else:
                     print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
             else:
                 print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
-        else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+    else:
+        print(constants.FULL_EXPLANATION_MESSAGE.format('Containers are not affected by kernel vulnerabilities'))
+        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
 
 
 def validation_flow_chart():

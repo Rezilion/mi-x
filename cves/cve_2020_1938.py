@@ -48,20 +48,29 @@ def check_mitigation(printenv, debug, container_name):
     content = commons.file_content(server_xml_path, debug, container_name)
     if not content:
         return constants.UNSUPPORTED
-    print(constants.FULL_QUESTION_MESSAGE.format('Is AJP enabled in the server.xml file?'))
+    print(constants.FULL_QUESTION_MESSAGE.format('Is AJP in the server.xml file enabled?'))
+    ajp_line_exists = 0
     for line in content:
-        if AJP_DEFAULT_LINE in line and MITIGATION in line:
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-            print(constants.FULL_EXPLANATION_MESSAGE.format('The default line enabling AJP in the server.xml is '
-                                                            'disabled'))
-            return True
-        elif AJP_DEFAULT_LINE in line and MITIGATION not in line and REQUIRED_SECRET_MITIGATION in line:
-            print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
-            print(constants.FULL_EXPLANATION_MESSAGE.format('The default line enabling AJP in the server.xml set the '
-                                                            'required secret parameter enabled\nWe can not determine '
-                                                            'exploitability in this situations, however it is a '
-                                                            'mitigation that hardens the attack'))
-            return constants.UNSUPPORTED
+        if AJP_DEFAULT_LINE in line:
+            ajp_line_exists = 1
+            if MITIGATION in line:
+                print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
+                print(constants.FULL_EXPLANATION_MESSAGE.format('The default line enabling AJP in the server.xml is '
+                                                                'disabled'))
+                return True
+            elif MITIGATION not in line and REQUIRED_SECRET_MITIGATION in line:
+                print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
+                print(constants.FULL_EXPLANATION_MESSAGE.format('The default line enabling AJP in the server.xml set '
+                                                                'the required secret parameter enabled\nWe can not '
+                                                                'determine exploitability in this situations, however '
+                                                                'it is a mitigation that hardens the attack'))
+                return constants.UNSUPPORTED
+    if not ajp_line_exists:
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format('The default line enabling AJP in the server.xml does not '
+                                                        'exist'))
+        return True
+
     print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
     print(constants.FULL_EXPLANATION_MESSAGE.format('The default line enabling AJP in the server.xml is enabled'))
     return False
@@ -99,27 +108,24 @@ def printenv_content(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to GhostCat vulnerabilities."""
-    if container_name:
-        if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
-            printenv = printenv_content(debug, container_name)
-            if printenv == constants.UNSUPPORTED:
-                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
-            elif printenv:
-                if tomcat_version(printenv):
-                    mitigation = check_mitigation(printenv, debug, container_name)
-                    if mitigation == constants.UNSUPPORTED:
-                        print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
-                    elif mitigation:
-                        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
-                    else:
-                        print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
-                else:
+    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
+        printenv = printenv_content(debug, container_name)
+        if printenv == constants.UNSUPPORTED:
+            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+        elif printenv:
+            if tomcat_version(printenv):
+                mitigation = check_mitigation(printenv, debug, container_name)
+                if mitigation == constants.UNSUPPORTED:
+                    print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+                elif mitigation:
                     print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                else:
+                    print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
             else:
                 print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
-    else:
-        print(constants.FULL_NOT_SUPPORTED_MESSAGE.format(HOST))
-        print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+        else:
+            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+
 
 
 def validation_flow_chart():

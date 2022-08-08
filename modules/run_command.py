@@ -5,6 +5,8 @@ import subprocess
 import shlex
 from modules import constants
 
+HANDLE_FILE_NOT_FOUND_ERROR = ['uname', '-r']
+
 
 def command_output(command, debug, container_name):
     """This function get a system command, run it and returns the output."""
@@ -14,7 +16,12 @@ def command_output(command, debug, container_name):
         converted_command = shlex.split(docker_command)
     else:
         converted_command = shlex.split(command)
-    pipe_command = subprocess.run(converted_command, capture_output=True, text=True)
+    try:
+        pipe_command = subprocess.run(converted_command, capture_output=True, text=True)
+    except FileNotFoundError:
+        pipe_command = subprocess.run(HANDLE_FILE_NOT_FOUND_ERROR, capture_output=True, text=True)
+        pipe_command.stdout = ''
+        return pipe_command
     if debug:
         print(constants.FULL_EXPLANATION_MESSAGE.format(pipe_command.stderr))
     if pipe_command.stdout.endswith('not found\n'):

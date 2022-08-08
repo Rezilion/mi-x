@@ -70,6 +70,7 @@ def check_mitigation(printenv, debug, container_name):
         print(constants.FULL_EXPLANATION_MESSAGE.format('The default line enabling AJP in the server.xml does not '
                                                         'exist'))
         return True
+
     print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
     print(constants.FULL_EXPLANATION_MESSAGE.format('The default line enabling AJP in the server.xml is enabled'))
     return False
@@ -124,6 +125,7 @@ def validate(debug, container_name):
                 print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
         else:
             print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+
 
 
 def validation_flow_chart():

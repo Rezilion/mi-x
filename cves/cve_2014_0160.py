@@ -30,6 +30,7 @@ MAX_AFFECTED_VERSION = '2.17'
 
 
 
+
 def check_openssl_version(openssl_version):
     """This function checks if the GLIBC version is affected."""
     affected = False
@@ -66,6 +67,7 @@ def get_openssl_version(debug, container_name):
     elif distribution in constants.RPM_DISTRIBUTIONS:
         return receive_package.package_version_rpm(distribution, package_name, debug, container_name)
     return ''
+
 
 
 def validate(debug, container_name):

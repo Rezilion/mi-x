@@ -179,10 +179,14 @@ def is_bash_affected(bash_version):
     if version.parse(MIN_BASH_AFFECTED_VERSION) > version.parse(bash_version) > \
             version.parse(MAX_BASH_AFFECTED_VERSION):
         print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format('Your bash version is not affected'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Bash affected versions are between: '
+                                                        f'{MIN_BASH_AFFECTED_VERSION} to {MAX_BASH_AFFECTED_VERSION}\n'
+                                                        f'Your bash version which is: {bash_version}, is not affected'))
     else:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format('Your bash version is affected'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Bash affected versions are between: '
+                                                        f'{MIN_BASH_AFFECTED_VERSION} to {MAX_BASH_AFFECTED_VERSION}\n'
+                                                        f'Your bash version which is: {bash_version}, is affected'))
 
 
 def bash_installed(debug, container_name):

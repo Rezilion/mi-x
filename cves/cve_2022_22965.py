@@ -21,7 +21,7 @@ https://www.rezilion.com/blog/spring4shell-what-you-need-to-know/
 https://securitylabs.datadoghq.com/articles/spring4shell-vulnerability-overview-and-remediation/
 https://www.upguard.com/blog/what-is-spring4shell
 '''
-MIN_AFFECTED_JAVA_VERSION = 9
+MIN_AFFECTED_JAVA_VERSION = '9'
 CLASSES = {'org.springframework.web.servlet.mvc.method.annotation.ServletModelAttributeMethodProcessor': 'webmvc',
            'org.springframework.web.reactive.result.method.annotation.ModelAttributeMethodArgumentResolver': 'webflux'}
 VM_VERSION = '"VM.version"'
@@ -36,7 +36,7 @@ def check_java_version(pid, jcmd_command, debug):
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Unsupported {VM_VERSION} value'))
         return constants.UNSUPPORTED
     java_version = jcmd.split('\n')[2].split(' ')[constants.END]
-    start_of_version = int(java_version.split('.')[constants.START])
+    start_of_version = str(java_version.split('.')[constants.START])
     if version.parse(start_of_version) < version.parse(MIN_AFFECTED_JAVA_VERSION):
         print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'The minimum affected java version is: '

@@ -20,7 +20,7 @@ def check_kernel(min_kernel_version, max_kernel_version, debug):
     kernel_version = pipe_kernel_version.stdout
     valid_kernel_version = commons.valid_kernel_version(kernel_version)
     if not valid_kernel_version:
-        print(constants.FULL_EXPLANATION_MESSAGE.format('Kernel version unsupported value'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format('Unsupported kernel version value'))
         return constants.UNSUPPORTED
     if version.parse(max_kernel_version) > version.parse(valid_kernel_version) > version.parse(min_kernel_version):
         affected = True

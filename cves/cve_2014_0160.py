@@ -29,6 +29,7 @@ AFFECTED_VERSIONS = ['1.0.2', '1.0.2beta1']
 MAX_AFFECTED_VERSION = '2.17'
 
 
+
 def check_openssl_version(openssl_version):
     """This function checks if the GLIBC version is affected."""
     affected = False

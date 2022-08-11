@@ -20,21 +20,22 @@ def check_kernel(min_kernel_version, max_kernel_version, debug):
     kernel_version = pipe_kernel_version.stdout
     valid_kernel_version = commons.valid_kernel_version(kernel_version)
     if not valid_kernel_version:
-        print(constants.FULL_EXPLANATION_MESSAGE.format('Unsupported kernel version value'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format('Kernel version unsupported value'))
         return constants.UNSUPPORTED
     if version.parse(max_kernel_version) > version.parse(valid_kernel_version) > version.parse(min_kernel_version):
         affected = True
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'According to your os release, affected kernel versions are '
                                                         f'between: {min_kernel_version} to {max_kernel_version}\nYour '
-                                                        f'kernel version which is{valid_kernel_version[:constants.END]}'
-                                                        f', is potentially affected'))
+                                                        f'kernel version which is: '
+                                                        f'{valid_kernel_version[:constants.END]}, is potentially '
+                                                        f'affected'))
     else:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'According to your os release, affected kernel versions are '
                                                         f'between: {min_kernel_version} to {max_kernel_version}\nYour '
-                                                        f'kernel version which is{valid_kernel_version[:constants.END]}'
-                                                        f', is not affected'))
+                                                        f'kernel version which is: '
+                                                        f'{valid_kernel_version[:constants.END]}, is not affected'))
     return affected
 
 

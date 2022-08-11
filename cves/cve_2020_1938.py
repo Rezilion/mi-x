@@ -33,7 +33,7 @@ REQUIRED_SECRET_MITIGATION = 'requiredSecret='
 
 
 def check_mitigation(printenv, debug, container_name):
-    """This function checks the mitigation in the server.xml file: commenting out the line that enables AJP by default and
+    """This function checks the mitigation in server.xml file which is comment the default line that enables AJP and
     has the required secret parameter set."""
     tomcat_path = ''
     for value in printenv.split('\n'):
@@ -70,7 +70,6 @@ def check_mitigation(printenv, debug, container_name):
         print(constants.FULL_EXPLANATION_MESSAGE.format('The default line enabling AJP in the server.xml does not '
                                                         'exist'))
         return True
-
     print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
     print(constants.FULL_EXPLANATION_MESSAGE.format('The default line enabling AJP in the server.xml is enabled'))
     return False
@@ -125,7 +124,6 @@ def validate(debug, container_name):
                 print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
         else:
             print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
-
 
 
 def validation_flow_chart():

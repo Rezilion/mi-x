@@ -8,7 +8,7 @@ from modules import commons, os_release, constants, receive_package
 CVE_ID = 'NIMBUSPWN'
 DESCRIPTION = f'''{CVE_ID} - CVE-2022-29799, CVE-2022-29800
 
-CVSS Score: N/A
+CVSS Score: N/A 
 NVD Link: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-29799
 
 CVSS Score: N/A

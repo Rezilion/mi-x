@@ -90,7 +90,7 @@ MAX_BASH_AFFECTED_VERSION = '4.3.0'
 def cve_2014_7187(container_name):
     """This function tests if the system is vulnerable to CVE-2014-7187."""
     exploit_command = '''(for x in {1..200} ; do echo "for x$x in ; do :"; done; for x in {1..200} ;
-                         do echo done ; done) | bash | echo "CVE-2014-7187 vulnerable, word_lineno"'''
+                         do echo done ; done) | bash || echo "CVE-2014-7187 vulnerable, word_lineno"'''
     if container_name:
         exploit_command = constants.DOCKER_EXEC_COMMAND.format(container_name, 'bash', exploit_command)
     with subprocess.Popen(exploit_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True) \

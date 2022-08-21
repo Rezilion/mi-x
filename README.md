@@ -132,27 +132,32 @@ python3 am_i_exploitable.py --cve_id log4shell --container True
 
 ## --vulnerability_identifier
 
-Specifies the vulnerability that will be checked. 
+Specifies the vulnerability that will be checked (Not set by default). 
 
 Syntax: 
-- CVE-YEAR-ID - scan your system for specific vulnerability by the vulnerability cve id
-- name - scan your system for specific vulnerability by the vulnerability name
-- all - scan your system for all the vulnerabilities in the cves directory
+- CVE-YEAR-ID - scans your system for specific vulnerability by the vulnerability cve id
+- name - scans your system for specific vulnerability by the vulnerability name
+- all - scans your system for all the vulnerabilities in the cves directory
 
 If the argument is not set, a menu message will appear presenting the currently supported vulnerabilities.
 
 ## --container
 
-The user needs to specify whether to examine running containers on the host (False by default).
-- When running with containers, the user will need to insert the user’s password for sudo use.
+Scans all running containers on the host (False by default).
+- When running in containers mode, the user will need to insert the user’s password for sudo use.
+
+## --container_name
+
+Scans specific containers on the host by inserting running containers names seperated by commas only (Not set by default).
+- When running in containers mode, the user will need to insert the user’s password for sudo use.
 
 ## --description
 
-The user needs to specify whether to see the CVE description or not (True by default).
+Specifies whether to see the vulnerability description or not (True by default).
 
 ## --graph
 
-The user needs to specify whether to see the validation flowchart (False by default).
+Specifies whether to see the validation flowchart (False by default).
 
 ## --help
 

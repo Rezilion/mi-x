@@ -226,7 +226,7 @@ def validate(debug, container_name):
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of shellshock."""
-    vol_graph = graphviz.Digraph('G', filename={CVE_ID})
+    vol_graph = graphviz.Digraph('G', filename=CVE_ID, format='png')
     vol_graph.attr(label=f'{CVE_ID}\n\n', labelloc='t')
     vol_graph.attr('node', shape='box', style='filled', color='red')
     vol_graph.node('Vulnerable to CVE-2014-6271')

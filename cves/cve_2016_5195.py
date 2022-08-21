@@ -163,7 +163,7 @@ def validate(debug, container_name):
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of CVE-2016-5195."""
-    vol_graph = graphviz.Digraph('G', filename=CVE_ID)
+    vol_graph = graphviz.Digraph('G', filename=CVE_ID, format='png')
     commons.graph_start(CVE_ID, vol_graph)
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge('Is it Linux?', 'Is os release effected?', label='Yes')

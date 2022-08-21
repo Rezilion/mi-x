@@ -5,8 +5,8 @@ import graphviz
 from packaging import version
 from modules import run_command, kernel_version, commons, constants
 
-CVE_ID = 'CVE-2022-25636'
-DESCRIPTION = f'''{CVE_ID}
+VULNERABILITY = 'CVE-2022-25636'
+DESCRIPTION = f'''{VULNERABILITY}
 
 CVSS Score: 7.8
 NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2022-25636
@@ -80,34 +80,34 @@ def check_kernel(debug):
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2022-25636."""
     if not container_name:
-        if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
+        if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
             affected_kernel_version = check_kernel(debug)
             if affected_kernel_version == constants.UNSUPPORTED:
-                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
             elif affected_kernel_version:
                 nf_tables_path = f'/usr/lib/modules/{affected_kernel_version}/kernel/net/netfilter/nf_tables.ko'
                 nf_tables_file = commons.check_file_existence(nf_tables_path, debug, container_name)
                 if nf_tables_file:
                     affected = nf_tables_affected(nf_tables_path, debug, container_name)
                     if affected == constants.UNSUPPORTED:
-                        print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+                        print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
                     elif affected:
-                        print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
+                        print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
                     else:
-                        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
                 else:
-                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
             else:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
     else:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Containers are not affected by kernel vulnerabilities'))
-        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
 
 
 def validation_flow_chart():
     """This function creates a graph that shows the vulnerability validation process of CVE-2022-25636."""
-    vol_graph = graphviz.Digraph('G', filename=CVE_ID)
-    commons.graph_start(CVE_ID, vol_graph)
+    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
+    commons.graph_start(VULNERABILITY, vol_graph)
     vol_graph.edge('Is it Linux?', 'Is the kernel version affected?', label='Yes')
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge('Is the kernel version affected?', 'Does the `nf_tables.ko` file exists?', label='Yes')

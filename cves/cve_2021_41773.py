@@ -5,14 +5,14 @@ import os
 import graphviz
 from modules import run_command, apache as apache_functions, commons, constants
 
-CVE_ID_ONE = 'CVE-2021-41773'
-CVE_ID_TWO = 'CVE-2021-42013'
-CVE_ID = 'CVE-2021-41773 or CVE-2021-42013'
+FIRST_CVE_ID = 'CVE-2021-41773'
+SECOND_CVE_ID = 'CVE-2021-42013'
+VULNERABILITY = 'CVE-2021-41773 or CVE-2021-42013'
 SERVER_VERSION_FIELD = 'Server version:'
 DESCRIPTION = f'''The initial fix for this vulnerability contained an additional vulnerability, your system will be
 scanned for both CVE-2021-41773 and CVE-2021-42013.
 
-{CVE_ID_ONE}
+{FIRST_CVE_ID}
 
 CVSS Score: 7.5
 NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2021-41773
@@ -27,17 +27,17 @@ apache HTTP server. Moreover, if the ‘mod_cgi’ module is also enabled in the
 the attacker will be able to leverage the path traversal vulnerability and call any binary on the system 
 using HTTP POST requests.
 
-{CVE_ID_TWO}
+{SECOND_CVE_ID}
 
 CVSS Score: 9.8
 NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2021-42013
  
-When the fix for {CVE_ID_ONE} was released in the 2.4.50 version, this vulnerability was discovered.
+When the fix for {FIRST_CVE_ID} was released in the 2.4.50 version, this vulnerability was discovered.
 The normalization function in 2.4.50 checked for ‘%2e’ and ‘%2f’ strings, however it missed double URL encoding as: 
 %%32%65 - (2 in hex is 32 and e in hex is 65).
 So 2.4.50 apache version also misses the dot dot slash or Path Traversal attack in a case the filesystem directory is 
 set to "Require all granted".
-Same as {CVE_ID_ONE}, if the ‘mod_cgi’ module is also enabled in the configuration file, the attacker will be able to 
+Same as {FIRST_CVE_ID}, if the ‘mod_cgi’ module is also enabled in the configuration file, the attacker will be able to 
 leverage the path traversal vulnerability and call any binary on the system using HTTP POST requests.
 
 Related Links:
@@ -132,36 +132,36 @@ def apache_version(apache, debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2021-41773 or CVE-2021-42013."""
-    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
+    if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
         apache = apache_functions.distribution_to_apache(debug, container_name)
         if apache == constants.UNSUPPORTED:
-            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
         elif apache:
             cve = apache_version(apache, debug, container_name)
             if cve:
                 permissions = apache_configuration_file(apache, debug, container_name)
                 if permissions == constants.UNSUPPORTED:
-                    print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+                    print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
                 elif permissions:
                     modules = apache_functions.loaded_modules(apache, 'cgi_module', debug, container_name)
                     if modules == constants.UNSUPPORTED or not modules:
-                        print(constants.FULL_VULNERABLE_MESSAGE.format(f'{CVE_ID} Path Traversal attack'))
+                        print(constants.FULL_VULNERABLE_MESSAGE.format(f'{VULNERABILITY} Path Traversal attack'))
                     else:
-                        print(constants.FULL_VULNERABLE_MESSAGE.format(f'{CVE_ID} Path Traversal attack and Remote Code'
+                        print(constants.FULL_VULNERABLE_MESSAGE.format(f'{VULNERABILITY} Path Traversal attack and Remote Code'
                                                                        f'Execution attacks'))
                 else:
-                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
             else:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
         else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
 
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of CVE-2021-41773 or
     CVE-2021-42013."""
-    vol_graph = graphviz.Digraph('G', filename=CVE_ID)
-    commons.graph_start(CVE_ID, vol_graph)
+    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
+    commons.graph_start(VULNERABILITY, vol_graph)
     vol_graph.edge('Is it Linux?', 'Is host distribution affected?', label='Yes')
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge('Is host distribution affected?', 'Is Apache HTTP Server installed?', label='Yes')

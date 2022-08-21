@@ -4,8 +4,8 @@ Support for graphviz and other modules which written for avoiding repetitive cod
 import graphviz
 from modules import kernel_version, commons, constants
 
-CVE_ID = 'CVE-2017-1000405'
-DESCRIPTION = f'''{CVE_ID} - Huge Dirty COW
+VULNERABILITY = 'CVE-2017-1000405'
+DESCRIPTION = f'''{VULNERABILITY} - Huge Dirty COW
 
 CVSS Score: 7.0
 NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2017-1000405
@@ -80,36 +80,36 @@ def zero_page(debug, container_name):
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2017-1000405."""
     if not container_name:
-        if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
+        if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
             kernel_version_output = kernel_version.check_kernel(MIN_KERNEL_VERSION, MAX_KERNEL_VERSION, debug)
             if kernel_version_output == constants.UNSUPPORTED:
-                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
             elif kernel_version_output:
                 affected = zero_page(debug, container_name)
                 if affected == constants.UNSUPPORTED:
-                    print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+                    print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
                 elif affected:
-                    print(constants.FULL_VULNERABLE_MESSAGE.format(f'{CVE_ID} zero pages manipulation'))
+                    print(constants.FULL_VULNERABLE_MESSAGE.format(f'{VULNERABILITY} zero pages manipulation'))
                 else:
-                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(f'zero pages manipulation in {CVE_ID}'))
+                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(f'zero pages manipulation in {VULNERABILITY}'))
                 affected = huge_page(debug, container_name)
                 if affected == constants.UNSUPPORTED:
-                    print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+                    print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
                 elif affected:
-                    print(constants.FULL_VULNERABLE_MESSAGE.format(f'{CVE_ID} huge pages manipulation'))
+                    print(constants.FULL_VULNERABLE_MESSAGE.format(f'{VULNERABILITY} huge pages manipulation'))
                 else:
-                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(f'huge pages manipulation in {CVE_ID}'))
+                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(f'huge pages manipulation in {VULNERABILITY}'))
             else:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
     else:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Containers are not affected by kernel vulnerabilities'))
-        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
 
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of CVE-2017-1000405."""
-    vol_graph = graphviz.Digraph('G', filename=CVE_ID)
-    commons.graph_start(CVE_ID, vol_graph)
+    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
+    commons.graph_start(VULNERABILITY, vol_graph)
     vol_graph.edge('Is it Linux?', 'Does your system has a Huge Zero Pages mechanism?', label='Yes')
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge('Does your system has a Huge Zero Pages mechanism?', 'Is Huge Zero Pages enabled?', label='Yes')

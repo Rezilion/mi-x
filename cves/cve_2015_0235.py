@@ -5,13 +5,13 @@ import graphviz
 from packaging import version
 from modules import run_command, commons, constants
 
-CVE_ID = 'CVE-2015-0235'
+VULNERABILITY = 'CVE-2015-0235'
 DESCRIPTION = f'''Ghost
 
 CVSS Score: 6.8
 NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2015-0235
 
-{CVE_ID} is a Heap-based buffer overflow vulnerability in the __nss_hostname_digits_dots function .
+{VULNERABILITY} is a Heap-based buffer overflow vulnerability in the __nss_hostname_digits_dots function .
 This vulnerability allows a remote attacker that is able to make an application call to gethostbyname*() functions to
 execute arbitrary code with the permissions of the user running the application.
 The affected glibc versions are between 2.2 to 2.17 (the fix was introduced in version 2.18).
@@ -60,23 +60,23 @@ def glibc_exist(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to Ghost vulnerabilities."""
-    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
+    if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
         glibc_value = glibc_exist(debug, container_name)
         if glibc_value == constants.UNSUPPORTED:
-            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
         elif glibc_value:
             if glibc_version(glibc_value):
-                print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
             else:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
         else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
 
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of Ghost."""
-    vol_graph = graphviz.Digraph('G', filename=CVE_ID)
-    commons.graph_start(CVE_ID, vol_graph)
+    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
+    commons.graph_start(VULNERABILITY, vol_graph)
     vol_graph.edge('Is it Linux?', 'Is there GLIBC?', label='Yes')
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge('Is there GLIBC?', 'Is the GLIBC version affected?', label='Yes')

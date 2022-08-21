@@ -5,8 +5,8 @@ import graphviz
 from packaging import version
 from modules import run_command, commons, os_release, constants, receive_package
 
-CVE_ID = 'CVE-2021-4034'
-DESCRIPTION = f'''{CVE_ID} - PwnKit
+VULNERABILITY = 'CVE-2021-4034'
+DESCRIPTION = f'''{VULNERABILITY} - PwnKit
 
 CVSS Score: 9.0
 NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2021-45046
@@ -220,32 +220,32 @@ def distribution_version_affected(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to PwnKit."""
-    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
+    if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
         host_information = distribution_version_affected(debug, container_name)
         if host_information == constants.UNSUPPORTED:
-            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
         elif host_information:
             policykit_installed = check_policykit(host_information, debug, container_name)
             if policykit_installed == constants.UNSUPPORTED:
-                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
             elif policykit_installed:
                 pkexec_info = get_pkexec_path(debug, container_name)
                 if pkexec_info == constants.UNSUPPORTED:
-                    print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+                    print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
                 elif pkexec_info:
-                    print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
+                    print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
                 else:
-                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
             else:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
         else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
 
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of PwnKit."""
-    vol_graph = graphviz.Digraph('G', filename=CVE_ID)
-    commons.graph_start(CVE_ID, vol_graph)
+    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
+    commons.graph_start(VULNERABILITY, vol_graph)
     vol_graph.edge('Is it Linux?', 'Is there an affected PolicyKit package installed?', label='Yes')
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge('Is there an affected PolicyKit package installed?', 'Does pkexec have execute permissions?',

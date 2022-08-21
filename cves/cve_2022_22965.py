@@ -5,8 +5,8 @@ import graphviz
 from packaging import version
 from modules import run_command, get_pids, commons, constants
 
-CVE_ID = 'CVE-2022-22965'
-DESCRIPTION = f'''{CVE_ID} - Spring4Shell
+VULNERABILITY = 'CVE-2022-22965'
+DESCRIPTION = f'''{VULNERABILITY} - Spring4Shell
 
 CVSS Score: 9.8
 NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2022-22965
@@ -56,15 +56,15 @@ def validate_processes(pids, debug, container_name):
         if container_name:
             jcmd_path = commons.build_jcmd_path(pid, debug, container_name)
             if jcmd_path == constants.UNSUPPORTED:
-                print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
+                print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(VULNERABILITY, pid))
                 break
         jcmd_command = f'sudo {jcmd_path} {pid} {VM_VERSION}'
         version_affected = check_java_version(pid, jcmd_command, debug)
         if version_affected == constants.UNSUPPORTED:
-            print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
+            print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(VULNERABILITY, pid))
             break
         if not version_affected:
-            print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, CVE_ID))
+            print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, VULNERABILITY))
             break
         jcmd_command = f'sudo {jcmd_path} {pid} '
         utility = commons.available_jcmd_utilities(jcmd_command, debug)
@@ -72,15 +72,15 @@ def validate_processes(pids, debug, container_name):
             full_jcmd_command = jcmd_command + utility
             webmvc_webflux = commons.check_loaded_classes(pid, full_jcmd_command, CLASSES, debug)
             if webmvc_webflux == constants.UNSUPPORTED:
-                print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
+                print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(VULNERABILITY, pid))
             elif webmvc_webflux:
                 print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} process use the {webmvc_webflux} '
                                                                 f'dependency'))
-                print(constants.FULL_PROCESS_VULNERABLE_MESSAGE.format(pid, CVE_ID))
+                print(constants.FULL_PROCESS_VULNERABLE_MESSAGE.format(pid, VULNERABILITY))
             else:
-                print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, CVE_ID))
+                print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, VULNERABILITY))
         else:
-            print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(CVE_ID, pid))
+            print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(VULNERABILITY, pid))
 
 
 def validate(debug, container_name):
@@ -90,13 +90,13 @@ def validate(debug, container_name):
         if pids:
             validate_processes(pids, debug, container_name)
         else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
 
 
 def validation_flow_chart():
     """This function creates a graph that shows the vulnerability validation process of Spring4Shell."""
-    vol_graph = graphviz.Digraph('G', filename=CVE_ID)
-    commons.graph_start(CVE_ID, vol_graph)
+    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
+    commons.graph_start(VULNERABILITY, vol_graph)
     vol_graph.edge('Is it Linux?', 'Are there running Java processes?', label='Yes')
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge('Are there running Java processes?', 'Is java version affected?', label='Yes')

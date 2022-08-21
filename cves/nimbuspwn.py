@@ -5,8 +5,8 @@ import graphviz
 from packaging import version
 from modules import commons, os_release, constants, receive_package
 
-CVE_ID = 'NIMBUSPWN'
-DESCRIPTION = f'''{CVE_ID} - CVE-2022-29799, CVE-2022-29800
+VULNERABILITY = 'NIMBUSPWN'
+DESCRIPTION = f'''{VULNERABILITY} - CVE-2022-29799, CVE-2022-29800
 
 CVSS Score: N/A 
 NVD Link: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-29799
@@ -98,21 +98,21 @@ def distribution_version_affected(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if an instance is vulnerable to NIMBUSPWN."""
-    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
+    if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
         host_information = distribution_version_affected(debug, container_name)
         if host_information:
             if check_networkd_version(host_information, debug, container_name):
-                print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
             else:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
         else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
 
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of NIMBUSPWN."""
-    vol_graph = graphviz.Digraph('G', filename=CVE_ID, format='png')
-    commons.graph_start(CVE_ID, vol_graph)
+    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
+    commons.graph_start(VULNERABILITY, vol_graph)
     vol_graph.edge('Is it Linux?', 'Are os distribution and version affected?', label='Yes')
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge('Are os distribution and version affected?', 'Is networkd-dispatcher policy version affected?',

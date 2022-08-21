@@ -4,8 +4,8 @@ Support for graphviz, version from packaging and other modules which written for
 import graphviz
 from modules import run_command, commons, constants
 
-CVE_ID = 'CVE-2020-1938'
-DESCRIPTION = f'''{CVE_ID} - GhostCat
+VULNERABILITY = 'CVE-2020-1938'
+DESCRIPTION = f'''{VULNERABILITY} - GhostCat
 
 CVSS Score: 9.8
 NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2020-1938
@@ -107,29 +107,29 @@ def printenv_content(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to GhostCat vulnerabilities."""
-    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
+    if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
         printenv = printenv_content(debug, container_name)
         if printenv == constants.UNSUPPORTED:
-            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
         elif printenv:
             if tomcat_version(printenv):
                 mitigation = check_mitigation(printenv, debug, container_name)
                 if mitigation == constants.UNSUPPORTED:
-                    print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+                    print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
                 elif mitigation:
-                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
                 else:
-                    print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
+                    print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
             else:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
         else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
 
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of GhostCat."""
-    vol_graph = graphviz.Digraph('G', filename=CVE_ID, format='png')
-    commons.graph_start(CVE_ID, vol_graph)
+    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
+    commons.graph_start(VULNERABILITY, vol_graph)
     vol_graph.edge('Is it Linux?', 'Is it an Apache Tomcat?', label='Yes')
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge('Is it an Apache Tomcat?', 'Is the Apache Tomcat version affected?', label='Yes')

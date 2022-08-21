@@ -5,12 +5,12 @@ import importlib
 import graphviz
 from modules import run_command, kernel_version, commons, os_release, constants
 
-CVE_ID = 'CVE-2016-5195'
+VULNERABILITY = 'CVE-2016-5195'
 NEXT_VULNERABILITY = 'cve_2017_1000405'
 DESCRIPTION = f'''The initial fix for this vulnerability contained an additional vulnerability, your system will be
-scanned for both {CVE_ID} and {NEXT_VULNERABILITY}
+scanned for both {VULNERABILITY} and {NEXT_VULNERABILITY}
 
-{CVE_ID} - Dirty COW
+{VULNERABILITY} - Dirty COW
 
 CVSS Score: 7.8
 NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2016-5195
@@ -85,16 +85,16 @@ def validate_red_hat(fixed_release, debug, container_name):
         print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
         kpatch = check_kpatch(debug, container_name)
         if kpatch == constants.UNSUPPORTED:
-            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
         elif kpatch:
             print(constants.FULL_EXPLANATION_MESSAGE.format('Your kernel release has kpatch'))
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
         else:
             print(constants.FULL_EXPLANATION_MESSAGE.format('You do not have relevant kpatch'))
-            print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
     else:
         print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('No'))
-        print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
+        print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
 
 
 def check_release(debug, container_name):
@@ -138,33 +138,33 @@ def check_release(debug, container_name):
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2016-5195."""
     if not container_name:
-        if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
+        if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
             fixed_release = check_release(debug, container_name)
             if fixed_release == constants.UNSUPPORTED:
-                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
             elif fixed_release:
                 max_kernel_version = FIXED[fixed_release]
                 check_kernel_version = kernel_version.check_kernel(MIN_KERNEL_VERSION, max_kernel_version, debug)
                 if check_kernel_version == constants.UNSUPPORTED:
-                    print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+                    print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
                 elif check_kernel_version:
                     print(constants.FULL_EXPLANATION_MESSAGE.format('The os release you are running on is potentially '
                                                                     'affected'))
                     validate_red_hat(fixed_release, debug, container_name)
                 else:
                     print(constants.FULL_EXPLANATION_MESSAGE.format('Your kernel version is already patched'))
-                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
             else:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
     else:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Containers are not affected by kernel vulnerabilities'))
-        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
 
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of CVE-2016-5195."""
-    vol_graph = graphviz.Digraph('G', filename=CVE_ID, format='png')
-    commons.graph_start(CVE_ID, vol_graph)
+    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
+    commons.graph_start(VULNERABILITY, vol_graph)
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge('Is it Linux?', 'Is os release effected?', label='Yes')
     vol_graph.edge('Is os release effected?', 'Is the kernel release effected?', label='Yes')

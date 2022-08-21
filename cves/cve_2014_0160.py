@@ -5,13 +5,13 @@ import graphviz
 from packaging import version
 from modules import commons, constants, os_release, receive_package
 
-CVE_ID = 'CVE-2014-0160'
+VULNERABILITY = 'CVE-2014-0160'
 DESCRIPTION = f'''Heartbleed
 
 CVSS Score: 7.5
 NVD Link: https://nvd.nist.gov/vuln/detail/cve-2014-0160
 
-{CVE_ID} is a programming mistake in a popular OpenSSL library that provides cryptographic services such as SSL/TLS to 
+{VULNERABILITY} is a programming mistake in a popular OpenSSL library that provides cryptographic services such as SSL/TLS to 
 the applications and services.
 Due to a missing/incorrect bounds check in the code, it is possible to return chunks of memory from a TLS peer (client 
 or server) by sending invalid requests which are incorrectly processed.
@@ -69,23 +69,23 @@ def get_openssl_version(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to Heartbleed vulnerabilities."""
-    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
+    if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
         openssl_version = get_openssl_version(debug, container_name)
         if openssl_version == constants.UNSUPPORTED:
-            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
         elif openssl_version:
             if check_openssl_version(openssl_version):
-                print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
             else:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
         else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
 
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of Heartbleed."""
-    vol_graph = graphviz.Digraph('G', filename=CVE_ID, format='png')
-    commons.graph_start(CVE_ID, vol_graph)
+    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
+    commons.graph_start(VULNERABILITY, vol_graph)
     vol_graph.edge('Is it Linux?', 'Is there openssl?', label='Yes')
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge('Is there openssl?', 'Is the openssl version affected?', label='Yes')

@@ -6,10 +6,10 @@ import graphviz
 from packaging import version
 from modules import run_command, commons, constants
 
-CVE_ID = 'Shellshock'
+VULNERABILITY = 'Shellshock'
 DESCRIPTION = f'''your system will be scanned for all ShellShock related CVEs.
 
-{CVE_ID}
+{VULNERABILITY}
 Six Bash vulnerabilities which allows remote attackers to execute arbitrary code via a crafted environment string were 
 disclosed in September 2014. This bulletin addresses the vulnerabilities that have been referred to as “Bash Bug” or 
 “Shellshock” and two memory corruption vulnerabilities.
@@ -208,7 +208,7 @@ def bash_installed(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to shellshock vulnerabilities."""
-    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
+    if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
         bash_version = bash_installed(debug, container_name)
         if bash_version:
             is_bash_affected(bash_version)
@@ -219,15 +219,15 @@ def validate(debug, container_name):
                 cve_2014_7186(container_name)
                 cve_2014_7187(container_name)
             else:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
         else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
 
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of shellshock."""
-    vol_graph = graphviz.Digraph('G', filename=CVE_ID, format='png')
-    vol_graph.attr(label=f'{CVE_ID}\n\n', labelloc='t')
+    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
+    vol_graph.attr(label=f'{VULNERABILITY}\n\n', labelloc='t')
     vol_graph.attr('node', shape='box', style='filled', color='red')
     vol_graph.node('Vulnerable to CVE-2014-6271')
     vol_graph.attr('node', shape='box', style='filled', color='red')

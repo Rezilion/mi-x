@@ -5,8 +5,8 @@ import graphviz
 from modules import commons, constants, os_release
 
 
-CVE_ID = 'CVE-2017-5715'
-DESCRIPTION = f'''{CVE_ID} - Spectre Variant 2
+VULNERABILITY = 'CVE-2017-5715'
+DESCRIPTION = f'''{VULNERABILITY} - Spectre Variant 2
 
 CVSS Score: 5.6
 NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2017-5715
@@ -77,23 +77,23 @@ def validate_mitigations(debug, container_name):
     """This function validates whether the mitigations enabled or not."""
     ibrs = check_mitigations_components('ibrs', debug, container_name)
     if ibrs == constants.UNSUPPORTED:
-        print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+        print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
     elif ibrs:
         ibpb = check_mitigations_components('ibpb', debug, container_name)
         if ibpb == constants.UNSUPPORTED:
-            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
         elif ibpb:
             spectre_v2_mitigation = check_cmdline_disabled('spectre_v2', debug, container_name)
             if spectre_v2_mitigation == constants.UNSUPPORTED:
-                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
             elif spectre_v2_mitigation:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
             else:
-                print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
         else:
-            print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
     else:
-        print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
+        print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
 
 
 def spectre_file(debug, container_name):
@@ -176,25 +176,25 @@ def check_edge_case(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to Spectre Variant 2."""
-    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
+    if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
         edge_case = check_edge_case(debug, container_name)
         if edge_case == constants.UNSUPPORTED or edge_case:
             spectre = spectre_file(debug, container_name)
             if spectre == constants.UNSUPPORTED:
                 validate_mitigations(debug, container_name)
             elif spectre:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
             else:
-                print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
         else:
-            print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
 
 
 def validation_flow_chart():
     """This function creates a graph that shows the vulnerability validation process of Spectre Variant 2."""
     spectre_v2_path = '/sys/devices/system/cpu/vulnerabilities/spectre_v2'
-    vol_graph = graphviz.Digraph('G', filename=CVE_ID, format='png')
-    commons.graph_start(CVE_ID, vol_graph)
+    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
+    commons.graph_start(VULNERABILITY, vol_graph)
     vol_graph.edge('Is it Linux?', 'Does the system meet the edge case conditions?', label='Yes')
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge('Does the system meet the edge case conditions?', 'Vulnerable', label='Yes')

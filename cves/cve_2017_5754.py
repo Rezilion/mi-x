@@ -4,8 +4,8 @@ Support for graphviz and other modules which written for avoiding repetitive cod
 import graphviz
 from modules import commons, constants
 
-CVE_ID = 'CVE-2017-5754'
-DESCRIPTION = f'''{CVE_ID} - Meltdown
+VULNERABILITY = 'CVE-2017-5754'
+DESCRIPTION = f'''{VULNERABILITY} - Meltdown
 
 CVSS Score: 5.6
 NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2017-5754
@@ -56,27 +56,27 @@ def check_vendor(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to Meltdown."""
-    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
+    if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
         vendor = check_vendor(debug, container_name)
         if vendor == constants.UNSUPPORTED:
-            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
         elif vendor:
             meltdown = meltdown_file(debug, container_name)
             if meltdown == constants.UNSUPPORTED:
-                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
             elif meltdown:
-                print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
             else:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
         else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
 
 
 def validation_flow_chart():
     """This function creates a graph that shows the vulnerability validation process of Meltdown."""
     meltdown_path = '/sys/devices/system/cpu/vulnerabilities/meltdown'
-    vol_graph = graphviz.Digraph('G', filename=CVE_ID, format='png')
-    commons.graph_start(CVE_ID, vol_graph)
+    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
+    commons.graph_start(VULNERABILITY, vol_graph)
     vol_graph.edge('Is it Linux?', 'Is it amd?', label='Yes')
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge('Is it amd?', 'Not Vulnerable', label='Yes')

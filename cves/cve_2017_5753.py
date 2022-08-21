@@ -4,8 +4,8 @@ Support for graphviz and other modules which written for avoiding repetitive cod
 import graphviz
 from modules import commons, constants
 
-CVE_ID = 'CVE-2017-5753'
-DESCRIPTION = f'''{CVE_ID} - Spectre Variant 1
+VULNERABILITY = 'CVE-2017-5753'
+DESCRIPTION = f'''{VULNERABILITY} - Spectre Variant 1
 
 CVSS Score: 5.6
 NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2017-5753
@@ -42,21 +42,21 @@ def spectre_file(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to Spectre Variant 1."""
-    if commons.check_linux_and_affected_distribution(CVE_ID, debug, container_name):
+    if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
         spectre = spectre_file(debug, container_name)
         if spectre == constants.UNSUPPORTED:
-            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
         elif spectre:
-            print(constants.FULL_VULNERABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
         else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(CVE_ID))
+            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
 
 
 def validation_flow_chart():
     """This function creates a graph that shows the vulnerability validation process of Spectre Variant 1."""
     spectre_v1_path = '/sys/devices/system/cpu/vulnerabilities/spectre_v1'
-    vol_graph = graphviz.Digraph('G', filename=CVE_ID, format='png')
-    commons.graph_start(CVE_ID, vol_graph)
+    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
+    commons.graph_start(VULNERABILITY, vol_graph)
     vol_graph.edge('Is it Linux?', f'Does {spectre_v1_path} file contain the "vulnerable" string?', label='Yes')
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge(f'Does {spectre_v1_path} file contain the "vulnerable" string?', 'Not Vulnerable', label='No')

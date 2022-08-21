@@ -86,9 +86,9 @@ def validation_flow_chart():
     commons.graph_end(vol_graph)
 
 
-def main(describe, graph, debug, container_name):
+def main(description, graph, debug, container_name):
     """This is the main function."""
-    if describe:
+    if description:
         print(f'\n{DESCRIPTION}')
     validate(debug, container_name)
     if graph:

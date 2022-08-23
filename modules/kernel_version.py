@@ -16,7 +16,7 @@ def check_kernel(min_kernel_version, max_kernel_version, debug):
     affected = False
     kernel_version_command = 'uname -r'
     print(constants.FULL_QUESTION_MESSAGE.format('Is kernel version affected?'))
-    pipe_kernel_version = run_command.command_output(kernel_version_command, debug, container_name=False)
+    pipe_kernel_version = run_command.command_output(kernel_version_command, debug, container_name='')
     kernel_version = pipe_kernel_version.stdout
     valid_kernel_version = commons.valid_kernel_version(kernel_version)
     if not valid_kernel_version:
@@ -42,7 +42,7 @@ def check_kernel(min_kernel_version, max_kernel_version, debug):
 def get_kernel_version(debug):
     """This function returns the kernel version."""
     kernel_version_command = 'uname -r'
-    pipe_kernel_version = run_command.command_output(kernel_version_command, debug, container_name=False)
+    pipe_kernel_version = run_command.command_output(kernel_version_command, debug, container_name='')
     kernel_version = pipe_kernel_version.stdout
     if kernel_version:
         return kernel_version

@@ -180,13 +180,13 @@ def validation_flow_chart():
     commons.graph_end(vol_graph)
 
 
-def main(describe, graph, debug, container_name):
+def main(description, graph, debug, container_name):
     """This is the main function."""
-    if describe:
+    if description:
         print(f'\n{DESCRIPTION}')
     validate(debug, container_name)
     if graph:
         validation_flow_chart()
     next_cve_path = 'cves.' + NEXT_VULNERABILITY
     cve_validation = importlib.import_module(next_cve_path)
-    cve_validation.main(describe, graph, debug, container_name)
+    cve_validation.main(description, graph, debug, container_name)

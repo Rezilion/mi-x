@@ -95,7 +95,7 @@ def get_jcmd(pid, debug, container_name):
         return constants.UNSUPPORTED
     proc_path = f'/proc/{pid}/exe'
     get_jcmd_path_command = f'sudo ls -l {proc_path}'
-    pipe_get_jcmd_path = run_command.command_output(get_jcmd_path_command, debug, container_name=False)
+    pipe_get_jcmd_path = run_command.command_output(get_jcmd_path_command, debug, container_name='')
     get_jcmd_path = pipe_get_jcmd_path.stdout
     if not get_jcmd_path:
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Unsupported "/proc/{pid}/exe" value'))
@@ -117,7 +117,7 @@ def get_jcmd(pid, debug, container_name):
 def available_jcmd_utilities(jcmd_command, debug):
     """This checks the utility name in which it can take the classes from."""
     full_help_command = jcmd_command + HELP
-    available_utilities = run_command.command_output(full_help_command, debug, container_name=False)
+    available_utilities = run_command.command_output(full_help_command, debug, container_name='')
     if available_utilities.stderr:
         print(constants.FULL_EXPLANATION_MESSAGE.format('The jcmd command is not available, try to download jdk tool'))
         return ''
@@ -132,7 +132,7 @@ def available_jcmd_utilities(jcmd_command, debug):
 
 def check_loaded_classes(pid, jcmd_command, classes, debug):
     """This function checks if the process is using the affected class."""
-    pipe_jcmd = run_command.command_output(jcmd_command, debug, container_name=False)
+    pipe_jcmd = run_command.command_output(jcmd_command, debug, container_name='')
     jcmd = pipe_jcmd.stdout
     values = ''
     if not jcmd:

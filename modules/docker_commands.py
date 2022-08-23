@@ -7,7 +7,7 @@ from modules import run_command, constants
 def get_merge_dir(container_name, debug):
     """This function checks the MergeDir path of the container."""
     docker_inspect_command = constants.DOCKER_INSPECT_COMMAND.format(container_name)
-    pipe_docker_inspect = run_command.command_output(docker_inspect_command, debug, container_name=False)
+    pipe_docker_inspect = run_command.command_output(docker_inspect_command, debug, container_name='')
     docker_inspect = pipe_docker_inspect.stdout
     if not docker_inspect:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Unsupported docker inspect value'))

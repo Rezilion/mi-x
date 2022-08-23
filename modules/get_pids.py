@@ -7,7 +7,7 @@ from modules import run_command, commons, constants
 def get_pids_by_name(process_type, debug, container_name):
     """This function checks if there are Java running processes."""
     pids_command = f'pgrep {process_type}'
-    pipe_pids = run_command.command_output(pids_command, debug, container_name=False)
+    pipe_pids = run_command.command_output(pids_command, debug, container_name='')
     pids = pipe_pids.stdout
     print(constants.FULL_QUESTION_MESSAGE.format(f'There are running {process_type} processes on the host?'))
     if not pids:
@@ -21,7 +21,7 @@ def get_pids_by_name(process_type, debug, container_name):
     relevant_pids = []
     for pid in pids_list:
         pid_status_path = f'/proc/{pid}/status'
-        pid_status_content = commons.file_content(pid_status_path, debug, container_name=False)
+        pid_status_content = commons.file_content(pid_status_path, debug, container_name='')
         if not pid_status_content:
             return []
         for line in pid_status_content:

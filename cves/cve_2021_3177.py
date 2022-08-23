@@ -24,7 +24,7 @@ PATCHED_VERSIONS = ['3.6.13', '3.7.10', '3.8.8', '3.9.2']
 def check_ctypes_loaded(pid, ctypes_file_name, debug):
     """This function checks if the ctypes file is loaded into the process memory or not."""
     pid_maps_path = f'/proc/{pid}/maps'
-    pid_maps_file = commons.file_content(pid_maps_path, debug, container_name=False)
+    pid_maps_file = commons.file_content(pid_maps_path, debug, container_name='')
     if not pid_maps_file:
         return pid_maps_file
     print(constants.FULL_QUESTION_MESSAGE.format(f'Is the _ctypes module loaded to the {pid} process memory?'))
@@ -41,7 +41,7 @@ def check_ctypes_loaded(pid, ctypes_file_name, debug):
 def find_ctypes_file_name(pid, debug, container_name):
     """This function finds the name of the _ctypes file."""
     pid_maps_path = f'sudo cat /proc/{pid}/maps'
-    pipe_pid_maps_file = run_command.command_output(pid_maps_path, debug, container_name=False)
+    pipe_pid_maps_file = run_command.command_output(pid_maps_path, debug, container_name='')
     pid_maps_file = pipe_pid_maps_file.stdout
     if not pid_maps_file:
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'The /proc/{pid}/maps file does not exist'))
@@ -59,7 +59,7 @@ def find_ctypes_file_name(pid, debug, container_name):
         merge_dir = docker_commands.get_merge_dir(container_name, debug)
         modules_path = merge_dir + modules_path
     list_modules_command = f'sudo ls {modules_path}'
-    pipe_list_modules = run_command.command_output(list_modules_command, debug, container_name=False)
+    pipe_list_modules = run_command.command_output(list_modules_command, debug, container_name='')
     list_modules = pipe_list_modules.stdout
     if not list_modules:
         print(constants.FULL_EXPLANATION_MESSAGE.format('No modules in python lib-dynload'))
@@ -77,7 +77,7 @@ def find_ctypes_file_name(pid, debug, container_name):
 def get_python_version(pid, debug, container_name):
     """This function returns the python version of the process."""
     pid_maps_path = f'/proc/{pid}/maps'
-    pid_maps_file = commons.file_content(pid_maps_path, debug, container_name=False)
+    pid_maps_file = commons.file_content(pid_maps_path, debug, container_name='')
     if not pid_maps_file:
         return pid_maps_file
     path_to_modules = ''
@@ -150,9 +150,9 @@ def validation_flow_chart():
     commons.graph_end(vol_graph)
 
 
-def main(describe, graph, debug, container_name):
+def main(description, graph, debug, container_name):
     """This is the main function."""
-    if describe:
+    if description:
         print(f'\n{DESCRIPTION}')
     validate(debug, container_name)
     if graph:

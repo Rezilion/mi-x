@@ -208,16 +208,6 @@ def file_content(file_path, debug, container_name):
     return content
 
 
-def valid_kernel_version(full_version):
-    """Returns the start of a valid kernel version using regex."""
-    if full_version.endswith('\n'):
-        full_version = full_version[:constants.END]
-    kernel_version = re.search(r'\d*\.\d*.\d*-\d*.\d*', full_version).group()
-    if kernel_version.endswith('-'):
-        kernel_version = kernel_version[:-1]
-    return kernel_version
-
-
 def re_start_of_version(full_version):
     """Returns the start of a version using regex."""
     return re.search(r'\d*\.\d*', full_version).group()

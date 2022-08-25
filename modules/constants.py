@@ -68,10 +68,11 @@ DUPLICATE_VULNERABILITIES_NAMES = {'cve_2014_6271': 'shellshock', 'cve_2014_6277
                                    'ghost': 'cve_2015_0235', 'dirty_cow': 'cve_2016_5195',
                                    'meltdown': 'cve_2017_5754', 'huge_dirty_cow': 'cve_2017_1000405',
                                    'ghostcat': 'cve_2020_1938', 'pwnkit': 'cve_2021_4034',
-                                   'dirty_cred': 'cve_2021_4154', 'cve_2021_42013': 'cve_2021_41773',
-                                   'dirty_pipe': 'cve_2022_0847', 'spring4shell': 'cve_2022_22965'}
+                                   'cve_2021_42013': 'cve_2021_41773', 'dirty_pipe': 'cve_2022_0847',
+                                   'spring4shell': 'cve_2022_22965'}
 
-SPECTRE = ['cve_2017_5715', 'cve_2017_5753', 'cve_2017_5754']
+VULNERABILITIES_WITH_MULTIPLE_CVES = {'spectre': ['cve_2017_5715', 'cve_2017_5753', 'cve_2017_5754'],
+                                      'dirty_cred': ['cve_2021_4154', 'cve_2022_2588']}
 
 ALL_VULNERABILITIES = ['cve_2014_0160', 'cve_2015_0235', 'cve_2016_5195', 'cve_2017_5715', 'cve_2017_5753',
                        'cve_2017_5754', 'cve_2017_1000405', 'cve_2020_1938', 'cve_2021_3177', 'cve_2021_4034',

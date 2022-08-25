@@ -109,10 +109,10 @@ def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of Heartbleed."""
     vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
     commons.graph_start(VULNERABILITY, vol_graph)
-    vol_graph.edge('Is it Linux?', 'Is kernel versions affected?', label='Yes')
+    vol_graph.edge('Is it Linux?', 'Is kernel version affected?', label='Yes')
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is kernel versions affected?', 'There is a patch installed?', label='Yes')
-    vol_graph.edge('Is kernel versions affected?', 'Not Vulnerable', label='No')
+    vol_graph.edge('Is kernel version affected?', 'There is a patch installed?', label='Yes')
+    vol_graph.edge('Is kernel version affected?', 'Not Vulnerable', label='No')
     vol_graph.edge('There is a patch installed?', 'Not Vulnerable', label='Yes')
     vol_graph.edge('There is a patch installed?', 'Vulnerable', label='No')
     commons.graph_end(vol_graph)

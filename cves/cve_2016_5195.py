@@ -97,49 +97,11 @@ def validate_red_hat(fixed_release, debug, container_name):
         print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
 
 
-def check_release(debug, container_name):
-    """This function checks if the host release is affected according to the fixed os distributions and versions."""
-    information_fields = ['Distribution', 'Version']
-    host_information = os_release.get_field(information_fields, debug, container_name)
-    if host_information.startswith('Debian'):
-        information_fields = ['Distribution', 'Sid']
-        host_information_debian = os_release.get_field(information_fields, debug, container_name)
-        if host_information_debian.endswith('unstable'):
-            host_information = host_information_debian
-    if host_information == constants.UNSUPPORTED:
-        return constants.UNSUPPORTED
-    if host_information:
-        print(constants.FULL_QUESTION_MESSAGE.format('Is os release affected?'))
-        host_distribution = host_information.split(' ')[constants.START]
-        if host_distribution not in constants.APT_DISTRIBUTIONS and \
-                host_distribution not in constants.APT_DISTRIBUTIONS:
-            print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Can not determine'))
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os releases: {list(FIXED.keys())}\nYour os '
-                                                            f'release: {host_distribution}\nThe os release you are '
-                                                            f'running on is not supported'))
-            return constants.UNSUPPORTED
-        for fixed_release in FIXED:
-            if fixed_release == host_information:
-                print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-                print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os releases: {list(FIXED.keys())}\nYour os'
-                                                                f' release: {host_information}\nThe os release you are '
-                                                                f'running on is potentially affected'))
-                return fixed_release
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os releases: {list(FIXED.keys())}\nYour os '
-                                                        f'release: {host_information}\nThe os release you are running '
-                                                        f'on is not affected'))
-    else:
-        print(constants.FULL_EXPLANATION_MESSAGE.format('Can not determine vulnerability status, no distribution and '
-                                                        'version values'))
-    return ''
-
-
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2016-5195."""
     if not container_name:
         if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
-            fixed_release = check_release(debug, container_name)
+            fixed_release = os_release.check_release(FIXED, debug, container_name)
             if fixed_release == constants.UNSUPPORTED:
                 print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
             elif fixed_release:

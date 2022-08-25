@@ -19,6 +19,7 @@ Centos 8 and Ubuntu 20.04 machines.
 * The vulnerability module is still in progress and changes may have occurred according to new updates.
 
 Related Links:
+https://www.rezilion.com/blog/dirty-cred-what-you-need-to-know/
 https://i.blackhat.com/USA-22/Thursday/US-22-Lin-Cautious-A-New-Exploitation-Method.pdf
 '''
 FIXED = {'Debian 11': '5.10.136-1', 'Debian unstable': '5.18.16-1', 'Ubuntu 16.04': '4.4.0-231.265',

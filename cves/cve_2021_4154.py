@@ -21,6 +21,7 @@ Centos 8 and Ubuntu 20.04 machines.
 modified by admin users. Means that the configuration file can be modified, hence, the data shown is not 100% accurate.
 
 Related Links:
+https://www.rezilion.com/blog/dirty-cred-what-you-need-to-know/
 https://i.blackhat.com/USA-22/Thursday/US-22-Lin-Cautious-A-New-Exploitation-Method.pdf
 '''
 PATCH_VARIABLE = 'CONFIG_CRED_ISOLATION=y'

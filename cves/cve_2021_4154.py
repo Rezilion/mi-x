@@ -84,7 +84,7 @@ def check_distribution_functional(debug, container_name):
 
 
 def validate(debug, container_name):
-    """This function validates if the host is vulnerable to Heartbleed vulnerabilities."""
+    """This function validates if the host is vulnerable to Dirty Cred vulnerability."""
     if not container_name:
         if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
             fixed_distribution = check_distribution_functional(debug, container_name)
@@ -106,7 +106,7 @@ def validate(debug, container_name):
 
 
 def validation_flow_chart():
-    """This function creates graph that shows the vulnerability validation process of Heartbleed."""
+    """This function creates graph that shows the vulnerability validation process of Dirty Cred."""
     vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
     commons.graph_start(VULNERABILITY, vol_graph)
     vol_graph.edge('Is it Linux?', 'Is kernel version affected?', label='Yes')

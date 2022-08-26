@@ -18,7 +18,7 @@ Centos 8 and Ubuntu 20.04 machines.
 
 * The vulnerability detection module is based on the information currently known. The module will be updated whenever new information regarding the vulnerability becomes available.
 * The validation flow relies on the Linux kernel configuration file. This file is not signed and can be 
-modified by admin users. Means that the configuration file can be modified, hence, the data shown is not 100% accurate.
+modified by admin users. Note that since the file can be modified, validation of the patch may not be accurate.
 
 Related Links:
 https://www.rezilion.com/blog/dirty-cred-what-you-need-to-know/

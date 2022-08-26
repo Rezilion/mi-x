@@ -16,7 +16,7 @@ The CVE-2021-4154 exploitation was first presented at the latest Black Hat USA 2
 demonstrated how the exploit can be used to escalate privileges from unprivileged user to privileged one (root) on 
 Centos 8 and Ubuntu 20.04 machines. 
 
-* The vulnerability module is still in progress and changes may have occurred according to new updates.
+* The vulnerability detection module will be updated as new information regarding the vulnerability becomes available.
 
 Related Links:
 https://www.rezilion.com/blog/dirty-cred-what-you-need-to-know/

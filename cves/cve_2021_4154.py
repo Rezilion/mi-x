@@ -16,7 +16,7 @@ The CVE-2021-4154 exploitation was first presented at the latest Black Hat USA 2
 demonstrated how the exploit can be used to escalate privileges from unprivileged user to privileged one (root) on 
 Centos 8 and Ubuntu 20.04 machines. 
 
-* The vulnerability module is still in progress and changes may have occurred according to new updates.
+* The vulnerability detection module is based on the information currently known. The module will be updated whenever new information regarding the vulnerability becomes available.
 * We check the patch in the Linux configuration file, however, take in account that the file is not signed and can be 
 modified by admin users. Means that the configuration file can be modified, hence, the data shown is not 100% accurate.
 

@@ -115,7 +115,7 @@ def validation_flow_chart():
     vol_graph.edge('Is kernel version affected?', 'There is a patch installed?', label='Yes')
     vol_graph.edge('Is kernel version affected?', 'Not Vulnerable', label='No')
     vol_graph.edge('Is there a patch installed?', 'Not Vulnerable', label='Yes')
-    vol_graph.edge('There is a patch installed?', 'Vulnerable', label='No')
+    vol_graph.edge('Is there a patch installed?', 'Vulnerable', label='No')
     commons.graph_end(vol_graph)
 
 

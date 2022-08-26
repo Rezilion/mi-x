@@ -1,14 +1,12 @@
 """
 Support for os, semver, graphviz and other modules which written for avoiding repetitive code.
 """
-import os
 import graphviz
-from modules import run_command, apache as apache_functions, commons, constants
+from modules import apache as apache_functions, commons, constants
 
 FIRST_CVE_ID = 'CVE-2021-41773'
 SECOND_CVE_ID = 'CVE-2021-42013'
 VULNERABILITY = 'CVE-2021-41773 or CVE-2021-42013'
-SERVER_VERSION_FIELD = 'Server version:'
 DESCRIPTION = f'''The initial fix for this vulnerability contained an additional vulnerability, your system will be
 scanned for both CVE-2021-41773 and CVE-2021-42013.
 
@@ -76,38 +74,20 @@ def filesystem_directory_configuration(configuration_content):
     return constants.UNSUPPORTED
 
 
-def apache_configuration_file(apache, debug, container_name):
-    """This function checks if the filesystem directory is set to "Require all granted" in the apache configuration
-    file."""
-    if apache == 'apache2':
-        configuration_file_path = '/etc/apache2/apache2.conf'
-    else:
-        configuration_file_path = '/etc/httpd/conf/httpd.conf'
-        if not os.path.isfile(configuration_file_path):
-            configuration_file_path = 'etc/apache2/httpd.conf'
-    configuration_content = commons.file_content(configuration_file_path, debug, container_name)
-    if configuration_content:
-        return filesystem_directory_configuration(configuration_content)
+def apache_configuration_file(debug, container_name):
+    """This function checks which configuration file path is the correct one for the system."""
+    configuration_files_paths = ['/etc/apache2/apache2.conf', '/etc/httpd/conf/httpd.conf', 'etc/apache2/httpd.conf']
+    for configuration_file_path in configuration_files_paths:
+        configuration_content = commons.file_content(configuration_file_path, debug, container_name)
+        if configuration_content:
+            return filesystem_directory_configuration(configuration_content)
     return constants.UNSUPPORTED
 
 
-def apache_version(apache, debug, container_name):
+def check_apache_version(apache_output):
     """This function checks if the Apache HTTP Server version is affected."""
-    apache_command = f'{apache} -v'
-    pipe_apache = run_command.command_output(apache_command, debug, container_name)
-    apache = pipe_apache.stdout
-    print(constants.FULL_QUESTION_MESSAGE.format('Is Apache HTTP Server installed?'))
-    if not apache:
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format('Apache HTTP Server is not installed'))
-        return False
-    print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-    print(constants.FULL_EXPLANATION_MESSAGE.format('Apache HTTP Server is installed'))
     print(constants.FULL_QUESTION_MESSAGE.format('Is apache version affected?'))
-    version = ''
-    for field in apache.split('\n'):
-        if SERVER_VERSION_FIELD in field:
-            version = field.split('/')[constants.FIRST].split(' ')[constants.START]
+    version = apache_functions.get_apache_version(apache_output)
     if not version:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Unsupported version value'))
         return constants.UNSUPPORTED
@@ -127,28 +107,28 @@ def apache_version(apache, debug, container_name):
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected apache versions : {FIRST_AFFECTED_VERSION} and'
                                                     f' {SECOND_AFFECTED_VERSION}\nYour apache version: '
                                                     f'{version}\nYour apache version is not affected'))
-    return False
+    return ''
 
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2021-41773 or CVE-2021-42013."""
     if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
-        apache = apache_functions.distribution_to_apache(debug, container_name)
-        if apache == constants.UNSUPPORTED:
-            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
-        elif apache:
-            cve = apache_version(apache, debug, container_name)
-            if cve:
-                permissions = apache_configuration_file(apache, debug, container_name)
+        apache_output = apache_functions.check_apache_types(debug, container_name)
+        if apache_output:
+            affected_version = check_apache_version(apache_output)
+            if affected_version == constants.UNSUPPORTED:
+                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
+            elif affected_version:
+                permissions = apache_configuration_file(debug, container_name)
                 if permissions == constants.UNSUPPORTED:
                     print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
                 elif permissions:
-                    modules = apache_functions.loaded_modules(apache, 'cgi_module', debug, container_name)
+                    modules = apache_functions.loaded_modules('cgi_module', debug, container_name)
                     if modules == constants.UNSUPPORTED or not modules:
-                        print(constants.FULL_VULNERABLE_MESSAGE.format(f'{VULNERABILITY} Path Traversal attack'))
+                        print(constants.FULL_VULNERABLE_MESSAGE.format(f'{VULNERABILITY} - Path Traversal attack'))
                     else:
-                        print(constants.FULL_VULNERABLE_MESSAGE.format(f'{VULNERABILITY} Path Traversal attack and Remote Code'
-                                                                       f'Execution attacks'))
+                        print(constants.FULL_VULNERABLE_MESSAGE.format(f'{VULNERABILITY} - Path Traversal and Remote '
+                                                                       f'Code Execution attacks'))
                 else:
                     print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
             else:

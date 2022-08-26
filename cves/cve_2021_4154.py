@@ -12,7 +12,7 @@ NVD Link: https://nvd.nist.gov/vuln/detail/cve-2014-0160
 
 Dirty Cred are (now) two `use-after-free` privilege escalation vulnerabilities (CVE-2021-4154 and CVE-2022-2588) in the 
 Linux kernel which can also be utilized for container escape.
-The CVE-2021-4154 exploitation was first presented at the latest Black Hat USA 2022 conference. The researchers 
+The CVE-2021-4154 exploitation was first presented at the Black Hat USA 2022 conference. The researchers 
 demonstrated how the exploit can be used to escalate privileges from unprivileged user to privileged one (root) on 
 Centos 8 and Ubuntu 20.04 machines. 
 

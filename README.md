@@ -125,7 +125,7 @@ Scan the machine running containers for log4shell.
 python3 am_i_exploitable.py --vulnerability_identifier log4shell --container True
 
 ```
-![Executing](https://user-images.githubusercontent.com/15197376/178207295-d1a5f251-063d-406d-8821-c7a7d6d4c39b.gif)
+![Executing](https://user-images.githubusercontent.com/15197376/187567107-7cd130d8-33b7-4125-894a-e2ee3171d1c2.gif)
 
 
 # Arguments

@@ -51,8 +51,8 @@ Everyone is free to use 'Am I Exploitable?' under the conditions of the AGPL-3.0
 # Files
 
 - `am_i_exploitable.py` - The main file which handles the user input and the CVEs calls.
-- `CVEs` - Python package that contains a python file for each currently supported CVE.
-- `Modules` - Python package that contains modules.
+- `cves` - Python package that contains a python file for each currently supported vulnerability.
+- `modules` - Python package that contains modules.
 Modules are code implementations which are used in different CVE files.
 
 
@@ -71,11 +71,11 @@ Partial support for Alpine
 
 # Installation Requirements
 
-Before installing MI-X, make sure your machine have the following:
-1. Python version 3
-2. pip
-3. Graphviz (optional, needed only for the graph capabilities) 
-4. Xdg-utils (optional, needed only for the graph capabilities)
+Before installing MI-X, make sure your machine has the following:
+1. python version 3
+2. pip3
+3. graphviz (optional, needed only for the graph capabilities) 
+4. xdg-utils (optional, needed only for the graph capabilities)
 5. openjdk with jcmd support (needed when running in container mode and the openjdk version on the container is lower than `openjdk10`)
 
 In order to install the requirements:
@@ -115,14 +115,14 @@ The very latest developments can be obtained via git.
 
 Scanning command template
 ```
-python3 am_i_exploitable.py --cve_id cve_yyyy_xxxx --container True --graph True
+python3 am_i_exploitable.py --vulnerability_identifier cve_yyyy_xxxx --container True --graph True
 
 ```
 
 # Execute Scanning Example
 Scan the machine running containers for log4shell.
 ```
-python3 am_i_exploitable.py --cve_id log4shell --container True
+python3 am_i_exploitable.py --vulnerability_identifier log4shell --container True
 
 ```
 ![Executing](https://user-images.githubusercontent.com/15197376/178207295-d1a5f251-063d-406d-8821-c7a7d6d4c39b.gif)

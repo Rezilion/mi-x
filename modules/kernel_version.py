@@ -12,6 +12,8 @@ def get_kernel_version(debug):
     pipe_kernel_version = run_command.command_output(kernel_version_command, debug, container_name='')
     kernel_version = pipe_kernel_version.stdout
     if kernel_version:
+        if kernel_version.endswith('\n'):
+            kernel_version = kernel_version[:constants.END]
         return kernel_version
     return ''
 
@@ -25,7 +27,7 @@ def get_valid_kernel_version(debug):
         full_version = full_version[:constants.END]
     kernel_version = re.search(r'\d*\.\d*.\d*-\d*.\d*', full_version).group()
     if kernel_version.endswith('-'):
-        kernel_version = kernel_version[:-1]
+        kernel_version = kernel_version[:constants.END]
     return kernel_version
 
 

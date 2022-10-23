@@ -33,23 +33,24 @@ RED_HAT_FIXES = ['RHBA-2022:0238', 'RHSA-2022:0186', 'RHSA-2022:0187', 'RHSA-202
 
 def find_patch(debug, container_name):
     """This function checks if there is a patch installed."""
-    print(constants.FULL_QUESTION_MESSAGE.format('Is there patch installed?'))
     full_kernel_version = kernel_version.get_kernel_version(debug)
     if not full_kernel_version:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Error finding kernel version'))
         return constants.UNSUPPORTED
     config_path = f'/boot/config-{full_kernel_version}'
     config_content = commons.file_content(config_path, debug, container_name)
+    print(constants.FULL_QUESTION_MESSAGE.format('Is there patch installed?'))
     if not config_content:
         return constants.UNSUPPORTED
+    patch = False
     for line in config_content:
         if PATCH_VARIABLE in line:
             print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('Yes'))
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {PATCH_VARIABLE} patch string exists'))
-            return 'True'
+            patch = True
     print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('No'))
     print(constants.FULL_EXPLANATION_MESSAGE.format('The patch does not exist'))
-    return ''
+    return patch
 
 
 def check_red_hat_patch(debug, container_name):
@@ -77,10 +78,15 @@ def check_distribution_functional(debug, container_name):
     information_fields = ['Distribution', 'Version']
     host_information = os_release.get_field(information_fields, debug, container_name)
     return_value = ''
+    print(constants.FULL_QUESTION_MESSAGE.format('Is distribution supported?'))
     if 'Red' in host_information:
+        print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
         return_value = check_red_hat_patch(debug, container_name)
     elif 'Ubuntu' in host_information or 'Debian' in host_information:
+        print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
         return_value = os_release.check_release(FIXED, debug, container_name)
+    else:
+        print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('No'))
     return return_value
 
 
@@ -91,7 +97,7 @@ def validate(debug, container_name):
             fixed_distribution = check_distribution_functional(debug, container_name)
             if fixed_distribution == constants.UNSUPPORTED:
                 print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
-            elif fixed_distribution:
+            elif not fixed_distribution:
                 print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
             else:
                 patch = find_patch(debug, container_name)

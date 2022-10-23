@@ -39,7 +39,7 @@ def find_patch(debug, container_name):
         return constants.UNSUPPORTED
     config_path = f'/boot/config-{full_kernel_version}'
     config_content = commons.file_content(config_path, debug, container_name)
-    print(constants.FULL_QUESTION_MESSAGE.format('Is there patch installed?'))
+    print(constants.FULL_QUESTION_MESSAGE.format('Is there a patch installed?'))
     if not config_content:
         return constants.UNSUPPORTED
     patch = False

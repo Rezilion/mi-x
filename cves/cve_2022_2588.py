@@ -2,7 +2,7 @@
 Support for graphviz, version from packaging and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import commons, constants, os_release
+from modules import commons, constants, os_release, kernel_version
 
 VULNERABILITY = 'CVE-2022-2588'
 DESCRIPTION = '''Dirty Cred
@@ -22,6 +22,7 @@ Related Links:
 https://www.rezilion.com/blog/dirty-cred-what-you-need-to-know/
 https://i.blackhat.com/USA-22/Thursday/US-22-Lin-Cautious-A-New-Exploitation-Method.pdf
 '''
+MIN_KERNEL_VERSION = '0'
 FIXED = {'Debian 11': '5.10.136-1', 'Debian unstable': '5.18.16-1', 'Ubuntu 16.04': '4.4.0-231.265',
          'Ubuntu 18.04': '4.15.0-191.202', 'Ubuntu 20.02': '5.4.0-124.140', 'Ubuntu 22.04': '5.15.0-46.49'}
 
@@ -33,10 +34,14 @@ def validate(debug, container_name):
             affected_kernel = os_release.check_release(FIXED, debug, container_name)
             if affected_kernel == constants.UNSUPPORTED:
                 print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
-            elif affected_kernel:
+            elif not affected_kernel:
                 print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
             else:
-                print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
+                patched_kernel_version = FIXED[affected_kernel]
+                if kernel_version.check_kernel(MIN_KERNEL_VERSION, patched_kernel_version, debug):
+                    print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
+                else:
+                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
     else:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Containers are not affected by kernel vulnerabilities'))
         print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))

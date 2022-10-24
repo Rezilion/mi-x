@@ -4,6 +4,10 @@ Support for os and other modules which written for avoiding repetitive code.
 import os
 from modules import run_command, constants
 
+NAME_FIELD = 'NAME='
+VERSION_FIELD = 'VERSION_ID='
+
+
 def file_content(file_path, debug, container_name):
     """This function checks returns the file's content if exists."""
     content = ''

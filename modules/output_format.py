@@ -22,7 +22,7 @@ def open_file(container_name, report_format):
     else:
         file_name = HOST
     path = file_name + '.' + report_format
-    if not os.isfile(path):
+    if not os.path.isfile(path):
         file = open(path, 'w+')
     else:
         file = open(path, 'a')

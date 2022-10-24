@@ -2,7 +2,7 @@
 Support for os, semver, graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import apache as apache_functions, commons, constants
+from modules import status, apache as apache_functions, commons, constants
 
 FIRST_CVE_ID = 'CVE-2021-41773'
 SECOND_CVE_ID = 'CVE-2021-42013'
@@ -112,29 +112,29 @@ def check_apache_version(apache_output):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2021-41773 or CVE-2021-42013."""
-    if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
-        apache_output = apache_functions.check_apache_types(debug, container_name)
-        if apache_output:
-            affected_version = check_apache_version(apache_output)
-            if affected_version == constants.UNSUPPORTED:
-                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
-            elif affected_version:
-                permissions = apache_configuration_file(debug, container_name)
-                if permissions == constants.UNSUPPORTED:
-                    print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
-                elif permissions:
-                    modules = apache_functions.loaded_modules('cgi_module', debug, container_name)
-                    if modules == constants.UNSUPPORTED or not modules:
-                        print(constants.FULL_VULNERABLE_MESSAGE.format(f'{VULNERABILITY} - Path Traversal attack'))
-                    else:
-                        print(constants.FULL_VULNERABLE_MESSAGE.format(f'{VULNERABILITY} - Path Traversal and Remote '
-                                                                       f'Code Execution attacks'))
+    state = {}
+    apache_output = apache_functions.check_apache_types(debug, container_name)
+    if apache_output:
+        affected_version = check_apache_version(apache_output)
+        if affected_version == constants.UNSUPPORTED:
+            state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+        elif affected_version:
+            permissions = apache_configuration_file(debug, container_name)
+            if permissions == constants.UNSUPPORTED:
+                state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+            elif permissions:
+                modules = apache_functions.loaded_modules('cgi_module', debug, container_name)
+                if modules == constants.UNSUPPORTED or not modules:
+                    state[VULNERABILITY] = status.not_vulnerable(f'{VULNERABILITY} - Path Traversal attack')
                 else:
-                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+                    state[VULNERABILITY] = status.not_vulnerable(f'{VULNERABILITY} - Path Traversal and Remote Code Execution attacks')
             else:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+                state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
         else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+    else:
+        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+    return state
 
 
 def validation_flow_chart():
@@ -164,6 +164,7 @@ def main(description, graph, debug, container_name):
     """This is the main function."""
     if description:
         print(f'\n{DESCRIPTION}')
-    validate(debug, container_name)
+    state = validate(debug, container_name)
     if graph:
         validation_flow_chart()
+    return state

@@ -3,7 +3,7 @@ Support for graphviz, version from packaging and other modules which written for
 """
 import graphviz
 from packaging import version
-from modules import run_command, commons, constants
+from modules import status, run_command, commons, constants
 
 VULNERABILITY = 'CVE-2015-0235'
 DESCRIPTION = f'''Ghost
@@ -60,17 +60,18 @@ def glibc_exist(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to Ghost vulnerabilities."""
-    if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
-        glibc_value = glibc_exist(debug, container_name)
-        if glibc_value == constants.UNSUPPORTED:
-            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
-        elif glibc_value:
-            if glibc_version(glibc_value):
-                print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
-            else:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+    state = {}
+    glibc_value = glibc_exist(debug, container_name)
+    if glibc_value == constants.UNSUPPORTED:
+        state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+    elif glibc_value:
+        if glibc_version(glibc_value):
+            state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
         else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+    else:
+        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+    return state
 
 
 def validation_flow_chart():
@@ -90,6 +91,7 @@ def main(description, graph, debug, container_name):
     """This is the main function."""
     if description:
         print(f'\n{DESCRIPTION}')
-    validate(debug, container_name)
+    state = validate(debug, container_name)
     if graph:
         validation_flow_chart()
+    return state

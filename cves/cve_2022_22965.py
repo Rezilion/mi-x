@@ -3,7 +3,7 @@ Support for graphviz and other modules which written for avoiding repetitive cod
 """
 import graphviz
 from packaging import version
-from modules import run_command, get_pids, commons, constants
+from modules import status, run_command, get_pids, commons, constants
 
 VULNERABILITY = 'CVE-2022-22965'
 DESCRIPTION = f'''{VULNERABILITY} - Spring4Shell
@@ -51,20 +51,21 @@ def check_java_version(pid, jcmd_command, debug):
 
 def validate_processes(pids, debug, container_name):
     """This function loops over all java processes and checks if they are vulnerable."""
+    state = {}
     for pid in pids:
         jcmd_path = 'jcmd'
         if container_name:
             jcmd_path = commons.build_jcmd_path(pid, debug, container_name)
             if jcmd_path == constants.UNSUPPORTED:
-                print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(VULNERABILITY, pid))
+                state[pid] = status.process_not_determined(vulnerability, pid)
                 break
         jcmd_command = f'sudo {jcmd_path} {pid} {VM_VERSION}'
         version_affected = check_java_version(pid, jcmd_command, debug)
         if version_affected == constants.UNSUPPORTED:
-            print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(VULNERABILITY, pid))
+            state[pid] = status.process_not_determined(vulnerability, pid)
             break
         if not version_affected:
-            print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, VULNERABILITY))
+            state[pid] = status.process_not_vulnerable(vulnerability, pid)
             break
         jcmd_command = f'sudo {jcmd_path} {pid} '
         utility = commons.available_jcmd_utilities(jcmd_command, debug)
@@ -72,25 +73,27 @@ def validate_processes(pids, debug, container_name):
             full_jcmd_command = jcmd_command + utility
             webmvc_webflux = commons.check_loaded_classes(pid, full_jcmd_command, CLASSES, debug)
             if webmvc_webflux == constants.UNSUPPORTED:
-                print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(VULNERABILITY, pid))
+                state[pid] = status.process_not_determined(vulnerability, pid)
             elif webmvc_webflux:
                 print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} process use the {webmvc_webflux} '
                                                                 f'dependency'))
-                print(constants.FULL_PROCESS_VULNERABLE_MESSAGE.format(pid, VULNERABILITY))
+                state[pid] = status.process_vulnerable(vulnerability, pid)
             else:
-                print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, VULNERABILITY))
+                state[pid] = status.process_not_vulnerable(vulnerability, pid)
         else:
-            print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(VULNERABILITY, pid))
+            state[pid] = status.process_not_determined(vulnerability, pid)
+    return state
 
 
 def validate(debug, container_name):
     """This function validates if an instance is vulnerable to Log4Shell."""
-    if commons.check_distribution_with_alpine_support(debug, container_name):
-        pids = get_pids.pids_consolidation('java', debug, container_name)
-        if pids:
-            validate_processes(pids, debug, container_name)
-        else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+    state = {}
+    pids = get_pids.pids_consolidation('java', debug, container_name)
+    if pids:
+        state[VULNERABILITY] = validate_processes(pids, debug, container_name)
+    else:
+        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+    return state
 
 
 def validation_flow_chart():
@@ -112,6 +115,7 @@ def main(description, graph, debug, container_name):
     """This is the main function."""
     if description:
         print(f'\n{DESCRIPTION}')
-    validate(debug, container_name)
+    state = validate(debug, container_name)
     if graph:
         validation_flow_chart()
+    return state

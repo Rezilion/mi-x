@@ -3,7 +3,7 @@ Support for graphviz, version from packaging and other modules which written for
 """
 import graphviz
 from packaging import version
-from modules import run_command, commons, os_release, constants, receive_package
+from modules import status, run_command, commons, os_release, constants, receive_package
 
 VULNERABILITY = 'CVE-2021-4034'
 DESCRIPTION = f'''{VULNERABILITY} - PwnKit
@@ -220,26 +220,27 @@ def distribution_version_affected(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to PwnKit."""
-    if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
-        host_information = distribution_version_affected(debug, container_name)
-        if host_information == constants.UNSUPPORTED:
-            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
-        elif host_information:
-            policykit_installed = check_policykit(host_information, debug, container_name)
-            if policykit_installed == constants.UNSUPPORTED:
-                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
-            elif policykit_installed:
-                pkexec_info = get_pkexec_path(debug, container_name)
-                if pkexec_info == constants.UNSUPPORTED:
-                    print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
-                elif pkexec_info:
-                    print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
-                else:
-                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+    state = {}
+    host_information = distribution_version_affected(debug, container_name)
+    if host_information == constants.UNSUPPORTED:
+        state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+    elif host_information:
+        policykit_installed = check_policykit(host_information, debug, container_name)
+        if policykit_installed == constants.UNSUPPORTED:
+            state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+        elif policykit_installed:
+            pkexec_info = get_pkexec_path(debug, container_name)
+            if pkexec_info == constants.UNSUPPORTED:
+                state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+            elif pkexec_info:
+                state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
             else:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+                state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
         else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+    else:
+        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+    return state
 
 
 def validation_flow_chart():
@@ -264,6 +265,7 @@ def main(description, graph, debug, container_name):
     """This is the main function."""
     if description:
         print(f'\n{DESCRIPTION}')
-    validate(debug, container_name)
+    state = validate(debug, container_name)
     if graph:
         validation_flow_chart()
+    return state

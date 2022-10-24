@@ -2,7 +2,7 @@
 Support for graphviz, version from packaging and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import commons, constants, os_release, kernel_version
+from modules import status, commons, constants, os_release, kernel_version
 
 VULNERABILITY = 'CVE-2022-2588'
 DESCRIPTION = '''Dirty Cred
@@ -29,22 +29,23 @@ FIXED = {'Debian 11': '5.10.136-1', 'Debian unstable': '5.18.16-1', 'Ubuntu 16.0
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to Heartbleed vulnerabilities."""
+    state = {}
     if not container_name:
-        if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
-            affected_kernel = os_release.check_release(FIXED, debug, container_name)
-            if affected_kernel == constants.UNSUPPORTED:
-                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
-            elif not affected_kernel:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+        affected_kernel = os_release.check_release(FIXED, debug, container_name)
+        if affected_kernel == constants.UNSUPPORTED:
+            state[VULNERABILITY] = status.not_determind(VULNERABILITY)
+        elif not affected_kernel:
+            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+        else:
+            patched_kernel_version = FIXED[affected_kernel]
+            if kernel_version.check_kernel(MIN_KERNEL_VERSION, patched_kernel_version, debug):
+                state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
             else:
-                patched_kernel_version = FIXED[affected_kernel]
-                if kernel_version.check_kernel(MIN_KERNEL_VERSION, patched_kernel_version, debug):
-                    print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
-                else:
-                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+                state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
     else:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Containers are not affected by kernel vulnerabilities'))
-        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+    return state
 
 
 def validation_flow_chart():
@@ -62,6 +63,7 @@ def main(description, graph, debug, container_name):
     """This is the main function."""
     if description:
         print(f'\n{DESCRIPTION}')
-    validate(debug, container_name)
+    state = validate(debug, container_name)
     if graph:
         validation_flow_chart()
+    return state

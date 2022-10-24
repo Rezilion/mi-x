@@ -2,7 +2,7 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import run_command, get_pids, commons, constants, docker_commands
+from modules import status, run_command, get_pids, commons, constants, docker_commands
 
 VULNERABILITY = 'CVE-2021-3711'
 DESCRIPTION = f'''{VULNERABILITY}
@@ -103,36 +103,39 @@ def get_python_version(pid, debug, container_name):
 
 def validate_processes(pids, debug, container_name):
     """This function loops over all Python processes and checks if they are vulnerable."""
+    state = {}
     for pid in pids:
         python_version = get_python_version(pid, debug, container_name)
         if python_version == constants.UNSUPPORTED:
-            print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(VULNERABILITY, pid))
+            state[pid] = status.process_not_determined(vulnerability, pid)
         elif python_version:
             if commons.check_patched_version('Python', python_version, PATCHED_VERSIONS):
                 ctypes_file_name = find_ctypes_file_name(pid, debug, container_name)
                 if ctypes_file_name == constants.UNSUPPORTED:
-                    print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(VULNERABILITY, pid))
+                    state[pid] = status.process_not_determined(vulnerability, pid)
                 elif ctypes_file_name:
                     if check_ctypes_loaded(pid, ctypes_file_name, debug):
-                        print(constants.FULL_PROCESS_VULNERABLE_MESSAGE.format(pid, VULNERABILITY))
+                        state[pid] = status.process_vulnerable(vulnerability, pid)
                     else:
-                        print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, VULNERABILITY))
+                        state[pid] = status.process_not_vulnerable(vulnerability, pid)
                 else:
-                    print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, VULNERABILITY))
+                    state[pid] = status.process_not_vulnerable(vulnerability, pid)
             else:
-                print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, VULNERABILITY))
+                state[pid] = status.process_not_vulnerable(vulnerability, pid)
         else:
-            print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, VULNERABILITY))
+            state[pid] = status.process_not_vulnerable(vulnerability, pid)
+    return state
 
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2021-3177."""
-    if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
-        pids = get_pids.pids_consolidation('python', debug, container_name)
-        if pids:
-            validate_processes(pids, debug, container_name)
-        else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+    state = {}
+    pids = get_pids.pids_consolidation('python', debug, container_name)
+    if pids:
+        state[VULNERABILITY] = validate_processes(pids, debug, container_name)
+    else:
+        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+    return state
 
 
 def validation_flow_chart():
@@ -154,6 +157,7 @@ def main(description, graph, debug, container_name):
     """This is the main function."""
     if description:
         print(f'\n{DESCRIPTION}')
-    validate(debug, container_name)
+    state = validate(debug, container_name)
     if graph:
         validation_flow_chart()
+    return state

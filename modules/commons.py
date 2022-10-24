@@ -20,7 +20,8 @@ def check_linux_and_affected_distribution(cve, debug, container_name):
             print(constants.FULL_NOT_DETERMINED_MESSAGE.format(cve))
             return False
         return True
-    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(cve))
+    else:
+        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(cve))
     return False
 
 

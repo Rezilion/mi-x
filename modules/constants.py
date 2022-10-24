@@ -88,3 +88,5 @@ LINUX_VULNERABILITIES = ['cve_2014_0160', 'cve_2015_0235', 'cve_2016_5195', 'cve
                        'cve_2017_5754', 'cve_2017_1000405', 'cve_2020_1938', 'cve_2021_3177', 'cve_2021_4034',
                        'cve_2021_4154', 'cve_2021_41773', 'cve_2022_0847', 'cve_2022_22965', 'cve_2022_25636',
                        'log4shell', 'shellshock', 'nimbuspwn']
+
+SUPPORTED_ALPINE_VULNERABILITIES = ['cve_2022_22965', 'log4shell']

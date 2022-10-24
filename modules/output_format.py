@@ -69,10 +69,12 @@ def text_format(container_name, state):
             file.write(value)
             for pid in state[value]:
                 state_value = state[value][pid]
-                file.write(state[value] + ' : ' + state_value)
+                pid_value = state[value]
+                file.write(pid_value + ' : ' + state_value)
             file.write('\n')
         elif STR_TYPE in str(type(state[value])):
-            file.write(value + ' : ' + state[value] + '\n')
+            state_value = state[value]
+            file.write(value + ' : ' + state_value + '\n')
     file.close()
 
 

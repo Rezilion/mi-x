@@ -14,14 +14,14 @@ STR_TYPE = 'str'
 HOST ='host'
 
 
-def open_file(container_name, format):
+def open_file(container_name, report_format):
     """This function checks if the file exists, if not - it opens the file in write mode, if yes - opens the file in
     append mode."""
     if container_name:
         file_name = container_name
     else:
         file_name = HOST
-    path = file_name + '.' + format
+    path = file_name + '.' + report_format
     if not os.isfile(path):
         file = open(path, 'w+')
     else:
@@ -84,13 +84,13 @@ def json_format(container_name, state):
     file.close()
 
 
-def format_type(container_name, format, state):
+def format_type(container_name, report_format, state):
     """This function checks the format type."""
-    if format.lower() == JSON:
+    if report_format.lower() == JSON:
         json_format(container_name, state)
-    elif format.lower() == TEXT:
+    elif report_format.lower() == TEXT:
         text_format(container_name, state)
-    elif format.lower() == CSV:
+    elif report_format.lower() == CSV:
         csv_format(container_name, state)
     else:
         print('Invalid format value')

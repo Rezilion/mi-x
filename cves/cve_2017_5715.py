@@ -178,7 +178,6 @@ def check_edge_case(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to Spectre Variant 2."""
-    state = {}
     edge_case = check_edge_case(debug, container_name)
     if edge_case == constants.UNSUPPORTED or edge_case:
         spectre = spectre_file(debug, container_name)

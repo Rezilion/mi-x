@@ -89,7 +89,6 @@ MAX_BASH_AFFECTED_VERSION = '4.3.0'
 
 def cve_2014_7187(container_name):
     """This function tests if the system is vulnerable to CVE-2014-7187."""
-    state = {}
     exploit_command = '''(for x in {1..200} ; do echo "for x$x in ; do :"; done; for x in {1..200} ;
                          do echo done ; done) | bash || echo "CVE-2014-7187 vulnerable, word_lineno"'''
     if container_name:
@@ -109,7 +108,6 @@ def cve_2014_7187(container_name):
 
 def cve_2014_7186(container_name):
     """This function tests if the system is vulnerable to CVE-2014-7186."""
-    state = {}
     exploit_command = r'''bash -c "export f=1 g='() {'; f() { echo 2;}; export -f f; bash -c
                         ' echo \$f \$g; f; env | grep ^f='"'''
     if container_name:
@@ -129,7 +127,6 @@ def cve_2014_7186(container_name):
 
 def cve_2014_7169(container_name):
     """This function tests if the system is vulnerable to CVE-2014-7169."""
-    state = {}
     exploit_command = '''env X='() { (a)=>\' sh -c "echo date"; cat echo; rm ./echo'''
     if container_name:
         exploit_command = constants.DOCKER_EXEC_COMMAND.format(container_name, 'bash', exploit_command)
@@ -148,7 +145,6 @@ def cve_2014_7169(container_name):
 
 def cve_2014_6277_and_cve_2014_6278(container_name):
     """This function tests if the system is vulnerable to CVE-2014-6277 or CVE-2014-6278."""
-    state = {}
     exploit_command = '''foo='() { echo vulnerable; }' bash -c foo'''
     if container_name:
         exploit_command = constants.DOCKER_EXEC_COMMAND.format(container_name, 'bash', exploit_command)
@@ -167,7 +163,6 @@ def cve_2014_6277_and_cve_2014_6278(container_name):
 
 def cve_2014_6271(container_name):
     """This function tests if the system is vulnerable to CVE-2014-6271."""
-    state = {}
     exploit_command = '''env x='() { :;}; echo vulnerable' bash -c "echo test"'''
     if container_name:
         exploit_command = constants.DOCKER_EXEC_COMMAND.format(container_name, 'bash', exploit_command)

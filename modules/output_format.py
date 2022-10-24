@@ -36,11 +36,13 @@ def set_csv_line(vulnerability, state):
 def open_file(container_name, report_format):
     """This function checks if the file exists, if not - it opens the file in write mode, if yes - opens the file in
     append mode."""
+    if not os.path.isdir('output'):
+        os.mkdir('output')
     if container_name:
         file_name = container_name
     else:
         file_name = HOST
-    path = file_name + '.' + report_format
+    path = 'output/' + file_name + '.' + report_format
     if not os.path.isfile(path):
         file = open(path, 'w+')
         if report_format == CSV:

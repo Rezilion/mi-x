@@ -57,15 +57,15 @@ def validate_processes(pids, debug, container_name):
         if container_name:
             jcmd_path = commons.build_jcmd_path(pid, debug, container_name)
             if jcmd_path == constants.UNSUPPORTED:
-                state[pid] = status.process_not_determined(vulnerability, pid)
+                state[pid] = status.process_not_determined(VULNERABILITY, pid)
                 break
         jcmd_command = f'sudo {jcmd_path} {pid} {VM_VERSION}'
         version_affected = check_java_version(pid, jcmd_command, debug)
         if version_affected == constants.UNSUPPORTED:
-            state[pid] = status.process_not_determined(vulnerability, pid)
+            state[pid] = status.process_not_determined(VULNERABILITY, pid)
             break
         if not version_affected:
-            state[pid] = status.process_not_vulnerable(vulnerability, pid)
+            state[pid] = status.process_not_vulnerable(VULNERABILITY, pid)
             break
         jcmd_command = f'sudo {jcmd_path} {pid} '
         utility = commons.available_jcmd_utilities(jcmd_command, debug)
@@ -73,15 +73,15 @@ def validate_processes(pids, debug, container_name):
             full_jcmd_command = jcmd_command + utility
             webmvc_webflux = commons.check_loaded_classes(pid, full_jcmd_command, CLASSES, debug)
             if webmvc_webflux == constants.UNSUPPORTED:
-                state[pid] = status.process_not_determined(vulnerability, pid)
+                state[pid] = status.process_not_determined(VULNERABILITY, pid)
             elif webmvc_webflux:
                 print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} process use the {webmvc_webflux} '
                                                                 f'dependency'))
-                state[pid] = status.process_vulnerable(vulnerability, pid)
+                state[pid] = status.process_vulnerable(VULNERABILITY, pid)
             else:
-                state[pid] = status.process_not_vulnerable(vulnerability, pid)
+                state[pid] = status.process_not_vulnerable(VULNERABILITY, pid)
         else:
-            state[pid] = status.process_not_determined(vulnerability, pid)
+            state[pid] = status.process_not_determined(VULNERABILITY, pid)
     return state
 
 

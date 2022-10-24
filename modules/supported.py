@@ -1,7 +1,7 @@
 """
 Support for modules which written for avoiding repetitive code.
 """
-from modules import run_comand, constants
+from modules import run_command, constants
 
 def file_content(file_path, debug, container_name):
     """This function checks returns the file's content if exists."""

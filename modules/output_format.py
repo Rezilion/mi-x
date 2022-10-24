@@ -13,6 +13,25 @@ DICT_TYPE = 'dict'
 STR_TYPE = 'str'
 HOST ='host'
 
+def start_of_csv_file(file):
+    """This function checks if the file exists, if not - it opens the file in write mode, if yes - opens the file in
+    append mode."""
+    header = ['vulnerability', 'vulnerable', 'not vulnerable', 'not determined']
+    writer = csv.writer(file)
+    writer.writerow(header)
+
+
+def set_csv_line(vulnerability, state):
+    """This function creates the lines that will be inserted into the csv file."""
+    line = []
+    if state == constants.VULNERABLE:
+        line = [vulnerability, '1', '0', '0']
+    elif state == constants.NOT_VULNERABLE:
+        line = [vulnerability, '0', '1', '0']
+    elif state == constants.NOT_DETERMINED:
+        line = [vulnerability, '0', '0', '1']
+    return line
+
 
 def open_file(container_name, report_format):
     """This function checks if the file exists, if not - it opens the file in write mode, if yes - opens the file in
@@ -24,38 +43,26 @@ def open_file(container_name, report_format):
     path = file_name + '.' + report_format
     if not os.path.isfile(path):
         file = open(path, 'w+')
+        if report_format == CSV:
+            start_of_csv_file(file)
     else:
         file = open(path, 'a')
     return file
 
 
-def set_csv_line(vulnerability, state):
-    """This function creates the lines that will be inserted into the csv file."""
-    line = []
-    if state == constants.VULNERABLE:
-        line = [vulnerability, HOST, '', '']
-    elif state == constants.NOT_VULNERABLE:
-        line = [vulnerability, '', HOST, '']
-    elif state == constants.NOT_DETERMINED:
-        line = [vulnerability, '', '', HOST]
-    return line
-
-
 def csv_format(container_name, state):
     """This function writes the summary into a csv file."""
-    header = ['vulnerability', 'vulnerable', 'not vulnerable', 'not determined']
     file = open_file(container_name, CSV)
     content = []
     for value in state:
         if DICT_TYPE in str(type(state[value])):
             for pid in state[value]:
-                vulnerability = value + '-' + pid
+                vulnerability = value + ' - ' + pid
                 state_value = state[value][pid]
                 content.append(set_csv_line(vulnerability, state_value))
         elif STR_TYPE in str(type(state[value])):
             content.append(set_csv_line(value, state[value]))
     writer = csv.writer(file)
-    writer.writerow(header)
     for line in content:
         writer.writerow(line)
     file.close()
@@ -66,15 +73,15 @@ def text_format(container_name, state):
     file = open_file(container_name, TEXT)
     for value in state:
         if DICT_TYPE in str(type(state[value])):
-            file.write(value)
+            file.write(value + '\n')
             for pid in state[value]:
                 state_value = state[value][pid]
-                pid_value = state[value]
-                file.write(pid_value + ' : ' + state_value)
+                file.write(pid + ' : ' + state_value + '\n')
             file.write('\n')
         elif STR_TYPE in str(type(state[value])):
             state_value = state[value]
-            file.write(value + ' : ' + state_value + '\n')
+            line = value + ' : ' + state_value + '\n\n'
+            file.write(line)
     file.close()
 
 
@@ -83,6 +90,7 @@ def json_format(container_name, state):
     file = open_file(container_name, JSON)
     json_object = json.dumps(state)
     file.write(json_object)
+    file.write('\n\n')
     file.close()
 
 

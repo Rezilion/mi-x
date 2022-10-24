@@ -81,11 +81,6 @@ def check_distribution_with_alpine_support(debug, container_name):
         if not is_supported_distribution(debug, container_name):
             return False
         return True
-    print(constants.FULL_QUESTION_MESSAGE.format('Is the os distributions one of Ubuntu, Debian, Red, Centos, '
-                                                 'Fedora, SUSE, SLES, Amazon, Alpine supported distributions?'))
-    print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
-    print(constants.FULL_EXPLANATION_MESSAGE.format('The os distribution you are running on is Alpine which is one'
-                                                    ' of the supported distributions'))
     return True
 
 

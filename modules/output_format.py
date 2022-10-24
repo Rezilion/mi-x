@@ -14,7 +14,7 @@ STR_TYPE = 'str'
 HOST ='host'
 
 
-def open_file(format, container_name):
+def open_file(container_name, format):
     """This function checks if the file exists, if not - it opens the file in write mode, if yes - opens the file in
     append mode."""
     if container_name:
@@ -41,10 +41,10 @@ def set_csv_line(vulnerability, state):
     return line
 
 
-def csv_format(state, container_name):
+def csv_format(container_name, state):
     """This function writes the summary into a csv file."""
     header = ['vulnerability', 'vulnerable', 'not vulnerable', 'not determined']
-    file = open_file(CSV, container_name)
+    file = open_file(container_name, CSV)
     content = []
     for value in state:
         if DICT_TYPE in str(type(state[value])):
@@ -61,9 +61,9 @@ def csv_format(state, container_name):
     file.close()
 
 
-def text_format(state, container_name):
+def text_format(container_name, state):
     """This function writes the summary into a text file."""
-    file = open_file(TEXT, container_name)
+    file = open_file(container_name, TEXT)
     for value in state:
         if DICT_TYPE in str(type(state[value])):
             file.write(value)
@@ -76,22 +76,22 @@ def text_format(state, container_name):
     file.close()
 
 
-def json_format(state, container_name):
+def json_format(container_name, state):
     """This function writes the summary into a json file."""
-    file = open_file(JSON, container_name)
+    file = open_file(container_name, JSON)
     json_object = json.dumps(state)
     file.write(json_object)
     file.close()
 
 
-def format_type(format, state, container_name):
+def format_type(container_name, format, state):
     """This function checks the format type."""
     if format.lower() == JSON:
-        json_format(state, container_name)
+        json_format(container_name, state)
     elif format.lower() == TEXT:
-        text_format(state, container_name)
+        text_format(container_name, state)
     elif format.lower() == CSV:
-        csv_format(state, container_name)
+        csv_format(container_name, state)
     else:
         print('Invalid format value')
         

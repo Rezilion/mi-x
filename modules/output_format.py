@@ -4,7 +4,7 @@ Support for csv, json, os and other modules which written for avoiding repetitiv
 import json
 import csv
 import os
-from modules import constants, run_command
+from modules import constants
 
 JSON ='json'
 CSV = 'csv'
@@ -36,17 +36,13 @@ def set_csv_line(vulnerability, state):
 def open_file(container_name, report_format):
     """This function checks if the file exists, if not - it opens the file in write mode, if yes - opens the file in
     append mode."""
-    directory = 'output'
-    if not os.path.isdir(directory):
-        mkdir_command = f'sudo mkdir {directory}'
-        pipe_mkdir = run_command.command_output(mkdir_command, debug=False, container_name=False)
-        if pipe_mkdir.stderr != '':
-            directory = ''
+    if not os.path.isdir('output'):
+        os.mkdir('output')
     if container_name:
         file_name = container_name
     else:
         file_name = HOST
-    path = f'{directory}/{file_name}.{report_format}'
+    path = f'output/{file_name}.{report_format}'
     if not os.path.isfile(path):
         file = open(path, 'w+')
         if report_format == CSV:

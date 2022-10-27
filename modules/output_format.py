@@ -23,13 +23,13 @@ def start_of_csv_file(file):
 
 def set_csv_line(vulnerability, state):
     """This function creates the lines that will be inserted into the csv file."""
-    line = []
+    line = [vulnerability, '0', '0', '0']
     if state == constants.VULNERABLE:
-        line = [vulnerability, '1', '0', '0']
+        line[1] = '1'
     elif state == constants.NOT_VULNERABLE:
-        line = [vulnerability, '0', '1', '0']
+        line[2] = '1'
     elif state == constants.NOT_DETERMINED:
-        line = [vulnerability, '0', '0', '1']
+        line[3] = '1'
     return line
 
 
@@ -42,7 +42,7 @@ def open_file(container_name, report_format):
         file_name = container_name
     else:
         file_name = HOST
-    path = 'output/' + file_name + '.' + report_format
+    path = f'output/{file_name}.{report_format}'
     if not os.path.isfile(path):
         file = open(path, 'w+')
         if report_format == CSV:
@@ -59,7 +59,7 @@ def csv_format(container_name, state):
     for value in state:
         if DICT_TYPE in str(type(state[value])):
             for pid in state[value]:
-                vulnerability = value + ' - ' + pid
+                vulnerability = f'{value} - {pid}'
                 state_value = state[value][pid]
                 content.append(set_csv_line(vulnerability, state_value))
         elif STR_TYPE in str(type(state[value])):
@@ -75,14 +75,14 @@ def text_format(container_name, state):
     file = open_file(container_name, TEXT)
     for value in state:
         if DICT_TYPE in str(type(state[value])):
-            file.write(value + '\n')
+            file.write(f'{value}\n')
             for pid in state[value]:
                 state_value = state[value][pid]
-                file.write(pid + ' : ' + state_value + '\n')
+                file.write(f'{pid} : {state_value}\n')
             file.write('\n')
         elif STR_TYPE in str(type(state[value])):
             state_value = state[value]
-            line = value + ' : ' + state_value + '\n\n'
+            line = f'{value} : {state_value}\n\n'
             file.write(line)
     file.close()
 

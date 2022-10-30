@@ -25,7 +25,7 @@ MAX_AFFECTED_VERSION = '5.6.10'
 AFFECTED_VARIABLE = 'offload_flags'
 FIXED_VARIABLE = 'offload_action'
 REMEDIATION = 'Upgrade kernel version to 5.6.11 or higher'
-MITIGATION = 'Disable the use of user namespaces this command:\necho 0 > /proc/sys/user/max_user_namespaces\nIf you ' \
+MITIGATION = 'Disable the use of user namespaces using the following command:\necho 0 > /proc/sys/user/max_user_namespaces\nIf you ' \
              'want to apply this change permanently, insert this line into a file in this directory /etc/sysctl.d/ ' \
              '(notice you are not modifying an existing file):\nuser.max_user_namespaces = 0\nThen, reload the changes' \
              ' using this command:\nsudo sysctl --system'

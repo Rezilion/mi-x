@@ -3,7 +3,7 @@ Support for semver, graphviz and other modules which written for avoiding repeti
 """
 import graphviz
 from packaging import version
-from modules import kernel_version, commons, constants
+from modules import status, kernel_version, commons, constants
 
 VULNERABILITY = 'CVE-2022-0847'
 DESCRIPTION = f'''{VULNERABILITY} - Dirty Pipe
@@ -50,18 +50,19 @@ def check_kernel_version(debug):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2022-0847."""
+    state = {}
     if not container_name:
-        if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
-            affected = check_kernel_version(debug)
-            if affected == constants.UNSUPPORTED:
-                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
-            elif affected:
-                print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
-            else:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+        affected = check_kernel_version(debug)
+        if affected == constants.UNSUPPORTED:
+            state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+        elif affected:
+            state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
+        else:
+            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
     else:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Containers are not affected by kernel vulnerabilities'))
-        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+    return state
 
 
 def validation_flow_chart():
@@ -79,6 +80,7 @@ def main(description, graph, debug, container_name):
     """This is the main function."""
     if description:
         print(f'\n{DESCRIPTION}')
-    validate(debug, container_name)
+    state = validate(debug, container_name)
     if graph:
         validation_flow_chart()
+    return state

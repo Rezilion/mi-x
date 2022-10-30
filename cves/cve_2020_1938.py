@@ -2,7 +2,7 @@
 Support for graphviz, version from packaging and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import run_command, commons, constants
+from modules import status, run_command, commons, constants
 
 VULNERABILITY = 'CVE-2020-1938'
 DESCRIPTION = f'''{VULNERABILITY} - GhostCat
@@ -107,23 +107,24 @@ def printenv_content(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to GhostCat vulnerabilities."""
-    if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
-        printenv = printenv_content(debug, container_name)
-        if printenv == constants.UNSUPPORTED:
-            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
-        elif printenv:
-            if tomcat_version(printenv):
-                mitigation = check_mitigation(printenv, debug, container_name)
-                if mitigation == constants.UNSUPPORTED:
-                    print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
-                elif mitigation:
-                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
-                else:
-                    print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
+    state = {}
+    printenv = printenv_content(debug, container_name)
+    if printenv == constants.UNSUPPORTED:
+        state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+    elif printenv:
+        if tomcat_version(printenv):
+            mitigation = check_mitigation(printenv, debug, container_name)
+            if mitigation == constants.UNSUPPORTED:
+                state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+            elif mitigation:
+                state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
             else:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+                state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
         else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+    else:
+        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+    return state
 
 
 def validation_flow_chart():
@@ -145,6 +146,7 @@ def main(description, graph, debug, container_name):
     """This is the main function."""
     if description:
         print(f'\n{DESCRIPTION}')
-    validate(debug, container_name)
+    state = validate(debug, container_name)
     if graph:
         validation_flow_chart()
+    return state

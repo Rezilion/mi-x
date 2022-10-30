@@ -2,7 +2,7 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import commons, constants
+from modules import status, commons, constants
 
 VULNERABILITY = 'CVE-2017-5754'
 DESCRIPTION = f'''{VULNERABILITY} - Meltdown
@@ -56,20 +56,21 @@ def check_vendor(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to Meltdown."""
-    if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
-        vendor = check_vendor(debug, container_name)
-        if vendor == constants.UNSUPPORTED:
-            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
-        elif vendor:
-            meltdown = meltdown_file(debug, container_name)
-            if meltdown == constants.UNSUPPORTED:
-                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
-            elif meltdown:
-                print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
-            else:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+    state = {}
+    vendor = check_vendor(debug, container_name)
+    if vendor == constants.UNSUPPORTED:
+        state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+    elif vendor:
+        meltdown = meltdown_file(debug, container_name)
+        if meltdown == constants.UNSUPPORTED:
+            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+        elif meltdown:
+            state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
         else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+    else:
+        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+    return state
 
 
 def validation_flow_chart():
@@ -90,6 +91,7 @@ def main(description, graph, debug, container_name):
     """This is the main function."""
     if description:
         print(f'\n{DESCRIPTION}')
-    validate(debug, container_name)
+    state = validate(debug, container_name)
     if graph:
         validation_flow_chart()
+    return state

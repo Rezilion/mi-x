@@ -3,7 +3,7 @@ Support for importlib, graphviz and other modules which written for avoiding rep
 """
 import importlib
 import graphviz
-from modules import run_command, kernel_version, commons, os_release, constants
+from modules import status, run_command, kernel_version, commons, os_release, constants
 
 VULNERABILITY = 'CVE-2016-5195'
 NEXT_VULNERABILITY = 'cve_2017_1000405'
@@ -80,47 +80,50 @@ def check_kpatch(debug, container_name):
 
 def validate_red_hat(fixed_release, debug, container_name):
     """This function validates the Red Hat case."""
+    state = {}
     print(constants.FULL_QUESTION_MESSAGE.format('Is it Red Hat?'))
     if 'Red' in fixed_release:
         print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
         kpatch = check_kpatch(debug, container_name)
         if kpatch == constants.UNSUPPORTED:
-            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
+            state[VULNERABILITY] = status.not_determined(VULNERABILITY)
         elif kpatch:
             print(constants.FULL_EXPLANATION_MESSAGE.format('Your kernel release has kpatch'))
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
         else:
             print(constants.FULL_EXPLANATION_MESSAGE.format('You do not have relevant kpatch'))
-            print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
+            state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
     else:
         print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('No'))
-        print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
+        state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
+    return state
 
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2016-5195."""
+    state = {}
     if not container_name:
-        if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
-            fixed_release = os_release.check_release(FIXED, debug, container_name)
-            if fixed_release == constants.UNSUPPORTED:
-                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
-            elif fixed_release:
-                max_kernel_version = FIXED[fixed_release]
-                check_kernel_version = kernel_version.check_kernel(MIN_KERNEL_VERSION, max_kernel_version, debug)
-                if check_kernel_version == constants.UNSUPPORTED:
-                    print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
-                elif check_kernel_version:
-                    print(constants.FULL_EXPLANATION_MESSAGE.format('The os release you are running on is potentially '
-                                                                    'affected'))
-                    validate_red_hat(fixed_release, debug, container_name)
-                else:
-                    print(constants.FULL_EXPLANATION_MESSAGE.format('Your kernel version is already patched'))
-                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+        fixed_release = os_release.check_release(FIXED, debug, container_name)
+        if fixed_release == constants.UNSUPPORTED:
+            state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+        elif fixed_release:
+            max_kernel_version = FIXED[fixed_release]
+            check_kernel_version = kernel_version.check_kernel(MIN_KERNEL_VERSION, max_kernel_version, debug)
+            if check_kernel_version == constants.UNSUPPORTED:
+                state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+            elif check_kernel_version:
+                print(constants.FULL_EXPLANATION_MESSAGE.format('The os release you are running on is potentially '
+                                                                'affected'))
+                state = validate_red_hat(fixed_release, debug, container_name)
             else:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+                print(constants.FULL_EXPLANATION_MESSAGE.format('Your kernel version is already patched'))
+                state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+        else:
+            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
     else:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Containers are not affected by kernel vulnerabilities'))
-        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+    return state
 
 
 def validation_flow_chart():
@@ -146,9 +149,10 @@ def main(description, graph, debug, container_name):
     """This is the main function."""
     if description:
         print(f'\n{DESCRIPTION}')
-    validate(debug, container_name)
+    state = validate(debug, container_name)
     if graph:
         validation_flow_chart()
     next_cve_path = 'cves.' + NEXT_VULNERABILITY
     cve_validation = importlib.import_module(next_cve_path)
     cve_validation.main(description, graph, debug, container_name)
+    return state

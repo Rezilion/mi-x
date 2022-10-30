@@ -158,7 +158,7 @@ Scans specific containers on the host by inserting running containers names sepe
 
 ## -f --format'
 
-Exports the results to three different format types: json, csv, text
+Exports the results to one of three possible output formats: json, csv, text
 - The user will need to specify which format type the results will be exported to.
 
 ## --description

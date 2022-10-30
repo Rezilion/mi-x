@@ -31,7 +31,7 @@ AJP_DEFAULT_LINE = 'protocol="AJP'
 MITIGATION_VALUE = '<!--Connector port'
 REQUIRED_SECRET_MITIGATION = 'requiredSecret='
 REMEDIATION = 'Upgrade Apache Tomcat version to one of the following 7.0.100, 8.5.51, 9.0.31 or higher.'
-MITIGATION = 'Chose one of these:\n- If not using the AJP connector, comment it out from the /conf/server.xml file:' \
+MITIGATION = 'Choose one of these:\n- If not using the AJP connector, comment it out from the /conf/server.xml file:' \
              'Add the following string at the beginning of the line: <!--\n- If you use the AJP Connector on your site,' \
              ' ensure the AJP Connector contains the requiredSecret attribute, and make sure that the password is ' \
              'strong and unique.'

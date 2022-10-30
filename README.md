@@ -35,7 +35,7 @@ In addition, the vulnerabilities checks we wrote so far, can be expanded with so
 * Get the vulnerability description
 * Validate the host containers
 * Present the validation flow logic as a graph.
-* Export the results to one of the three format types: json, csv, text.
+* Export the results to one of the three output formats: json, csv, text.
 * Get remediation and mitigation recommendations.
 
 An example flow graph for CVE-2021-4034 (aka PwnKit):

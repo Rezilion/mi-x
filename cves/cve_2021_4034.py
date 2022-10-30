@@ -42,7 +42,7 @@ FIXED_RPM = {'Fedora 34': ['0.117', '3.fc34.2'], 'Fedora 35': ['0.120', '1.fc35.
 MIN_KERNEL_VERSION = '0'
 REMEDIATION = f'Upgrade kernel version to:\n{FIXED_APT}\n{FIXED_RPM}'
 MITIGATION = 'Do one of the following:\n- Remove suid bit in pkexec file\n- Remove execute permissions for everyone in ' \
-             'pkexec file\n- Change file user from root to another user\n'
+             'pkexec file\n- Change file owner from root to another user\n'
 
 
 def check_pkexec_permissions(execute, suid, root):

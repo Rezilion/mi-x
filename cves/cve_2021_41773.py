@@ -48,7 +48,7 @@ SECOND_AFFECTED_VERSION = '2.4.50'
 REMEDIATION = 'Upgrade Apache version to 2.4.50 or higher.'
 MITIGATION_1 = f'Change the filesystem permissions in the configuration file from "Require all granted" to "Require ' \
                'all denied"'
-MITIGATION_2 = f'{MITIGATION_1}\nor\nDisable the cgi_module\nOn RedHat, Fedora, CentOs and other rpm based:\n' \
+MITIGATION_2 = f'{MITIGATION_1}\nor\nDisable the cgi_module\nOn RedHat, Fedora, CentOS and other rpm based distributions:\n' \
                'mv /etc/httpd/conf.modules.d/XX-cgi.conf /etc/httpd/conf.modules.d/XX-cgi.conf.disable\nOn Debian, ' \
                'Ubuntu and other Debian derivatives:\na2dismod cgi'
 

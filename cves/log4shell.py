@@ -2,7 +2,7 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import get_pids, commons, constants
+from modules import status, get_pids, commons, constants
 
 VULNERABILITY = 'Log4Shell'
 DESCRIPTION = f'''your system will be scanned for all Log4Shell related CVEs.
@@ -70,12 +70,13 @@ JDK_MINIMUM_VERSION = '10.0.0'
 
 def validate_processes(pids, debug, container_name):
     """This function loops over all java processes and checks if they are vulnerable."""
+    state = {}
     for pid in pids:
         jcmd_path = 'jcmd'
         if container_name:
             jcmd_path = commons.build_jcmd_path(pid, debug, container_name)
             if jcmd_path == constants.UNSUPPORTED:
-                print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(VULNERABILITY, pid))
+                state[pid] = status.process_not_determined(VULNERABILITY, pid)
                 break
         jcmd_command = f'sudo {jcmd_path} {pid} '
         utility = commons.available_jcmd_utilities(jcmd_command, debug)
@@ -83,23 +84,25 @@ def validate_processes(pids, debug, container_name):
             full_jcmd_command = jcmd_command + utility
             cves = commons.check_loaded_classes(pid, full_jcmd_command, CLASS_CVE, debug)
             if cves == constants.UNSUPPORTED:
-                print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(VULNERABILITY, pid))
+                state[pid] = status.process_not_determined(VULNERABILITY, pid)
             elif cves:
-                print(constants.FULL_PROCESS_VULNERABLE_MESSAGE.format(pid, cves))
+                state[pid] = status.process_vulnerable(VULNERABILITY, pid)
             else:
-                print(constants.FULL_PROCESS_NOT_VULNERABLE_MESSAGE.format(pid, VULNERABILITY))
+                state[pid] = status.process_not_vulnerable(VULNERABILITY, pid)
         else:
-            print(constants.FULL_PROCESS_NOT_DETERMINED_MESSAGE.format(VULNERABILITY, pid))
+            state[pid] = status.process_not_determined(VULNERABILITY, pid)
+    return state
 
 
 def validate(debug, container_name):
     """This function validates if an instance is vulnerable to Log4Shell."""
-    if commons.check_distribution_with_alpine_support(debug, container_name):
-        pids = get_pids.pids_consolidation('java', debug, container_name)
-        if pids:
-            validate_processes(pids, debug, container_name)
-        else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+    state = {}
+    pids = get_pids.pids_consolidation('java', debug, container_name)
+    if pids:
+        state[VULNERABILITY] = validate_processes(pids, debug, container_name)
+    else:
+        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+    return state
 
 
 def validation_flow_chart():
@@ -119,6 +122,7 @@ def main(description, graph, debug, container_name):
     """This is the main function."""
     if description:
         print(f'\n{DESCRIPTION}')
-    validate(debug, container_name)
+    state = validate(debug, container_name)
     if graph:
         validation_flow_chart()
+    return state

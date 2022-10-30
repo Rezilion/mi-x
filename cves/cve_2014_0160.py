@@ -3,7 +3,7 @@ Support for graphviz, version from packaging and other modules which written for
 """
 import graphviz
 from packaging import version
-from modules import commons, constants, os_release, receive_package
+from modules import status, commons, constants, os_release, receive_package
 
 VULNERABILITY = 'CVE-2014-0160'
 DESCRIPTION = f'''Heartbleed
@@ -57,29 +57,31 @@ def check_openssl_version(openssl_version):
 
 
 def get_openssl_version(debug, container_name):
+    """This function returns the openssl version if exists."""
     information_fields = ['Distribution']
     distribution = os_release.get_field(information_fields, debug, container_name)
     package_name = 'openssl'
     if distribution in constants.APT_DISTRIBUTIONS:
         return receive_package.package_version_apt(distribution, package_name, debug, container_name)
-    elif distribution in constants.RPM_DISTRIBUTIONS:
+    if distribution in constants.RPM_DISTRIBUTIONS:
         return receive_package.package_version_rpm(distribution, package_name, debug, container_name)
     return ''
 
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to Heartbleed vulnerabilities."""
-    if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
-        openssl_version = get_openssl_version(debug, container_name)
-        if openssl_version == constants.UNSUPPORTED:
-            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
-        elif openssl_version:
-            if check_openssl_version(openssl_version):
-                print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
-            else:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+    state = {}
+    openssl_version = get_openssl_version(debug, container_name)
+    if openssl_version == constants.UNSUPPORTED:
+        state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+    elif openssl_version:
+        if check_openssl_version(openssl_version):
+            state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
         else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+    else:
+        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+    return state
 
 
 def validation_flow_chart():
@@ -99,6 +101,8 @@ def main(description, graph, debug, container_name):
     """This is the main function."""
     if description:
         print(f'\n{DESCRIPTION}')
-    validate(debug, container_name)
+    state = validate(debug, container_name)
     if graph:
         validation_flow_chart()
+    return state
+        

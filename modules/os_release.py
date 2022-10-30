@@ -6,8 +6,6 @@ from modules import commons, constants
 NAME_FIELD = 'NAME='
 VERSION_FIELD = 'VERSION_ID='
 PRETTY_NAME_FIELD = 'PRETTY_NAME='
-BASIC_COLOR = '\033[00m'
-EXPLANATION = '\033[90m'
 
 
 def get_field(information_fields, debug, container_name):

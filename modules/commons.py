@@ -9,37 +9,6 @@ VM_CLASS_HIERARCHY = 'VM.class_hierarchy'
 GC_CLASS_HISTOGRAM = 'GC.class_histogram'
 HELP = 'help'
 JDK_MINIMUM_VERSION = '10.0.0'
-ALPINE = 'alpine'
-
-
-def check_linux_and_affected_distribution(cve, debug, container_name):
-    """This function checks if the machine is running on linux and if the os distribution is supported."""
-    if os_type.is_linux(debug, container_name):
-        supported_distribution = os_type.is_supported_distribution(debug, container_name)
-        if supported_distribution == constants.UNSUPPORTED or not supported_distribution:
-            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(cve))
-            return False
-        return True
-    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(cve))
-    return False
-
-
-def check_distribution_with_alpine_support(debug, container_name):
-    """This function checks if the machine is running on linux and if the os distribution is supported include alpine
-    which has partial support."""
-    if os_type.is_linux(debug, container_name):
-        distribution = os_release.get_field(['Distribution'], debug, container_name)
-        if distribution.lower() != ALPINE:
-            if not os_type.is_supported_distribution(debug, container_name):
-                return False
-            return True
-        print(constants.FULL_QUESTION_MESSAGE.format('Is the os distributions one of Ubuntu, Debian, Red, Centos, '
-                                                     'Fedora, SUSE, SLES, Amazon, Alpine supported distributions?'))
-        print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format('The os distribution you are running on is Alpine which is one'
-                                                        ' of the supported distributions'))
-        return True
-    return False
 
 
 def graph_start(cve, vol_graph):

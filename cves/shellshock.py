@@ -4,7 +4,7 @@ Support for subprocess, semver, graphviz and other modules which written for avo
 import subprocess
 import graphviz
 from packaging import version
-from modules import run_command, commons, constants
+from modules import status, run_command, commons, constants
 
 VULNERABILITY = 'Shellshock'
 DESCRIPTION = f'''your system will be scanned for all ShellShock related CVEs.
@@ -99,10 +99,11 @@ def cve_2014_7187(container_name):
         print(constants.FULL_QUESTION_MESSAGE.format('Is vulnerable to CVE-2014-7187?'))
         if 'CVE-2014-7187 vulnerable, word_lineno' in exploit_out:
             print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-            print(constants.FULL_VULNERABLE_MESSAGE.format('CVE-2014-7187'))
+            state = status.vulnerable('CVE-2014-7187')
         else:
             print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format('CVE-2014-7187'))
+            state = status.not_vulnerable('CVE-2014-7187')
+    return state
 
 
 def cve_2014_7186(container_name):
@@ -117,10 +118,11 @@ def cve_2014_7186(container_name):
         print(constants.FULL_QUESTION_MESSAGE.format('Is vulnerable to CVE-2014-7186?'))
         if 'echo' in exploit_out:
             print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-            print(constants.FULL_VULNERABLE_MESSAGE.format('CVE-2014-7186'))
+            state = status.vulnerable('CVE-2014-7186')
         else:
             print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format('CVE-2014-7186'))
+            state = status.not_vulnerable('CVE-2014-7186')
+    return state
 
 
 def cve_2014_7169(container_name):
@@ -134,10 +136,11 @@ def cve_2014_7169(container_name):
         print(constants.FULL_QUESTION_MESSAGE.format('Is vulnerable to CVE-2014-7169?'))
         if not exploit_error or 'No such file or directory' in exploit_error:
             print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format('CVE-2014-7169'))
+            state = status.not_vulnerable('CVE-2014-7169')
         else:
             print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-            print(constants.FULL_VULNERABLE_MESSAGE.format('CVE-2014-7169'))
+            state = status.vulnerable('CVE-2014-7169')
+    return state
 
 
 def cve_2014_6277_and_cve_2014_6278(container_name):
@@ -151,10 +154,11 @@ def cve_2014_6277_and_cve_2014_6278(container_name):
         print(constants.FULL_QUESTION_MESSAGE.format('Is vulnerable to CVE-2014-6277 or CVE-2014-6278?'))
         if 'vulnerable' in exploit_out:
             print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-            print(constants.FULL_VULNERABLE_MESSAGE.format('CVE-2014-6277 or CVE-2014-6278'))
+            state = status.vulnerable('CVE-2014-6277 or CVE-2014-6278')
         else:
             print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format('CVE-2014-6277 or CVE-2014-6278'))
+            state = status.not_vulnerable('CVE-2014-6277 or CVE-2014-6278')
+    return state
 
 
 def cve_2014_6271(container_name):
@@ -167,10 +171,11 @@ def cve_2014_6271(container_name):
     print(constants.FULL_QUESTION_MESSAGE.format('Is vulnerable to CVE-2014-6271?'))
     if 'vulnerable' in exploit_out:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-        print(constants.FULL_VULNERABLE_MESSAGE.format('CVE-2014-6271'))
+        state = status.vulnerable('CVE-2014-6271')
     else:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format('CVE-2014-6271'))
+        state = status.not_vulnerable('CVE-2014-6271')
+    return state
 
 
 def is_bash_affected(bash_version):
@@ -208,20 +213,21 @@ def bash_installed(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to shellshock vulnerabilities."""
-    if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
-        bash_version = bash_installed(debug, container_name)
+    state = {}
+    bash_version = bash_installed(debug, container_name)
+    if bash_version:
+        is_bash_affected(bash_version)
         if bash_version:
-            is_bash_affected(bash_version)
-            if bash_version:
-                cve_2014_6271(container_name)
-                cve_2014_6277_and_cve_2014_6278(container_name)
-                cve_2014_7169(container_name)
-                cve_2014_7186(container_name)
-                cve_2014_7187(container_name)
-            else:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+            state['CVE-2014-6271'] = cve_2014_6271(container_name)
+            state['CVE-2014-6277 or CVE-2014-6278'] = cve_2014_6277_and_cve_2014_6278(container_name)
+            state['CVE-2014-7169'] = cve_2014_7169(container_name)
+            state['CVE-2014-7186'] = cve_2014_7186(container_name)
+            state['CVE-2014-7187'] = cve_2014_7187(container_name)
         else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+            state[VULNERABILITY] =  status.not_vulnerable(VULNERABILITY)
+    else:
+        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+    return state
 
 
 def validation_flow_chart():
@@ -278,6 +284,7 @@ def main(description, graph, debug, container_name):
     """This is the main function."""
     if description:
         print(f'\n{DESCRIPTION}')
-    validate(debug, container_name)
+    state = validate(debug, container_name)
     if graph:
         validation_flow_chart()
+    return state

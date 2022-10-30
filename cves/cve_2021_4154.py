@@ -2,7 +2,7 @@
 Support for graphviz, version from packaging and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import commons, constants, os_release, kernel_version, run_command
+from modules import status, commons, constants, os_release, kernel_version, run_command
 
 VULNERABILITY = 'CVE-2021-4154'
 DESCRIPTION = '''Dirty Cred
@@ -92,24 +92,25 @@ def check_distribution_functional(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to Dirty Cred vulnerability."""
+    state = {}
     if not container_name:
-        if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
-            fixed_distribution = check_distribution_functional(debug, container_name)
-            if fixed_distribution == constants.UNSUPPORTED:
-                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
-            elif not fixed_distribution:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+        fixed_distribution = check_distribution_functional(debug, container_name)
+        if fixed_distribution == constants.UNSUPPORTED:
+            state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+        elif not fixed_distribution:
+            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+        else:
+            patch = find_patch(debug, container_name)
+            if patch == constants.UNSUPPORTED:
+                state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+            elif patch:
+                state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
             else:
-                patch = find_patch(debug, container_name)
-                if patch == constants.UNSUPPORTED:
-                    print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
-                elif patch:
-                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
-                else:
-                    print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
+                state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
     else:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Containers are not affected by kernel vulnerabilities'))
-        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+    return state
 
 
 def validation_flow_chart():
@@ -129,6 +130,7 @@ def main(description, graph, debug, container_name):
     """This is the main function."""
     if description:
         print(f'\n{DESCRIPTION}')
-    validate(debug, container_name)
+    state = validate(debug, container_name)
     if graph:
         validation_flow_chart()
+    return state

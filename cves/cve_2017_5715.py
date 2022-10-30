@@ -2,7 +2,7 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import commons, constants, os_release
+from modules import status, commons, constants, os_release
 
 
 VULNERABILITY = 'CVE-2017-5715'
@@ -75,25 +75,27 @@ def check_mitigations_components(mitigation, debug, container_name):
 
 def validate_mitigations(debug, container_name):
     """This function validates whether the mitigations enabled or not."""
+    state = {}
     ibrs = check_mitigations_components('ibrs', debug, container_name)
     if ibrs == constants.UNSUPPORTED:
-        print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
+        state[VULNERABILITY] = status.not_determined(VULNERABILITY)
     elif ibrs:
         ibpb = check_mitigations_components('ibpb', debug, container_name)
         if ibpb == constants.UNSUPPORTED:
-            print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
+            state[VULNERABILITY] = status.not_determined(VULNERABILITY)
         elif ibpb:
             spectre_v2_mitigation = check_cmdline_disabled('spectre_v2', debug, container_name)
             if spectre_v2_mitigation == constants.UNSUPPORTED:
-                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
+                state[VULNERABILITY] = status.not_determined(VULNERABILITY)
             elif spectre_v2_mitigation:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+                state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
             else:
-                print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
+                state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
         else:
-            print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
+            state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
     else:
-        print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
+        state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
+    return state
 
 
 def spectre_file(debug, container_name):
@@ -176,18 +178,18 @@ def check_edge_case(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to Spectre Variant 2."""
-    if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
-        edge_case = check_edge_case(debug, container_name)
-        if edge_case == constants.UNSUPPORTED or edge_case:
-            spectre = spectre_file(debug, container_name)
-            if spectre == constants.UNSUPPORTED:
-                validate_mitigations(debug, container_name)
-            elif spectre:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
-            else:
-                print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
+    edge_case = check_edge_case(debug, container_name)
+    if edge_case == constants.UNSUPPORTED or edge_case:
+        spectre = spectre_file(debug, container_name)
+        if spectre == constants.UNSUPPORTED:
+            state = validate_mitigations(debug, container_name)
+        elif spectre:
+            state = status.not_vulnerable(VULNERABILITY)
         else:
-            print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
+            state = status.vulnerable(VULNERABILITY)
+    else:
+        state = status.vulnerable(VULNERABILITY)
+    return state
 
 
 def validation_flow_chart():
@@ -214,6 +216,7 @@ def main(description, graph, debug, container_name):
     """This is the main function."""
     if description:
         print(f'\n{DESCRIPTION}')
-    validate(debug, container_name)
+    state = validate(debug, container_name)
     if graph:
         validation_flow_chart()
+    return state

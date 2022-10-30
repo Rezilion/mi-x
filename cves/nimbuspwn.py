@@ -3,7 +3,7 @@ Support for graphviz, version from packaging and other modules which written for
 """
 import graphviz
 from packaging import version
-from modules import commons, os_release, constants, receive_package
+from modules import status, commons, os_release, constants, receive_package
 
 VULNERABILITY = 'NIMBUSPWN'
 DESCRIPTION = f'''{VULNERABILITY} - CVE-2022-29799, CVE-2022-29800
@@ -98,15 +98,16 @@ def distribution_version_affected(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if an instance is vulnerable to NIMBUSPWN."""
-    if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
-        host_information = distribution_version_affected(debug, container_name)
-        if host_information:
-            if check_networkd_version(host_information, debug, container_name):
-                print(constants.FULL_VULNERABLE_MESSAGE.format(VULNERABILITY))
-            else:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+    state = {}
+    host_information = distribution_version_affected(debug, container_name)
+    if host_information:
+        if check_networkd_version(host_information, debug, container_name):
+            state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
         else:
-            print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+    else:
+        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+    return state
 
 
 def validation_flow_chart():
@@ -127,6 +128,7 @@ def main(description, graph, debug, container_name):
     """This is the main function."""
     if description:
         print(f'\n{DESCRIPTION}')
-    validate(debug, container_name)
+    state = validate(debug, container_name)
     if graph:
         validation_flow_chart()
+    return state

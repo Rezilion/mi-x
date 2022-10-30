@@ -2,7 +2,7 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import kernel_version, commons, constants
+from modules import status, kernel_version, commons, constants
 
 VULNERABILITY = 'CVE-2017-1000405'
 DESCRIPTION = f'''{VULNERABILITY} - Huge Dirty COW
@@ -79,31 +79,32 @@ def zero_page(debug, container_name):
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2017-1000405."""
+    state = {}
     if not container_name:
-        if commons.check_linux_and_affected_distribution(VULNERABILITY, debug, container_name):
-            kernel_version_output = kernel_version.check_kernel(MIN_KERNEL_VERSION, MAX_KERNEL_VERSION, debug)
-            if kernel_version_output == constants.UNSUPPORTED:
-                print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
-            elif kernel_version_output:
-                affected = zero_page(debug, container_name)
-                if affected == constants.UNSUPPORTED:
-                    print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
-                elif affected:
-                    print(constants.FULL_VULNERABLE_MESSAGE.format(f'{VULNERABILITY} zero pages manipulation'))
-                else:
-                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(f'zero pages manipulation in {VULNERABILITY}'))
-                affected = huge_page(debug, container_name)
-                if affected == constants.UNSUPPORTED:
-                    print(constants.FULL_NOT_DETERMINED_MESSAGE.format(VULNERABILITY))
-                elif affected:
-                    print(constants.FULL_VULNERABLE_MESSAGE.format(f'{VULNERABILITY} huge pages manipulation'))
-                else:
-                    print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(f'huge pages manipulation in {VULNERABILITY}'))
+        kernel_version_output = kernel_version.check_kernel(MIN_KERNEL_VERSION, MAX_KERNEL_VERSION, debug)
+        if kernel_version_output == constants.UNSUPPORTED:
+            state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+        elif kernel_version_output:
+            affected = zero_page(debug, container_name)
+            if affected == constants.UNSUPPORTED:
+                state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+            elif affected:
+                state[f'{VULNERABILITY} - zero pages'] = status.vulnerable(f'{VULNERABILITY} zero pages manipulation')
             else:
-                print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+                state[f'{VULNERABILITY} - zero pages'] = status.not_vulnerable(f'zero pages manipulation in {VULNERABILITY}')
+            affected = huge_page(debug, container_name)
+            if affected == constants.UNSUPPORTED:
+                state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+            elif affected:
+                state[f'{VULNERABILITY} - huge pages'] = status.vulnerable(f'{VULNERABILITY} huge pages manipulation')
+            else:
+                state[f'{VULNERABILITY} - huge pages'] = status.not_vulnerable(f'huge pages manipulation in {VULNERABILITY}')
+        else:
+            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
     else:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Containers are not affected by kernel vulnerabilities'))
-        print(constants.FULL_NOT_VULNERABLE_MESSAGE.format(VULNERABILITY))
+        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+    return state
 
 
 def validation_flow_chart():
@@ -127,6 +128,7 @@ def main(description, graph, debug, container_name):
     """This is the main function."""
     if description:
         print(f'\n{DESCRIPTION}')
-    validate(debug, container_name)
+    state = validate(debug, container_name)
     if graph:
         validation_flow_chart()
+    return state

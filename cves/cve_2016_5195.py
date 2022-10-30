@@ -51,6 +51,9 @@ FIXED = {'Ubuntu 12.04': '3.2.0-113.155', 'Ubuntu 14.04': '3.13.0-100.147', 'Ubu
          'Red 7': '3.10.0-327.36.3', 'SLES 11-SP4': '3.0.101-84.1', 'SLES 12': '3.12.60-52.57.1',
          'SLES 12-SP1': '3.12.62-60.64.8.2', 'Alpine 3.4.5': '4.4.27'}
 MIN_KERNEL_VERSION = '0.0.0'
+REMEDIATION_1 = f'Upgrade kernel version to one of these:\n{FIXED}'
+REMEDIATION_2 = f'Install one of the following kpatch:\n{KPATCH_MODULE_NAMES}'
+MITIGATION = ''
 
 
 def check_kpatch(debug, container_name):
@@ -87,12 +90,14 @@ def validate_red_hat(fixed_release, debug, container_name):
         kpatch = check_kpatch(debug, container_name)
         if kpatch == constants.UNSUPPORTED:
             state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+            status.remediation_mitigation(REMEDIATION_1, MITIGATION)
         elif kpatch:
             print(constants.FULL_EXPLANATION_MESSAGE.format('Your kernel release has kpatch'))
             state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
         else:
             print(constants.FULL_EXPLANATION_MESSAGE.format('You do not have relevant kpatch'))
             state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
+            status.remediation_mitigation(REMEDIATION_2, MITIGATION)
     else:
         print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('No'))
         state[VULNERABILITY] = status.vulnerable(VULNERABILITY)

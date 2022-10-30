@@ -25,6 +25,8 @@ https://blog.malwarebytes.com/exploits-and-vulnerabilities/2022/03/linux-dirty-p
 FIRST_AFFECTED_VERSION = '5.8.0'
 PATCHED_VERSIONS = ['5.10.102', '5.15.25', '5.16.11']
 FIXED_VERSION = '5.17.0-rc6'
+REMEDIATION = 'Upgrade kernel versions to 5.10.102, 5.15.25, 5.16.11, 5.17.0-rc6 or higher.'
+MITIGATION = ''
 
 
 def check_kernel_version(debug):
@@ -57,6 +59,7 @@ def validate(debug, container_name):
             state[VULNERABILITY] = status.not_determined(VULNERABILITY)
         elif affected:
             state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
+            status.remediation_mitigation(REMEDIATION, MITIGATION)
         else:
             state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
     else:

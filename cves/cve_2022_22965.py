@@ -25,6 +25,11 @@ MIN_AFFECTED_JAVA_VERSION = '9'
 CLASSES = {'org.springframework.web.servlet.mvc.method.annotation.ServletModelAttributeMethodProcessor': 'webmvc',
            'org.springframework.web.reactive.result.method.annotation.ModelAttributeMethodArgumentResolver': 'webflux'}
 VM_VERSION = '"VM.version"'
+REMEDIATION = 'Upgrade to the following patch releases:\n- Spring 5.3.x users upgrade to 5.3.18 or higher\n- Spring ' \
+              '5.2.x users upgrade to 5.2.20 or higher\n- Spring Boot 2.6.x users upgrade to 2.6.6 or higher\n- Spring' \
+              ' Boot 2.5.x users upgrade to 2.5.12 or higher\n- Tomcat 10.0.x users upgrade to 10.0.20 or higher\n- ' \
+              'Tomcat 9.0.x users upgrade to 9.0.62 or higher\n- Tomcat 8.5.x users upgrade to 8.5.78 or higher'
+MITIGATION = ''
 
 
 def check_java_version(pid, jcmd_command, debug):
@@ -78,6 +83,7 @@ def validate_processes(pids, debug, container_name):
                 print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} process use the {webmvc_webflux} '
                                                                 f'dependency'))
                 state[pid] = status.process_vulnerable(VULNERABILITY, pid)
+                status.remediation_mitigation(REMEDIATION, MITIGATION)
             else:
                 state[pid] = status.process_not_vulnerable(VULNERABILITY, pid)
         else:

@@ -45,6 +45,12 @@ https://blogs.juniper.net/en-us/threat-research/apache-http-server-cve-2021-4201
 NAME_FIELD = 'NAME='
 FIRST_AFFECTED_VERSION = '2.4.49'
 SECOND_AFFECTED_VERSION = '2.4.50'
+REMEDIATION = 'Upgrade Apache version to 2.4.50 or higher.'
+MITIGATION_1 = f'Change the filesystem permissions in the configuration file from "Require all granted" to "Require ' \
+               'all denied"'
+MITIGATION_2 = f'{MITIGATION_1}\nor\nDisable the cgi_module\nOn RedHat, Fedora, CentOs and other rpm based:\n' \
+               'mv /etc/httpd/conf.modules.d/XX-cgi.conf /etc/httpd/conf.modules.d/XX-cgi.conf.disable\nOn Debian, ' \
+               'Ubuntu and other Debian derivatives:\na2dismod cgi'
 
 
 def filesystem_directory_configuration(configuration_content):
@@ -125,9 +131,11 @@ def validate(debug, container_name):
             elif permissions:
                 modules = apache_functions.loaded_modules('cgi_module', debug, container_name)
                 if modules == constants.UNSUPPORTED or not modules:
-                    state[VULNERABILITY] = status.not_vulnerable(f'{VULNERABILITY} - Path Traversal attack')
+                    state[VULNERABILITY] = status.vulnerable(f'{VULNERABILITY} - Path Traversal attack')
+                    status.remediation_mitigation(REMEDIATION, MITIGATION_1)
                 else:
-                    state[VULNERABILITY] = status.not_vulnerable(f'{VULNERABILITY} - Path Traversal and Remote Code Execution attacks')
+                    state[VULNERABILITY] = status.vulnerable(f'{VULNERABILITY} - Path Traversal and Remote Code Execution attacks')
+                    status.remediation_mitigation(REMEDIATION, MITIGATION_2)
             else:
                 state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
         else:

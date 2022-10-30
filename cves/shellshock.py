@@ -85,6 +85,8 @@ https://tidbits.com/2014/09/30/how-to-test-bash-for-shellshock-vulnerabilities/
 '''
 MIN_BASH_AFFECTED_VERSION = '1.0.3'
 MAX_BASH_AFFECTED_VERSION = '4.3.0'
+REMEDIATION = 'Upgrade bash version to 4.3.1 or higher'
+MITIGATION = 'Sanitize user input and remove unneeded characters'
 
 
 def cve_2014_7187(container_name):
@@ -223,6 +225,7 @@ def validate(debug, container_name):
             state['CVE-2014-7169'] = cve_2014_7169(container_name)
             state['CVE-2014-7186'] = cve_2014_7186(container_name)
             state['CVE-2014-7187'] = cve_2014_7187(container_name)
+            status.remediation_mitigation(REMEDIATION, MITIGATION)
         else:
             state[VULNERABILITY] =  status.not_vulnerable(VULNERABILITY)
     else:

@@ -19,6 +19,8 @@ https://www.randori.com/blog/cve-2021-3177-vulnerability-analysis/
 https://cybersophia.net/news/python-vulnerability-cve-2021-3177/
 '''
 PATCHED_VERSIONS = ['3.6.13', '3.7.10', '3.8.8', '3.9.2']
+REMEDIATION = 'Upgrade the Python version to one of the following 3.6.13, 3.7.10, 3.8.8, 3.9.2 or higher.'
+MITIGATION = ''
 
 
 def check_ctypes_loaded(pid, ctypes_file_name, debug):
@@ -116,6 +118,7 @@ def validate_processes(pids, debug, container_name):
                 elif ctypes_file_name:
                     if check_ctypes_loaded(pid, ctypes_file_name, debug):
                         state[pid] = status.process_vulnerable(VULNERABILITY, pid)
+                        status.remediation_mitigation(REMEDIATION, MITIGATION)
                     else:
                         state[pid] = status.process_not_vulnerable(VULNERABILITY, pid)
                 else:

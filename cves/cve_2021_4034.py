@@ -41,7 +41,7 @@ FIXED_RPM = {'Fedora 34': ['0.117', '3.fc34.2'], 'Fedora 35': ['0.120', '1.fc35.
              'Red 8.4': ['0.115', '11.el8'], 'Amazon 2': ['0.112', '26.amzn2.1']}
 MIN_KERNEL_VERSION = '0'
 REMEDIATION = f'Upgrade kernel version to:\n{FIXED_APT}\n{FIXED_RPM}'
-MITIGATION = 'Do one of the following:\n- Remove suid bit in pkexec file\n- Remove execute permissions to everyone in ' \
+MITIGATION = 'Do one of the following:\n- Remove suid bit in pkexec file\n- Remove execute permissions for everyone in ' \
              'pkexec file\n- Change file user from root to another user\n'
 
 

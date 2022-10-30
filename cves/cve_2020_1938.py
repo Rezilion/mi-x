@@ -28,8 +28,13 @@ TOMCAT_ENVIRONMENT = 'TOMCAT_VERSION='
 CATALINA_ENVIRONMENT = 'CATALINA_HOME='
 PATCHED_VERSIONS = ['7.0.99', '8.5.50', '9.0.30']
 AJP_DEFAULT_LINE = 'protocol="AJP'
-MITIGATION = '<!--Connector port'
+MITIGATION_VALUE = '<!--Connector port'
 REQUIRED_SECRET_MITIGATION = 'requiredSecret='
+REMEDIATION = 'Upgrade Apache Tomcat version to one of the following 7.0.100, 8.5.51, 9.0.31 or higher.'
+MITIGATION = 'Choose one of these:\n- If not using the AJP connector, comment it out from the /conf/server.xml file:' \
+             'Add the following string at the beginning of the line: <!--\n- If you use the AJP Connector on your site,' \
+             ' ensure the AJP Connector contains the requiredSecret attribute, and make sure that the password is ' \
+             'strong and unique.'
 
 
 def check_mitigation(printenv, debug, container_name):
@@ -53,12 +58,12 @@ def check_mitigation(printenv, debug, container_name):
     for line in content:
         if AJP_DEFAULT_LINE in line:
             ajp_line_exists = 1
-            if MITIGATION in line:
+            if MITIGATION_VALUE in line:
                 print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
                 print(constants.FULL_EXPLANATION_MESSAGE.format('The default line enabling AJP in the server.xml is '
                                                                 'disabled'))
                 return True
-            elif MITIGATION not in line and REQUIRED_SECRET_MITIGATION in line:
+            elif MITIGATION_VALUE not in line and REQUIRED_SECRET_MITIGATION in line:
                 print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
                 print(constants.FULL_EXPLANATION_MESSAGE.format('The default line enabling AJP in the server.xml set '
                                                                 'the required secret parameter enabled\nWe can not '
@@ -116,10 +121,12 @@ def validate(debug, container_name):
             mitigation = check_mitigation(printenv, debug, container_name)
             if mitigation == constants.UNSUPPORTED:
                 state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+                status.remediation_mitigation(REMEDIATION, MITIGATION)
             elif mitigation:
                 state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
             else:
                 state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
+                status.remediation_mitigation(REMEDIATION, MITIGATION)
         else:
             state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
     else:

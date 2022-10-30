@@ -27,6 +27,8 @@ AFFECTED_VERSION_START = '1.0.1'
 AFFECTED_VERSION_RANGE = ['a', 'f']
 AFFECTED_VERSIONS = ['1.0.2', '1.0.2beta1']
 MAX_AFFECTED_VERSION = '2.17'
+REMEDIATION = 'Upgrade openssl version to 1.0.1g, 1.0.2-beta2 or higher.'
+MITIGATION = ''
 
 
 def check_openssl_version(openssl_version):
@@ -77,6 +79,7 @@ def validate(debug, container_name):
     elif openssl_version:
         if check_openssl_version(openssl_version):
             state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
+            status.remediation_mitigation(REMEDIATION, MITIGATION)
         else:
             state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
     else:

@@ -22,6 +22,8 @@ https://www.indusface.com/blog/need-know-ghost-vulnerability/
 '''
 MIN_AFFECTED_VERSION = '2.2'
 MAX_AFFECTED_VERSION = '2.17'
+REMEDIATION = 'Upgrade the glibc version to 2.18 or higher.'
+MITIGATION = ''
 
 
 def glibc_version(glibc_value):
@@ -67,6 +69,7 @@ def validate(debug, container_name):
     elif glibc_value:
         if glibc_version(glibc_value):
             state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
+            status.remediation_mitigation(REMEDIATION, MITIGATION)
         else:
             state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
     else:

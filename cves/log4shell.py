@@ -66,6 +66,8 @@ CLASS_CVE = {'org.apache.logging.log4j.core.lookup.JndiLookup': 'CVE-2021-44228 
              'org.apache.logging.log4j.core.lookup.ContextMapLookup': 'CVE-2021-45105',
              'org.apache.logging.log4j.core.appender.db.jdbc.JdbcAppender': 'CVE-2021-44832'}
 JDK_MINIMUM_VERSION = '10.0.0'
+REMEDIATION = 'Upgrade Apache log4j to 2.17.0'
+MITIGATION = 'Remove the affected classes: JndiLookup, JMSAppender, ContextMapLookup, JdbcAppender'
 
 
 def validate_processes(pids, debug, container_name):
@@ -87,6 +89,7 @@ def validate_processes(pids, debug, container_name):
                 state[pid] = status.process_not_determined(VULNERABILITY, pid)
             elif cves:
                 state[pid] = status.process_vulnerable(VULNERABILITY, pid)
+                status.remediation_mitigation(REMEDIATION, MITIGATION)
             else:
                 state[pid] = status.process_not_vulnerable(VULNERABILITY, pid)
         else:

@@ -24,6 +24,8 @@
 ‘Am I Exploitable?’ is a python open source project that comes to meet the need of validating if your system is exploitable to specific vulnerabilities.
 The project can help you understand whether you are exploitable to a specific vulnerability and explain to you what is the vulnerable component or invulnerable component in your system.
 The project can create a graph that presents the validation flow according to the vulnerability checks we perform.
+MI-X supports machine readable output. The results can be exported to three different file formats: json, csv and text.
+After executing the tool, you will see the validation flow - it will print out which checks were performed on the host/container followed by remediation and mitigation recommendations.
 We want to create a community of researchers and programmers that can add vulnerability checks for new vulnerabilities or critical or famous vulnerabilities. Whenever a new vulnerability comes up, we can offer this service that helps people validate if they are exploitable or not.
 In addition, the vulnerabilities checks we wrote so far, can be expanded with some checks we might have missed.
 
@@ -32,7 +34,9 @@ In addition, the vulnerabilities checks we wrote so far, can be expanded with so
 * Validate if exploitable to category of cves
 * Get the vulnerability description
 * Validate the host containers
-* Present the validation flow logic as a graph. 
+* Present the validation flow logic as a graph.
+* Export the results to one of the three output formats: json, csv, text.
+* Get remediation and mitigation recommendations.
 
 An example flow graph for CVE-2021-4034 (aka PwnKit):
 
@@ -116,14 +120,14 @@ The very latest developments can be obtained via git.
 
 Scanning command template
 ```
-python3 am_i_exploitable.py --vulnerability_identifier cve_yyyy_xxxx --container True --graph True
+python3 am_i_exploitable.py -v cve_yyyy_xxxx -c True -g True -f json
 
 ```
 
 # Execute Scanning Example
 Scan the machine running containers for log4shell.
 ```
-python3 am_i_exploitable.py --vulnerability_identifier log4shell --container True
+python3 am_i_exploitable.py -v log4shell -c True -f json
 
 ```
 ![Executing](https://user-images.githubusercontent.com/15197376/187567107-7cd130d8-33b7-4125-894a-e2ee3171d1c2.gif)
@@ -131,7 +135,7 @@ python3 am_i_exploitable.py --vulnerability_identifier log4shell --container Tru
 
 # Arguments
 
-## --vulnerability_identifier
+## -v --vulnerability_identifier
 
 Specifies the vulnerability that will be checked (Not set by default). 
 
@@ -142,25 +146,30 @@ Syntax:
 
 If the argument is not set, a menu message will appear presenting the currently supported vulnerabilities.
 
-## --container
+## -c --container
 
 Scans all running containers on the host (False by default).
 - When running in containers mode, the user will need to insert the user’s password for sudo use.
 
-## --container_name
+## -n --container_name
 
 Scans specific containers on the host by inserting running containers names seperated by commas only (Not set by default).
 - When running in containers mode, the user will need to insert the user’s password for sudo use.
+
+## -f --format'
+
+Exports the results to one of three possible output formats: json, csv, text
+- The user will need to specify which format type the results will be exported to.
 
 ## --description
 
 Specifies whether to see the vulnerability description or not (True by default).
 
-## --graph
+## -g --graph
 
 Specifies whether to see the validation flowchart (False by default).
 
-## --help
+## -h --help
 
 Help to understand how to run the code
 

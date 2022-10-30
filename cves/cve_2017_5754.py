@@ -19,6 +19,8 @@ https://meltdownattack.com/
 https://www.techrepublic.com/article/spectre-and-meltdown-explained-a-comprehensive-guide-for-professionals/
 https://events19.linuxfoundation.org/wp-content/uploads/2017/11/Spectre-Meltdown-Linux-Greg-Kroah-Hartman-The-Linux-Foundation.pdf
 '''
+REMEDIATION = ''
+MITIGATION = ''
 
 
 def meltdown_file(debug, container_name):

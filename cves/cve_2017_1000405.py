@@ -26,6 +26,11 @@ https://threatpost.com/flaw-found-in-dirty-cow-patch/129064/
 '''
 MAX_KERNEL_VERSION = '4.15.0'
 MIN_KERNEL_VERSION = '2.6.37'
+REMEDIATION = f'Upgrade kernel version to {MAX_KERNEL_VERSION} or higher.'
+MITIGATION_1 = 'Disable zero page.\nUse the following command to prevent the flaw from being exercised in this method:\n' \
+               'echo 0 > /sys/kernel/mm/transparent_hugepage/use_zero_page'
+MITIGATION_2 = 'Disable huge pages\nUse the following command to prevent the flaw from being exercised in this method:\n' \
+               '[always] madvise never > /sys/kernel/mm/transparent_hugepage/enabled'
 
 
 def huge_page(debug, container_name):
@@ -90,6 +95,7 @@ def validate(debug, container_name):
                 state[VULNERABILITY] = status.not_determined(VULNERABILITY)
             elif affected:
                 state[f'{VULNERABILITY} - zero pages'] = status.vulnerable(f'{VULNERABILITY} zero pages manipulation')
+                status.remediation_mitigation(REMEDIATION, MITIGATION_1)
             else:
                 state[f'{VULNERABILITY} - zero pages'] = status.not_vulnerable(f'zero pages manipulation in {VULNERABILITY}')
             affected = huge_page(debug, container_name)
@@ -97,6 +103,7 @@ def validate(debug, container_name):
                 state[VULNERABILITY] = status.not_determined(VULNERABILITY)
             elif affected:
                 state[f'{VULNERABILITY} - huge pages'] = status.vulnerable(f'{VULNERABILITY} huge pages manipulation')
+                status.remediation_mitigation(REMEDIATION, MITIGATION_2)
             else:
                 state[f'{VULNERABILITY} - huge pages'] = status.not_vulnerable(f'huge pages manipulation in {VULNERABILITY}')
         else:

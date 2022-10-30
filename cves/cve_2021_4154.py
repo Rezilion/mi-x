@@ -29,6 +29,10 @@ FIXED = {'Debian 10': '4.19.235-1', 'Debian 11': '5.10.127-1', 'Debian unstable'
          'Ubuntu 20.02': '5.4.0-88.99'}
 RED_HAT_FIXES = ['RHBA-2022:0238', 'RHSA-2022:0186', 'RHSA-2022:0187', 'RHSA-2022:0231', 'RHSA-2022:0819',
                  'RHSA-2022:0825', 'RHSA-2022:0841', 'RHSA-2022:0849']
+REMEDIATION = f'Choose one of these:\n- Upgrade kernel versions to:\n{FIXED}- If running on RedHat, update to one of the ' \
+              f'following patches:\n{RED_HAT_FIXES}\n- Patch the kernel using the following script:' \
+              f' https://github.com/Markakd/DirtyCred/tree/master/defense'
+MITIGATION = ''
 
 
 def find_patch(debug, container_name):
@@ -103,10 +107,12 @@ def validate(debug, container_name):
             patch = find_patch(debug, container_name)
             if patch == constants.UNSUPPORTED:
                 state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+                status.remediation_mitigation(REMEDIATION, MITIGATION)
             elif patch:
                 state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
             else:
                 state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
+                status.remediation_mitigation(REMEDIATION, MITIGATION)
     else:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Containers are not affected by kernel vulnerabilities'))
         state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)

@@ -25,6 +25,8 @@ https://i.blackhat.com/USA-22/Thursday/US-22-Lin-Cautious-A-New-Exploitation-Met
 MIN_KERNEL_VERSION = '0'
 FIXED = {'Debian 11': '5.10.136-1', 'Debian unstable': '5.18.16-1', 'Ubuntu 16.04': '4.4.0-231.265',
          'Ubuntu 18.04': '4.15.0-191.202', 'Ubuntu 20.02': '5.4.0-124.140', 'Ubuntu 22.04': '5.15.0-46.49'}
+REMEDIATION = f'Upgrade kernel versions to:\n{FIXED}'
+MITIGATION = ''
 
 
 def validate(debug, container_name):
@@ -34,14 +36,15 @@ def validate(debug, container_name):
         affected_kernel = os_release.check_release(FIXED, debug, container_name)
         if affected_kernel == constants.UNSUPPORTED:
             state[VULNERABILITY] = status.not_determind(VULNERABILITY)
-        elif not affected_kernel:
-            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
-        else:
+        elif affected_kernel:
             patched_kernel_version = FIXED[affected_kernel]
             if kernel_version.check_kernel(MIN_KERNEL_VERSION, patched_kernel_version, debug):
                 state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
+                status.remediation_mitigation(REMEDIATION, MITIGATION)
             else:
                 state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+        else:
+            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
     else:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Containers are not affected by kernel vulnerabilities'))
         state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)

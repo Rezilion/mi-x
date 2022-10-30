@@ -44,7 +44,7 @@ AFFECTED_DISTRIBUTIONS = ['Debian 10', 'Debian 11', 'Debian 12', 'Debian unstabl
                           'Ubuntu 21.10', 'Ubuntu 22.04']
 FIXED = {'Ubuntu 18.04': '1.7-0ubuntu3.5', 'Ubuntu 20.04': '2.1-2~ubuntu20.04.3',
          'Ubuntu 21.10': '2.1-2ubuntu0.21.10.2', 'Ubuntu 22.04': '2.1-2ubuntu0.22.04.2'}
-REMEDIATION = f'Upgrade ubuntu `networkd-dispatcher` version to:\n{FIXED}'
+REMEDIATION = f'Upgrade Ubuntu `networkd-dispatcher` version to:\n{FIXED}'
 MITIGATION = 'Remove the networkd-dispatcher by using one of the following commands:\nsudo apt-get remove ' \
              'networkd-dispatcher\nsudo systemctl stop systemd-networkd.service\nsudo systemctl disable ' \
              'systemd-networkd.service'

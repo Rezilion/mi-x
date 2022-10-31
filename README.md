@@ -72,7 +72,7 @@ Partial support for Alpine
 
 # Color Legend
 
-<img width="341" alt="colors" src="https://user-images.githubusercontent.com/104366208/165800276-f31d063b-f031-4569-8f61-72832c602031.png">
+<img width="577" alt="mi-x_legend" src="https://user-images.githubusercontent.com/15197376/198944304-e95e2577-a7da-4e5f-9458-aadf349aaed6.png">
 
 # Installation Requirements
 
@@ -130,7 +130,7 @@ Scan the machine running containers for log4shell.
 python3 am_i_exploitable.py -v log4shell -c True -f json
 
 ```
-![Executing](https://user-images.githubusercontent.com/15197376/187567107-7cd130d8-33b7-4125-894a-e2ee3171d1c2.gif)
+![Executing](https://user-images.githubusercontent.com/15197376/199007973-7d919895-37f1-4159-b51c-fe791ea09d5f.gif)
 
 
 # Arguments

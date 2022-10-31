@@ -119,3 +119,25 @@ def pids_consolidation(process_type, debug, container_name):
                 pids.append(other_pids)
         pids = list(set(pids))
     return pids
+
+
+def read_output(command, value, debug, container_name):
+    """This function returns command results and prints an error if something is wrong."""
+    pipe = run_command.command_output(command, debug, container_name)
+    output = pipe.stdout[:constants.END]
+    if not output:
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Error while reading the {pid} process executable {value}'))
+        return constants.UNSUPPORTED
+    return output
+    
+
+def process_executable_version(pid, debug, container_name):
+    """This function returns the process's executable version."""
+    executable_link_command = f'readlink -f /proc/{pid}/exe'
+    executable_link = read_output(executable_link_command, 'file', debug, container_name)
+    if not executable_link == constants.UNSUPPORTED:
+        executable_version_command = f'{executable_link} --version'
+        version = read_output(executable_version_command, 'version', debug, container_name)
+        if not version == constants.UNSUPPORTED:
+            return version
+    return constants.UNSUPPORTED

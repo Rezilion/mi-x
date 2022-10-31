@@ -3,7 +3,7 @@ Support for graphviz and other modules which written for avoiding repetitive cod
 """
 import graphviz
 from packaging import version
-from modules import status, run_command, get_pids, commons, constants
+from modules import status, run_command, process_functions, commons, constants
 
 VULNERABILITY = 'CVE-2022-22965'
 DESCRIPTION = f'''{VULNERABILITY} - Spring4Shell
@@ -94,7 +94,7 @@ def validate_processes(pids, debug, container_name):
 def validate(debug, container_name):
     """This function validates if an instance is vulnerable to Log4Shell."""
     state = {}
-    pids = get_pids.pids_consolidation('java', debug, container_name)
+    pids = process_functions.pids_consolidation('java', debug, container_name)
     if pids:
         state[VULNERABILITY] = validate_processes(pids, debug, container_name)
     else:

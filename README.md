@@ -130,7 +130,7 @@ Scan the machine running containers for log4shell.
 python3 am_i_exploitable.py -v log4shell -c True -f json
 
 ```
-![Executing](https://user-images.githubusercontent.com/15197376/199007973-7d919895-37f1-4159-b51c-fe791ea09d5f.gif)
+![Executing](https://user-images.githubusercontent.com/15197376/199072345-2fc668f7-2d9a-4907-b427-e385e6fe67da.gif)
 
 
 # Arguments

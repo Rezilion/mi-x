@@ -109,24 +109,24 @@ def validate_processes(pids, debug, container_name):
     for pid in pids:
         python_version = get_python_version(pid, debug, container_name)
         if python_version == constants.UNSUPPORTED:
-            state[pid] = status.process_not_determined(VULNERABILITY, pid)
+            state[pid] = status.process_not_determined(pid, VULNERABILITY)
         elif python_version:
             if commons.check_patched_version('Python', python_version, PATCHED_VERSIONS):
                 ctypes_file_name = find_ctypes_file_name(pid, debug, container_name)
                 if ctypes_file_name == constants.UNSUPPORTED:
-                    state[pid] = status.process_not_determined(VULNERABILITY, pid)
+                    state[pid] = status.process_not_determined(pid, VULNERABILITY)
                 elif ctypes_file_name:
                     if check_ctypes_loaded(pid, ctypes_file_name, debug):
-                        state[pid] = status.process_vulnerable(VULNERABILITY, pid)
+                        state[pid] = status.process_vulnerable(pid, VULNERABILITY)
                         status.remediation_mitigation(REMEDIATION, MITIGATION)
                     else:
-                        state[pid] = status.process_not_vulnerable(VULNERABILITY, pid)
+                        state[pid] = status.process_not_vulnerable(pid, VULNERABILITY)
                 else:
-                    state[pid] = status.process_not_vulnerable(VULNERABILITY, pid)
+                    state[pid] = status.process_not_vulnerable(pid, VULNERABILITY)
             else:
-                state[pid] = status.process_not_vulnerable(VULNERABILITY, pid)
+                state[pid] = status.process_not_vulnerable(pid, VULNERABILITY)
         else:
-            state[pid] = status.process_not_vulnerable(VULNERABILITY, pid)
+            state[pid] = status.process_not_vulnerable(pid, VULNERABILITY)
     return state
 
 

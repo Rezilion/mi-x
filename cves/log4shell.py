@@ -78,7 +78,7 @@ def validate_processes(pids, debug, container_name):
         if container_name:
             jcmd_path = commons.build_jcmd_path(pid, debug, container_name)
             if jcmd_path == constants.UNSUPPORTED:
-                state[pid] = status.process_not_determined(VULNERABILITY, pid)
+                state[pid] = status.process_not_determined(pid, VULNERABILITY)
                 break
         jcmd_command = f'sudo {jcmd_path} {pid} '
         utility = commons.available_jcmd_utilities(jcmd_command, debug)
@@ -86,14 +86,14 @@ def validate_processes(pids, debug, container_name):
             full_jcmd_command = jcmd_command + utility
             cves = commons.check_loaded_classes(pid, full_jcmd_command, CLASS_CVE, debug)
             if cves == constants.UNSUPPORTED:
-                state[pid] = status.process_not_determined(VULNERABILITY, pid)
+                state[pid] = status.process_not_determined(pid, VULNERABILITY)
             elif cves:
-                state[pid] = status.process_vulnerable(VULNERABILITY, pid)
+                state[pid] = status.process_vulnerable(pid, VULNERABILITY)
                 status.remediation_mitigation(REMEDIATION, MITIGATION)
             else:
-                state[pid] = status.process_not_vulnerable(VULNERABILITY, pid)
+                state[pid] = status.process_not_vulnerable(pid, VULNERABILITY)
         else:
-            state[pid] = status.process_not_determined(VULNERABILITY, pid)
+            state[pid] = status.process_not_determined(pid, VULNERABILITY)
     return state
 
 

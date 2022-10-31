@@ -2,7 +2,7 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import status, get_pids, commons, constants
+from modules import status, process_functions, commons, constants
 
 VULNERABILITY = 'Log4Shell'
 DESCRIPTION = f'''your system will be scanned for all Log4Shell related CVEs.
@@ -100,7 +100,7 @@ def validate_processes(pids, debug, container_name):
 def validate(debug, container_name):
     """This function validates if an instance is vulnerable to Log4Shell."""
     state = {}
-    pids = get_pids.pids_consolidation('java', debug, container_name)
+    pids = process_functions.pids_consolidation('java', debug, container_name)
     if pids:
         state[VULNERABILITY] = validate_processes(pids, debug, container_name)
     else:

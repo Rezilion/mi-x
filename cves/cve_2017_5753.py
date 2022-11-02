@@ -21,6 +21,8 @@ https://www.techrepublic.com/article/spectre-and-meltdown-explained-a-comprehens
 https://events19.linuxfoundation.org/wp-content/uploads/2017/11/Spectre-Meltdown-Linux-Greg-Kroah-Hartman-The-Linux-Foundation.pdf
 https://www.kernel.org/doc/Documentation/admin-guide/hw-vuln/spectre.rst
 '''
+REMEDIATION = ''
+MITIGATION = ''
 
 
 def spectre_file(debug, container_name):

@@ -17,7 +17,7 @@ Due to a missing/incorrect bounds check in the code, it is possible to return ch
 or server) by sending invalid requests which are incorrectly processed.
 Attackers can exploit the vulnerability and leak sensitive information such as the private key, account names and/or 
 passwords.
- 
+
 Related Links:
 https://heartbleed.com/
 https://www.synopsys.com/blogs/software-security/heartbleed-vulnerability-appsec-deep-dive/
@@ -27,12 +27,14 @@ AFFECTED_VERSION_START = '1.0.1'
 AFFECTED_VERSION_RANGE = ['a', 'f']
 AFFECTED_VERSIONS = ['1.0.2', '1.0.2beta1']
 MAX_AFFECTED_VERSION = '2.17'
+REMEDIATION = 'Upgrade openssl version to 1.0.1g, 1.0.2-beta2 or higher.'
+MITIGATION = ''
 
 
 def check_openssl_version(openssl_version):
-    """This function checks if the GLIBC version is affected."""
+    """This function checks if the OpenSSL version is affected."""
     affected = False
-    print(constants.FULL_QUESTION_MESSAGE.format('Is openssl version affected?'))
+    print(constants.FULL_QUESTION_MESSAGE.format('Is OpenSSL version affected?'))
     if version.parse(AFFECTED_VERSION_START) == version.parse(openssl_version):
         affected = True
     elif AFFECTED_VERSION_START in openssl_version:
@@ -45,14 +47,13 @@ def check_openssl_version(openssl_version):
             affected = True
     if affected:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected openssl versions are: {AFFECTED_VERSIONS_MESSAGE}\n'
-                                                        f'Your openssl version which is: {openssl_version} is '
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected OpenSSL versions are: {AFFECTED_VERSIONS_MESSAGE}\n'
+                                                        f'Your OpenSSL version which is: {openssl_version} is '
                                                         f'affected'))
         return True
     print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected openssl versions are {AFFECTED_VERSIONS_MESSAGE}\nYour '
-                                                    f'openssl version which is: {openssl_version} is not '
-                                                    f'affected'))
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected OpenSSL versions are {AFFECTED_VERSIONS_MESSAGE}\nYour '
+                                                    f'OpenSSL version which is: {openssl_version} is not affected'))
     return False
 
 
@@ -77,6 +78,7 @@ def validate(debug, container_name):
     elif openssl_version:
         if check_openssl_version(openssl_version):
             state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
+            status.remediation_mitigation(REMEDIATION, MITIGATION)
         else:
             state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
     else:
@@ -105,4 +107,3 @@ def main(description, graph, debug, container_name):
     if graph:
         validation_flow_chart()
     return state
-        

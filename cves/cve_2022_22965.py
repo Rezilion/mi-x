@@ -3,7 +3,7 @@ Support for graphviz and other modules which written for avoiding repetitive cod
 """
 import graphviz
 from packaging import version
-from modules import status, run_command, get_pids, commons, constants
+from modules import status, run_command, process_functions, commons, constants
 
 VULNERABILITY = 'CVE-2022-22965'
 DESCRIPTION = f'''{VULNERABILITY} - Spring4Shell
@@ -25,6 +25,11 @@ MIN_AFFECTED_JAVA_VERSION = '9'
 CLASSES = {'org.springframework.web.servlet.mvc.method.annotation.ServletModelAttributeMethodProcessor': 'webmvc',
            'org.springframework.web.reactive.result.method.annotation.ModelAttributeMethodArgumentResolver': 'webflux'}
 VM_VERSION = '"VM.version"'
+REMEDIATION = 'Upgrade to the following patch releases:\n- Spring 5.3.x users upgrade to 5.3.18 or higher\n- Spring ' \
+              '5.2.x users upgrade to 5.2.20 or higher\n- Spring Boot 2.6.x users upgrade to 2.6.6 or higher\n- Spring' \
+              ' Boot 2.5.x users upgrade to 2.5.12 or higher\n- Tomcat 10.0.x users upgrade to 10.0.20 or higher\n- ' \
+              'Tomcat 9.0.x users upgrade to 9.0.62 or higher\n- Tomcat 8.5.x users upgrade to 8.5.78 or higher'
+MITIGATION = ''
 
 
 def check_java_version(pid, jcmd_command, debug):
@@ -57,15 +62,15 @@ def validate_processes(pids, debug, container_name):
         if container_name:
             jcmd_path = commons.build_jcmd_path(pid, debug, container_name)
             if jcmd_path == constants.UNSUPPORTED:
-                state[pid] = status.process_not_determined(VULNERABILITY, pid)
+                state[pid] = status.process_not_determined(pid, VULNERABILITY)
                 break
         jcmd_command = f'sudo {jcmd_path} {pid} {VM_VERSION}'
         version_affected = check_java_version(pid, jcmd_command, debug)
         if version_affected == constants.UNSUPPORTED:
-            state[pid] = status.process_not_determined(VULNERABILITY, pid)
+            state[pid] = status.process_not_determined(pid, VULNERABILITY)
             break
         if not version_affected:
-            state[pid] = status.process_not_vulnerable(VULNERABILITY, pid)
+            state[pid] = status.process_not_vulnerable(pid, VULNERABILITY)
             break
         jcmd_command = f'sudo {jcmd_path} {pid} '
         utility = commons.available_jcmd_utilities(jcmd_command, debug)
@@ -73,22 +78,23 @@ def validate_processes(pids, debug, container_name):
             full_jcmd_command = jcmd_command + utility
             webmvc_webflux = commons.check_loaded_classes(pid, full_jcmd_command, CLASSES, debug)
             if webmvc_webflux == constants.UNSUPPORTED:
-                state[pid] = status.process_not_determined(VULNERABILITY, pid)
+                state[pid] = status.process_not_determined(pid, VULNERABILITY)
             elif webmvc_webflux:
                 print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} process use the {webmvc_webflux} '
                                                                 f'dependency'))
-                state[pid] = status.process_vulnerable(VULNERABILITY, pid)
+                state[pid] = status.process_vulnerable(pid, VULNERABILITY)
+                status.remediation_mitigation(REMEDIATION, MITIGATION)
             else:
-                state[pid] = status.process_not_vulnerable(VULNERABILITY, pid)
+                state[pid] = status.process_not_vulnerable(pid, VULNERABILITY)
         else:
-            state[pid] = status.process_not_determined(VULNERABILITY, pid)
+            state[pid] = status.process_not_determined(pid, VULNERABILITY)
     return state
 
 
 def validate(debug, container_name):
     """This function validates if an instance is vulnerable to Log4Shell."""
     state = {}
-    pids = get_pids.pids_consolidation('java', debug, container_name)
+    pids = process_functions.pids_consolidation('java', debug, container_name)
     if pids:
         state[VULNERABILITY] = validate_processes(pids, debug, container_name)
     else:

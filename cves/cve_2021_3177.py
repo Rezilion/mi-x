@@ -2,7 +2,7 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import status, run_command, get_pids, commons, constants, docker_commands
+from modules import status, run_command, process_functions, commons, constants, docker_commands
 
 VULNERABILITY = 'CVE-2021-3711'
 DESCRIPTION = f'''{VULNERABILITY}
@@ -19,6 +19,8 @@ https://www.randori.com/blog/cve-2021-3177-vulnerability-analysis/
 https://cybersophia.net/news/python-vulnerability-cve-2021-3177/
 '''
 PATCHED_VERSIONS = ['3.6.13', '3.7.10', '3.8.8', '3.9.2']
+REMEDIATION = 'Upgrade the Python version to one of the following 3.6.13, 3.7.10, 3.8.8, 3.9.2 or higher.'
+MITIGATION = ''
 
 
 def check_ctypes_loaded(pid, ctypes_file_name, debug):
@@ -76,29 +78,11 @@ def find_ctypes_file_name(pid, debug, container_name):
 
 def get_python_version(pid, debug, container_name):
     """This function returns the python version of the process."""
-    pid_maps_path = f'/proc/{pid}/maps'
-    pid_maps_file = commons.file_content(pid_maps_path, debug, container_name='')
-    if not pid_maps_file:
-        return pid_maps_file
-    path_to_modules = ''
-    for line in pid_maps_file:
-        if 'lib-dynload' in line:
-            path_to_modules = line
-            break
-    if not path_to_modules:
-        return path_to_modules
-    path_values = path_to_modules.split('/')
-    python_executable = ''
-    for value in path_values:
-        if value.startswith('python') or value.startswith('Python'):
-            python_executable = value
-            break
-    python_version_command = f'{python_executable} --version'
-    pipe_python_version = run_command.command_output(python_version_command, debug, container_name)
-    host_python_version = pipe_python_version.stdout
-    if host_python_version:
-        return host_python_version.split(' ')[constants.END][:constants.END]
-    return constants.UNSUPPORTED
+    version_output = process_functions.process_executable_version(pid, debug, container_name)
+    if version_output == constants.UNSUPPORTED:
+        return constants.UNSUPPORTED
+    python_version = version_output.split(' ')[constants.END]
+    return python_version
 
 
 def validate_processes(pids, debug, container_name):
@@ -107,30 +91,31 @@ def validate_processes(pids, debug, container_name):
     for pid in pids:
         python_version = get_python_version(pid, debug, container_name)
         if python_version == constants.UNSUPPORTED:
-            state[pid] = status.process_not_determined(VULNERABILITY, pid)
+            state[pid] = status.process_not_determined(pid, VULNERABILITY)
         elif python_version:
             if commons.check_patched_version('Python', python_version, PATCHED_VERSIONS):
                 ctypes_file_name = find_ctypes_file_name(pid, debug, container_name)
                 if ctypes_file_name == constants.UNSUPPORTED:
-                    state[pid] = status.process_not_determined(VULNERABILITY, pid)
+                    state[pid] = status.process_not_determined(pid, VULNERABILITY)
                 elif ctypes_file_name:
                     if check_ctypes_loaded(pid, ctypes_file_name, debug):
-                        state[pid] = status.process_vulnerable(VULNERABILITY, pid)
+                        state[pid] = status.process_vulnerable(pid, VULNERABILITY)
+                        status.remediation_mitigation(REMEDIATION, MITIGATION)
                     else:
-                        state[pid] = status.process_not_vulnerable(VULNERABILITY, pid)
+                        state[pid] = status.process_not_vulnerable(pid, VULNERABILITY)
                 else:
-                    state[pid] = status.process_not_vulnerable(VULNERABILITY, pid)
+                    state[pid] = status.process_not_vulnerable(pid, VULNERABILITY)
             else:
-                state[pid] = status.process_not_vulnerable(VULNERABILITY, pid)
+                state[pid] = status.process_not_vulnerable(pid, VULNERABILITY)
         else:
-            state[pid] = status.process_not_vulnerable(VULNERABILITY, pid)
+            state[pid] = status.process_not_vulnerable(pid, VULNERABILITY)
     return state
 
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2021-3177."""
     state = {}
-    pids = get_pids.pids_consolidation('python', debug, container_name)
+    pids = process_functions.pids_consolidation('python', debug, container_name)
     if pids:
         state[VULNERABILITY] = validate_processes(pids, debug, container_name)
     else:

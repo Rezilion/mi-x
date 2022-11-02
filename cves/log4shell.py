@@ -2,7 +2,7 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import status, get_pids, commons, constants
+from modules import status, process_functions, commons, constants
 
 VULNERABILITY = 'Log4Shell'
 DESCRIPTION = f'''your system will be scanned for all Log4Shell related CVEs.
@@ -66,6 +66,8 @@ CLASS_CVE = {'org.apache.logging.log4j.core.lookup.JndiLookup': 'CVE-2021-44228 
              'org.apache.logging.log4j.core.lookup.ContextMapLookup': 'CVE-2021-45105',
              'org.apache.logging.log4j.core.appender.db.jdbc.JdbcAppender': 'CVE-2021-44832'}
 JDK_MINIMUM_VERSION = '10.0.0'
+REMEDIATION = 'Upgrade Apache log4j to 2.17.0'
+MITIGATION = 'Remove the affected classes: JndiLookup, JMSAppender, ContextMapLookup, JdbcAppender'
 
 
 def validate_processes(pids, debug, container_name):
@@ -76,7 +78,7 @@ def validate_processes(pids, debug, container_name):
         if container_name:
             jcmd_path = commons.build_jcmd_path(pid, debug, container_name)
             if jcmd_path == constants.UNSUPPORTED:
-                state[pid] = status.process_not_determined(VULNERABILITY, pid)
+                state[pid] = status.process_not_determined(pid, VULNERABILITY)
                 break
         jcmd_command = f'sudo {jcmd_path} {pid} '
         utility = commons.available_jcmd_utilities(jcmd_command, debug)
@@ -84,20 +86,21 @@ def validate_processes(pids, debug, container_name):
             full_jcmd_command = jcmd_command + utility
             cves = commons.check_loaded_classes(pid, full_jcmd_command, CLASS_CVE, debug)
             if cves == constants.UNSUPPORTED:
-                state[pid] = status.process_not_determined(VULNERABILITY, pid)
+                state[pid] = status.process_not_determined(pid, VULNERABILITY)
             elif cves:
-                state[pid] = status.process_vulnerable(VULNERABILITY, pid)
+                state[pid] = status.process_vulnerable(pid, VULNERABILITY)
+                status.remediation_mitigation(REMEDIATION, MITIGATION)
             else:
-                state[pid] = status.process_not_vulnerable(VULNERABILITY, pid)
+                state[pid] = status.process_not_vulnerable(pid, VULNERABILITY)
         else:
-            state[pid] = status.process_not_determined(VULNERABILITY, pid)
+            state[pid] = status.process_not_determined(pid, VULNERABILITY)
     return state
 
 
 def validate(debug, container_name):
     """This function validates if an instance is vulnerable to Log4Shell."""
     state = {}
-    pids = get_pids.pids_consolidation('java', debug, container_name)
+    pids = process_functions.pids_consolidation('java', debug, container_name)
     if pids:
         state[VULNERABILITY] = validate_processes(pids, debug, container_name)
     else:

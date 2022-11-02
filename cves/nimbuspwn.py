@@ -32,37 +32,61 @@ https://thesecmaster.com/how-to-fix-nimbuspwn-vulnerability-in-linux-a-privilege
 https://www.esecurityplanet.com/threats/nimbuspwn-root-privilege-escalation-linux/
 https://www.microsoft.com/security/blog/2022/04/26/microsoft-finds-new-elevation-of-privilege-linux-vulnerability-nimbuspwn/
 '''
-AFFECTED_VERSIONS = {'Debian 10': '2.0-2', 'Debian 11': '2.1-2', 'Debian 12': '2.1-2', 'Debian unstable': '2.1-2',
-                     'Ubuntu 18.04': '1.7-0ubuntu3.4', 'Ubuntu 20.04': '2.1-2~ubuntu20.04.2',
-                     'Ubuntu 21.10': '2.1-2ubuntu0.21.10.1', 'Ubuntu 22.04': '2.1-2ubuntu0.22.04.1'}
+CVE_1 = 'NIMBUSPWN - CVE-2022-29799'
+CVE_2 = 'NIMBUSPWN - CVE-2022-29799 and CVE-2022-29800'
+AFFECTED_CVE_1 = {'Debian 10': '2.0-2', 'Debian 11': '2.1-2', 'Debian 12': '2.1-2', 'Debian unstable': '2.1-2',
+                  'Ubuntu 18.04': '1.7-0ubuntu3.4', 'Ubuntu 20.04': '2.1-2~ubuntu20.04.2',
+                  'Ubuntu 21.10': '2.1-2ubuntu0.21.10.1', 'Ubuntu 22.04': '2.1-2ubuntu0.22.04.1'}
+AFFECTED_CVE_2 = {'Debian 10': '2.0-2', 'Debian 11': '2.1-2', 'Debian 12': '2.1-2', 'Debian unstable': '2.1-2',
+                  'Ubuntu 18.04': '1.7-0ubuntu3.3', 'Ubuntu 20.04': '2.1-2~ubuntu20.04.1',
+                  'Ubuntu 21.10': '2.1-2ubuntu0.21.10.0', 'Ubuntu 22.04': '2.1-2ubuntu0.22.04.0'}
+AFFECTED_DISTRIBUTIONS = ['Debian 10', 'Debian 11', 'Debian 12', 'Debian unstable', 'Ubuntu 18.04', 'Ubuntu 20.04',
+                          'Ubuntu 21.10', 'Ubuntu 22.04']
+FIXED = {'Ubuntu 18.04': '1.7-0ubuntu3.5', 'Ubuntu 20.04': '2.1-2~ubuntu20.04.3',
+         'Ubuntu 21.10': '2.1-2ubuntu0.21.10.2', 'Ubuntu 22.04': '2.1-2ubuntu0.22.04.2'}
+REMEDIATION = f'Upgrade Ubuntu `networkd-dispatcher` version to:\n{FIXED}'
+MITIGATION = 'Remove the networkd-dispatcher by using one of the following commands:\nsudo apt-get remove ' \
+             'networkd-dispatcher\nsudo systemctl stop systemd-networkd.service\nsudo systemctl disable ' \
+             'systemd-networkd.service'
+
+
+def compare_versions(affected_versions, host_information, host_network_version):
+    """This function compares the networkd-dispatcher version between the founded version on host and the maximum
+    affected version."""
+    affected = False
+    affected_networkd_version = affected_versions[host_information]
+    if version.parse(host_network_version) > version.parse(affected_networkd_version):
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is higher '
+                                                        f'than the patched version which is: '
+                                                        f'{affected_networkd_version}'))
+    elif version.parse(host_network_version) == version.parse(affected_networkd_version):
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is '
+                                                        f'affected'))
+        affected = True
+    else:
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is lower '
+                                                        f'than the patched version which is: '
+                                                        f'{affected_networkd_version}'))
+        affected = True
+    return affected
 
 
 def check_networkd_version(host_information, debug, container_name):
     """This function checks if the networkd-dispatcher version is affected."""
-    affected = False
+    vulnerability = ''
     distribution = host_information.split(' ')[constants.START]
     package_name = 'networkd-dispatcher'
     host_network_version = receive_package.package_version_apt(distribution, package_name, debug, container_name)
     if host_network_version:
         print(constants.FULL_QUESTION_MESSAGE.format('Is networkd-dispatcher policy version affected?'))
-        affected_networkd_version = AFFECTED_VERSIONS[host_information]
-        if version.parse(host_network_version) > version.parse(affected_networkd_version):
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is higher '
-                                                            f'than the patched version which is: '
-                                                            f'{affected_networkd_version}'))
-        elif version.parse(host_network_version) == version.parse(affected_networkd_version):
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is '
-                                                            f'affected'))
-            affected = True
-        else:
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is lower '
-                                                            f'than the patched version which is: '
-                                                            f'{affected_networkd_version}'))
-            affected = True
-    return affected
+        if compare_versions(AFFECTED_CVE_2, host_information, host_network_version):
+            return CVE_2
+        if compare_versions(AFFECTED_CVE_1, host_information, host_network_version):
+            return CVE_1
+    return vulnerability
 
 
 def distribution_version_affected(debug, container_name):
@@ -76,7 +100,7 @@ def distribution_version_affected(debug, container_name):
         print(constants.FULL_EXPLANATION_MESSAGE.format('Can not determine vulnerability status, no distribution and '
                                                         'version values'))
         return constants.UNSUPPORTED
-    if host_information in AFFECTED_VERSIONS:
+    if host_information in AFFECTED_DISTRIBUTIONS:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os releases: {list(AFFECTED_VERSIONS.keys())}\n'
                                                         f'Your os release: {host_information}\nThe os release you '
@@ -101,8 +125,10 @@ def validate(debug, container_name):
     state = {}
     host_information = distribution_version_affected(debug, container_name)
     if host_information:
-        if check_networkd_version(host_information, debug, container_name):
-            state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
+        vulnerability = check_networkd_version(host_information, debug, container_name)
+        if vulnerability:
+            state[VULNERABILITY] = status.vulnerable(vulnerability)
+            status.remediation_mitigation(REMEDIATION, MITIGATION)
         else:
             state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
     else:

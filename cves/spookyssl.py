@@ -25,7 +25,7 @@ certificate chain it could possibly trigger a crash or even cause a Remote Code 
 CVE-2022-3786 differs from CVE-2022-3602 by the fact that it does not allow the attacker to control the content of the
  overflow which in this case is limited to the period character (`.`).
 In this case, an attacker still needs to craft a malicious email address in a certificate signed by a trusted CA in 
-order to overflow an arbitrary number of bytes containing the `.' character on the stack. This buffer overflow could 
+order to overflow an arbitrary number of bytes containing the `.` character on the stack. This buffer overflow could 
 result in a crash which can result in a denial of service.
 
 MI-X supports three different methods to check if you have an affected OpenSSL

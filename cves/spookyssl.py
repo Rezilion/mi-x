@@ -98,7 +98,7 @@ def vector_three(state, debug, container_name):
     pids = process_functions.running_processes(debug, container_name)
     if pids:
         print(constants.FULL_QUESTION_MESSAGE.format('Are there running processes that load "openssl/libssl/libcrypto" '
-                                                     'so files??'))
+                                                     'so files?'))
         process_state = validate_processes_vector_three(pids, vulnerability, debug, container_name)
         if process_state:
             status.remediation_mitigation(REMEDIATION, MITIGATION)
@@ -188,7 +188,7 @@ def check_openssl_affected(openssl_version, debug, container_name):
 
 
 def get_openssl_version(debug, container_name):
-    """This function returns the openssl version if exists."""
+    """This function returns the OpenSSL version if exists."""
     information_fields = ['Distribution']
     distribution = os_release.get_field(information_fields, debug, container_name)
     package_name = 'openssl'
@@ -219,7 +219,7 @@ def vector_one(state, debug, container_name):
 
 
 def validate(debug, container_name):
-    """This function validates if the host is vulnerable to Heartbleed vulnerabilities."""
+    """This function validates if the host is vulnerable to SpookySSL vulnerabilities."""
     state = {}
     state = vector_one(state, debug, container_name)
     state = vector_two(state, debug, container_name)
@@ -228,18 +228,26 @@ def validate(debug, container_name):
 
 
 def validation_flow_chart():
-    """This function creates graph that shows the vulnerability validation process of Heartbleed."""
+    """This function creates graph that shows the vulnerability validation process of SpookySSL."""
     vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
     commons.graph_start(VULNERABILITY, vol_graph)
-    vol_graph.edge('Is it Linux?', 'Is there OpenSSl?', label='Yes')
+    vol_graph.edge('Is it Linux?', 'Is there OpenSSL?', label='Yes')
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is there OpenSSl?', 'Is the OpenSSl version affected?', label='Yes')
-    vol_graph.edge('Is there OpenSSl?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is the OpenSSl version affected?', 'Vulnerable', label='Yes')
-    vol_graph.edge('Is the OpenSSl version affected?', 'Is there node version that uses an affected OpenSSl version?',
+    vol_graph.edge('Is it Linux?', 'Is there node version that uses an affected OpenSS version?', label='Yes')
+    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vol_graph.edge('Is it Linux?', 'Are there running processes that load "openssl/libssl/libcrypto" so files?',
+                   label='Yes')
+    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vol_graph.edge('Is there OpenSSL?', 'Is the OpenSSL version affected?', label='Yes')
+    vol_graph.edge('Is there OpenSSL?', 'Not Vulnerable', label='No')
+    vol_graph.edge('Is the OpenSSL version affected?', 'Vulnerable', label='Yes')
+    vol_graph.edge('Is the OpenSSL version affected?', 'Not Vulnerable', label='No')
+    vol_graph.edge('Is there node version that uses an affected OpenSSL version?', 'Vulnerable', label='Yes')
+    vol_graph.edge('is there node version that uses an affected OpenSSL version?', 'Not Vulnerable', label='No')
+    vol_graph.edge('Are there running processes that load "openssl/libssl/libcrypto" so files?', 'Vulnerable',
+                   label='Yes')
+    vol_graph.edge('Are there running processes that load "openssl/libssl/libcrypto" so files?', 'Not Vulnerable',
                    label='No')
-    vol_graph.edge('s there node version that uses an affected OpenSSl version?', 'Vulnerable', label='Yes')
-    vol_graph.edge('s there node version that uses an affected OpenSSl version?', 'Is there running process that uses an affected OpenSSL version?', label='No')
     commons.graph_end(vol_graph)
 
 

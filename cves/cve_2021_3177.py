@@ -2,7 +2,7 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import status, run_command, process_functions, commons, constants, docker_commands
+from modules import status, run_command, process_functions, commons, constants
 
 VULNERABILITY = 'CVE-2021-3711'
 DESCRIPTION = f'''{VULNERABILITY}
@@ -42,25 +42,13 @@ def check_ctypes_loaded(pid, ctypes_file_name, debug):
 
 def find_ctypes_file_name(pid, debug, container_name):
     """This function finds the name of the _ctypes file."""
-    pid_maps_path = f'sudo cat /proc/{pid}/maps'
-    pipe_pid_maps_file = run_command.command_output(pid_maps_path, debug, container_name='')
-    pid_maps_file = pipe_pid_maps_file.stdout
-    if not pid_maps_file:
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The /proc/{pid}/maps file does not exist'))
-        return constants.UNSUPPORTED
-    modules_path = ''
-    for line in pid_maps_file.split('\n'):
-        if 'lib-dynload' in line:
-            modules_path = line.split(' ')[constants.END].split('lib-dynload')[constants.START] + 'lib-dynload'
-            break
-    print(constants.FULL_QUESTION_MESSAGE.format('Does the _ctypes .so file exist?'))
-    if not modules_path:
+    so_path = process_functions.check_loaded_so_file_to_process(pid, 'lib-dynload', debug, container_name)
+    print(constants.FULL_QUESTION_MESSAGE.format('Does the _ctypes .so file loaded to the process memory?'))
+    if not so_path:
         print(constants.FULL_EXPLANATION_MESSAGE.format('There is no python modules path'))
         return constants.UNSUPPORTED
-    if container_name:
-        merge_dir = docker_commands.get_merge_dir(container_name, debug)
-        modules_path = merge_dir + modules_path
-    list_modules_command = f'sudo ls {modules_path}'
+    so_path = so_path.split('lib-dynload')[constants.START] + 'lib-dynload'
+    list_modules_command = f'sudo ls {so_path}'
     pipe_list_modules = run_command.command_output(list_modules_command, debug, container_name='')
     list_modules = pipe_list_modules.stdout
     if not list_modules:

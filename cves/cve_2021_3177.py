@@ -43,7 +43,7 @@ def check_ctypes_loaded(pid, ctypes_file_name, debug):
 def find_ctypes_file_name(pid, debug, container_name):
     """This function finds the name of the _ctypes file."""
     so_path = process_functions.check_loaded_so_file_to_process(pid, 'lib-dynload', debug, container_name)
-    print(constants.FULL_QUESTION_MESSAGE.format('Does the _ctypes .so file loaded to the process memory?'))
+    print(constants.FULL_QUESTION_MESSAGE.format('Is the _ctypes .so file loaded to the process memory?'))
     if not so_path:
         print(constants.FULL_EXPLANATION_MESSAGE.format('There is no python modules path'))
         return constants.UNSUPPORTED

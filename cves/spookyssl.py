@@ -238,7 +238,7 @@ def validation_flow_chart():
     vol_graph.edge('Is the OpenSSl version affected?', 'Is there node version that uses an affected OpenSSl version?',
                    label='No')
     vol_graph.edge('s there node version that uses an affected OpenSSl version?', 'Vulnerable', label='Yes')
-    vol_graph.edge('s there node version that uses an affected OpenSSl version?', 'Is there running process that uses an affected OpenSSL version?', label='No')
+    vol_graph.edge('Is there a Node.js version that uses an affected OpenSSL version?', 'Is there running process that uses an affected OpenSSL version?', label='No')
     commons.graph_end(vol_graph)
 
 

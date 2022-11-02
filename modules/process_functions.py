@@ -1,15 +1,127 @@
 """
 Support for modules which written for avoiding repetitive code.
 """
-from modules import run_command, commons, constants
+import re
+from modules import run_command, commons, constants, docker_commands
 
 
-def get_pids_by_name(process_type, debug, container_name):
-    """This function checks if there are Java running processes."""
+def check_loaded_so_file_to_process(pid, so_file, debug, container_name):
+    """This function returns the path of the loaded so file if loaded."""
+    pid_maps_path = f'/proc/{pid}/maps'
+    pid_maps_content = commons.file_content(pid_maps_path, debug, container_name='')
+    so_path = ''
+    for line in pid_maps_content:
+        if so_file in line:
+            so_path = line.split(' ')[constants.END]
+            if container_name:
+                merge_dir = docker_commands.get_merge_dir(debug, container_name)
+                so_path = merge_dir + so_path
+            return so_path
+    return so_path
+
+
+def find_relevant_pids(pids, container_pids_list, debug, container_name):
+    """This function returns the container pids that are matched with the host pids."""
+    relevant_pids = []
+    for field in pids:
+        host_pid = field.split(' ')[constants.START]
+        container_pid = field.split(' ')[constants.END]
+        if container_pid in container_pids_list:
+            host_maps_file = f'/proc/{host_pid}/maps'
+            container_maps_file = f'/proc/{container_pid}/maps'
+            host_maps_content = commons.file_content(host_maps_file, debug, container_name='')
+            container_maps_content = commons.file_content(container_maps_file, debug, container_name)
+            if host_maps_content == container_maps_content:
+                relevant_pids.append(host_pid)
+    print(constants.FULL_QUESTION_MESSAGE.format(f'There is a match between container pids to host pids?'))
+    if relevant_pids:
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The following pids: {relevant_pids} have a match with '
+                                                        f'container pids'))
+        return relevant_pids
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'There is no match between host pids and container pids'))
+    return relevant_pids
+
+
+def find_pids_from_status_file(pids, debug, container_name):
+    """This function return a list of the relevant pids."""
+    relevant_pids = []
+    for pid in pids:
+        pid_status_path = f'/proc/{pid}/status'
+        pid_status_content = commons.file_content(pid_status_path, debug, container_name='')
+        if pid_status_content:
+            for line in pid_status_content:
+                if line.startswith('NSpid:'):
+                    if container_name:
+                        if len(line.split('\t')) == 3:
+                            pids_info = pid + ' ' + line.split('\t')[constants.END].split('\n')[constants.START]
+                            relevant_pids.append(pids_info)
+                    else:
+                        if len(line.split('\t')) == 2:
+                            relevant_pids.append(pid)
+                    break
+    return relevant_pids
+
+
+def list_of_running_processes(debug, container_name):
+    """This function returns all running processes."""
+    list_proc_command = 'ls /proc'
+    list_proc_pipe = run_command.command_output(list_proc_command, debug, container_name)
+    list_proc = list_proc_pipe.stdout
+    pids = re.findall('\d*', list_proc)
+    pids = list(set(pids))
+    if '' in pids:
+        pids.remove('')
+    return pids
+
+
+def running_processes(debug, container_name):
+    """This function returns all the relevant running processes."""
+    host_pids = list_of_running_processes(debug, container_name='')
+    if container_name:
+        pids = find_pids_from_status_file(host_pids, debug, container_name)
+        container_pids = list_of_running_processes(debug, container_name)
+        return find_relevant_pids(pids, container_pids, debug, container_name)
+    else:
+        print(constants.FULL_QUESTION_MESSAGE.format(f'There are running processes on the host?'))
+        if host_pids:
+            print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
+            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The following PIDs are running processes: '
+                                                            f'{host_pids}'))
+            return host_pids
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'There are no running processes'))
+        return host_pids
+
+
+def aggregate_pids_to_list(pids, other_pids):
+    """This function aggregate the pids."""
+    if not pids:
+        pids = other_pids
+    else:
+        if other_pids:
+            pids.append(other_pids)
+    if pids:
+        pids = list(set(pids))
+    return pids
+
+
+def check_another_format_of_process_type(process_type):
+    """This function checks if there are running processes with capital letter of the process and without."""
+    if process_type.islower():
+        process_type = process_type[constants.START].upper() + process_type[constants.FIRST:]
+    else:
+        process_type = process_type.lower()
+    return process_type
+
+
+def check_running_processes_by_name(process_type, software, debug, container_name):
+    """This function checks if there are running processes on the relevant software."""
     pids_command = f'pgrep {process_type}'
-    pipe_pids = run_command.command_output(pids_command, debug, container_name='')
+    pipe_pids = run_command.command_output(pids_command, debug, container_name)
     pids = pipe_pids.stdout
-    print(constants.FULL_QUESTION_MESSAGE.format(f'There are running {process_type} processes on the host?'))
+    print(constants.FULL_QUESTION_MESSAGE.format(f'There are running {process_type} processes on the {software}?'))
     if not pids:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'There are no running {process_type} processes'))
@@ -18,24 +130,19 @@ def get_pids_by_name(process_type, debug, container_name):
     print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'The following PIDs are running {process_type} processes: '
                                                     f'{pids_list}'))
-    relevant_pids = []
-    for pid in pids_list:
-        pid_status_path = f'/proc/{pid}/status'
-        pid_status_content = commons.file_content(pid_status_path, debug, container_name='')
-        if not pid_status_content:
-            return []
-        for line in pid_status_content:
-            if line.startswith('NSpid:'):
-                if container_name:
-                    if len(line.split('\t')) == 3:
-                        pids_info = pid + ' ' + line.split('\t')[constants.END].split('\n')[constants.START]
-                        relevant_pids.append(pids_info)
-                else:
-                    if len(line.split('\t')) == 2:
-                        relevant_pids.append(pid)
-                break
+    return pids_list
+
+
+def get_pids_by_name(process_type, debug, container_name):
+    """This function checks if there are running processes of the received process type."""
+    software = 'host'
+    pids_list = check_running_processes_by_name(process_type, software, debug, container_name='')
+    if pids_list:
+        relevant_pids = find_pids_from_status_file(pids_list, debug, container_name)
+    else:
+        return pids_list
     print(constants.FULL_QUESTION_MESSAGE.format(f'There are relevant running {process_type} processes on the '
-                                                 f'host?'))
+                                                 f'{software}?'))
     if relevant_pids:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'The following PIDs are relevant running {process_type} '
@@ -47,81 +154,33 @@ def get_pids_by_name(process_type, debug, container_name):
 
 
 def get_pids_by_name_container(process_type, debug, container_name):
-    """This function extracts the container java processes ids on the host."""
-    pgrep_command = f'pgrep {process_type}'
-    pipe_pids_container = run_command.command_output(pgrep_command, debug, container_name)
-    pids_container = pipe_pids_container.stdout
-    print(constants.FULL_QUESTION_MESSAGE.format(f'There are running {process_type} processes on the {container_name} '
-                                                 f'container?'))
-    if not pids_container:
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'There are no running {process_type} processes'))
-        return []
-    print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-    container_pids_list = pids_container.split('\n')[:constants.END]
-    print(constants.FULL_EXPLANATION_MESSAGE.format(f'The following PIDs are running {process_type} processes on '
-                                                    f'the container: {container_pids_list}'))
+    """This function extracts the container running processes of the received process type ids on the host."""
+    software = 'container'
+    container_pids_list = check_running_processes_by_name(process_type, software, debug, container_name)
     host_pid_and_container_pid = get_pids_by_name(process_type, debug, container_name)
-    if process_type.islower():
-        process_type = process_type[constants.START].upper() + process_type[constants.FIRST:]
+    if host_pid_and_container_pid:
+        host_pid_and_container_pid = list(set(host_pid_and_container_pid))
+        return find_relevant_pids(host_pid_and_container_pid, container_pids_list, debug, container_name)
     else:
-        process_type = process_type.lower()
-    other_pids = get_pids_by_name(process_type, debug, container_name)
-    if not host_pid_and_container_pid:
-        host_pid_and_container_pid = other_pids
-    else:
-        if other_pids:
-            host_pid_and_container_pid.append(other_pids)
-    host_pid_and_container_pid = list(set(host_pid_and_container_pid))
-    relevant_pids = []
-    for field in host_pid_and_container_pid:
-        host_pid = field.split(' ')[constants.START]
-        container_pid = field.split(' ')[constants.END]
-        if container_pid in container_pids_list:
-            relevant_pids.append(host_pid)
-    print(constants.FULL_QUESTION_MESSAGE.format('There is a match between container pids to host pids?'))
-    if relevant_pids:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The following pids: {relevant_pids} have a match with '
-                                                        f'container pids'))
-        return relevant_pids
-    print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-    print(constants.FULL_EXPLANATION_MESSAGE.format('There is no match between host pids and container pids'))
-    return relevant_pids
+        return host_pid_and_container_pid
 
 
 def pids_consolidation(process_type, debug, container_name):
     """This function returns the pids by calling the functions above."""
     if container_name:
         pids = get_pids_by_name_container(process_type, debug, container_name)
-        if process_type.islower():
-            process_type = process_type[constants.START].upper() + process_type[constants.FIRST:]
-        else:
-            process_type = process_type.lower()
+        process_type = check_another_format_of_process_type(process_type)
         other_pids = get_pids_by_name_container(process_type, debug, container_name)
-        if not pids:
-            pids = other_pids
-        else:
-            if other_pids:
-                pids.append(other_pids)
-        pids = list(set(pids))
+        pids = list_pids(pids, other_pids)
     else:
         pids = get_pids_by_name(process_type, debug, container_name)
-        if process_type.islower():
-            process_type = process_type[constants.START].upper() + process_type[constants.FIRST:]
-        else:
-            process_type = process_type.lower()
+        process_type = check_another_format_of_process_type(process_type)
         other_pids = get_pids_by_name(process_type, debug, container_name)
-        if not pids:
-            pids = other_pids
-        else:
-            if other_pids:
-                pids.append(other_pids)
-        pids = list(set(pids))
+        pids = list_pids(pids, other_pids)
     return pids
 
 
-def read_output(command, value, debug, container_name):
+def read_output(pid, command, value, debug, container_name):
     """This function returns command results and prints an error if something is wrong."""
     pipe = run_command.command_output(command, debug, container_name)
     output = pipe.stdout[:constants.END]
@@ -129,15 +188,15 @@ def read_output(command, value, debug, container_name):
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Error while reading the {pid} process executable {value}'))
         return constants.UNSUPPORTED
     return output
-    
+
 
 def process_executable_version(pid, debug, container_name):
     """This function returns the process's executable version."""
     executable_link_command = f'readlink -f /proc/{pid}/exe'
-    executable_link = read_output(executable_link_command, 'file', debug, container_name)
+    executable_link = read_output(pid, executable_link_command, 'file', debug, container_name='')
     if not executable_link == constants.UNSUPPORTED:
         executable_version_command = f'{executable_link} --version'
-        version = read_output(executable_version_command, 'version', debug, container_name)
+        version = read_output(pid, executable_version_command, 'version', debug, container_name)
         if not version == constants.UNSUPPORTED:
             return version
     return constants.UNSUPPORTED

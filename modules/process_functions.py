@@ -95,7 +95,7 @@ def running_processes(debug, container_name):
         return host_pids
 
 
-def list_pids(pids, other_pids):
+def aggregate_pids_to_list(pids, other_pids):
     """This function aggregate the pids."""
     if not pids:
         pids = other_pids

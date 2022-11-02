@@ -11,10 +11,10 @@ VULNERABILITY = 'Spooky SSL'
 DESCRIPTION = f'''{VULNERABILITY} - CVE-2022-3786, CVE-2022-3602
 
 CVSS Score: N/A 
-NVD Link: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-3786
+NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2022-3786
 
 CVSS Score: N/A
-NVD Link: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-3602
+NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2022-3602
 
 CVE-2022-3602 is a stack overflow vulnerability that occurs during the parsing of a X.509 TLS certificate 
 post-validation. The vulnerability is caused due to a problem with the processing of Punycode while checking 
@@ -59,8 +59,9 @@ def check_affected_os_file(so_path, debug, container_name):
         if strings_content:
             for line in strings_content.split('\n'):
                 if 'openssl-' in line:
-                    if re.search('openssl-3.0.[0-6]', line):
-                        openssl_version = re.search(REGEX_STRING, strings_content).group()
+                    openssl_regex = re.search(REGEX_STRING, line)
+                    if openssl_regex:
+                        openssl_version = openssl_regex.group()
                         openssl_version = openssl_version.split('-')[constants.END]
         else:
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'Unable to find strings on {so_path}'))

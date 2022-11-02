@@ -171,8 +171,9 @@ def file_content(file_path, debug, container_name):
 
 def re_start_of_version(full_version):
     """Returns the start of a version using regex."""
-    if re.search(r'\d*\.\d*', full_version):
-        return re.search(r'\d*\.\d*', full_version).group()
+    start_of_version = re.search(r'\d*\.\d*', full_version)
+    if start_of_version:
+        return start_of_version.group()
 
 
 def check_patched_version(version_type, checked_version, patched_versions):

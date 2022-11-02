@@ -26,8 +26,9 @@ def get_valid_kernel_version(debug):
     if full_version.endswith('\n'):
         full_version = full_version[:constants.END]
     kernel_version = ''
-    if re.search(r'\d*\.\d*.\d*-\d*.\d*', full_version):
-        kernel_version = re.search(r'\d*\.\d*.\d*-\d*.\d*', full_version).group()
+    kernel_version_regex = re.search(r'\d*\.\d*.\d*-\d*.\d*', full_version) 
+    if kernel_version_regex:
+        kernel_version = kernel_version_regex.group()
         if kernel_version.endswith('-'):
             kernel_version = kernel_version[:constants.END]
     return kernel_version

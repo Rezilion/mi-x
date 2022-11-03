@@ -4,7 +4,7 @@ Support for os, re, semver, version from packaging and other modules which writt
 import os
 import re
 from packaging import version
-from modules import run_command, constants, docker_commands, os_type, os_release
+from modules import run_command, constants, docker_commands, os_type, os_release, supported
 VM_CLASS_HIERARCHY = 'VM.class_hierarchy'
 GC_CLASS_HISTOGRAM = 'GC.class_histogram'
 HELP = 'help'
@@ -59,7 +59,7 @@ def build_jcmd_path(pid, debug, container_name):
 
 def get_jcmd(pid, debug, container_name):
     """This function returns the full path of the jcmd application in a container."""
-    merged_dir_path = docker_commands.get_merge_dir(container_name, debug)
+    merged_dir_path = docker_commands.get_merge_dir(debug, container_name)
     if merged_dir_path == constants.UNSUPPORTED:
         return constants.UNSUPPORTED
     proc_path = f'/proc/{pid}/exe'
@@ -147,7 +147,6 @@ def check_file_existence(file_path, debug, container_name):
 def file_content(file_path, debug, container_name):
     """This function checks returns the file's content if exists."""
     content = ''
-    print(constants.FULL_QUESTION_MESSAGE.format(f'Is {file_path} file exists?'))
     if container_name:
         cat_file_command = f'cat {file_path}'
         pipe_cat_file = run_command.command_output(cat_file_command, debug, container_name)
@@ -161,25 +160,20 @@ def file_content(file_path, debug, container_name):
                     content = []
                     for line in file.readlines():
                         content.append(line[:constants.END])
-
             except PermissionError:
                 cat_file_command = f'sudo cat {file_path}'
                 pipe_cat_file = run_command.command_output(cat_file_command, debug, container_name)
                 content = pipe_cat_file.stdout
                 if content:
                     content = content.split('\n')[:constants.END]
-    if content:
-        print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {file_path} exists in your system'))
-    else:
-        print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('No'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {file_path} does not exist in your system'))
     return content
 
 
 def re_start_of_version(full_version):
     """Returns the start of a version using regex."""
-    return re.search(r'\d*\.\d*', full_version).group()
+    start_of_version = re.search(r'\d*\.\d*', full_version)
+    if start_of_version:
+        return start_of_version.group()
 
 
 def check_patched_version(version_type, checked_version, patched_versions):

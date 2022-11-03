@@ -4,7 +4,7 @@ Support for modules which written for avoiding repetitive code.
 from modules import run_command, constants
 
 
-def get_merge_dir(container_name, debug):
+def get_merge_dir(debug, container_name):
     """This function checks the MergeDir path of the container."""
     docker_inspect_command = constants.DOCKER_INSPECT_COMMAND.format(container_name)
     pipe_docker_inspect = run_command.command_output(docker_inspect_command, debug, container_name='')

@@ -28,11 +28,9 @@ In this case, an attacker still needs to craft a malicious email address in a ce
 order to overflow an arbitrary number of bytes containing the `.' character on the stack. This buffer overflow could 
 result in a crash which can result in a denial of service.
 
-MI-X supports three different methods to check if you have an affected OpenSSL
+MI-X supports two different methods to check if you have an affected OpenSSL
 Vector one - use the package manager to check if you have an affected OpenSSL that installed via the package manager.
-Vector two - checks if your system runs higher node version than 17.0.0 due to the fact that these versions of node use 
-an affected OpenSSL version.
-Vector three - checks if the running processes that are loading to memory an affected so files: OpenSSL/LibSSL/LibCrypto.
+Vector three - checks if the running processes are using an affected OpenSSL version.
 
 Related Links:
 https://www.rezilion.com/blog/clearing-the-fog-over-the-new-openssl-vulnerabilities/
@@ -40,67 +38,91 @@ https://www.rezilion.com/blog/clearing-the-fog-over-the-new-openssl-vulnerabilit
 AFFECTED_VERSION_START_NUMBER = '3'
 FIXED_VERSION = '3.0.7'
 FIXED_UBUNTU_VERSIONS = {'Ubuntu 22.04': '3.0.2-0ubuntu1.7', 'Ubuntu 22.10': '3.0.5-2ubuntu2'}
-MIN_VULNERABLE_NODE_VERSIONS = '17.0.0'
-SO_FILE_TYPES = ['openssl', 'libssl', 'libcrypto']
-REGEX_STRING = 'openssl-3.0.[0-6]'
+OPENSSL = 'openssl'
+REGEX_STRINGS = ['openssl-3.0.[1-6]', 'openssl_3.0.[1-6]', 'openssl 3.0.[1-6]']
 REMEDIATION = 'Upgrade openssl version to 3.0.7 or higher, if Ubuntu 22.04 upgrade to 3.0.2-0ubuntu1.7, if Ubuntu ' \
                 '22.10 upgrade to 3.0.5-2ubuntu2'
 MITIGATION = 'If your servers are running the affected OpenSSL version, make sure they are segmented. It will avoid ' \
              'propagation to the entire network'
 
 
-def check_affected_os_file(so_path, debug, container_name):
-    """This function checks if the running process is loading an affected OpenSSL file."""
+def check_affected_file(so_file, debug):
+    """This function checks if the received file uses an affected OpenSSL version."""
     openssl_version = ''
-    if os.path.isfile(so_path):
-        strings_command = f'strings {so_path}'
-        strings_content = run_command.command_output(strings_command, debug, container_name)
+    if os.path.isfile(so_file):
+        strings_command = f'strings {so_file}'
+        strings_content = run_command.command_output(strings_command, debug, container_name='')
         strings_content = strings_content.stdout
         if strings_content:
             for line in strings_content.split('\n'):
-                if 'openssl-' in line:
-                    openssl_regex = re.search(REGEX_STRING, line)
-                    if openssl_regex:
-                        openssl_version = openssl_regex.group()
-                        openssl_version = openssl_version.split('-')[constants.END]
-        else:
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'Unable to find strings on {so_path}'))
-    else:
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The path to the so file found in the process maps: {so_path},'
-                                                        f' is not a valid path'))
+                line = line.lower()
+                if OPENSSL in line:
+                    for regex_string in REGEX_STRINGS:
+                        openssl_regex = re.search(regex_string, line.lower())
+                        if openssl_regex:
+                            openssl_version = openssl_regex.group()
+                            separator_char = openssl_version[7]
+                            openssl_version = openssl_version.split(separator_char)[constants.END]
+                            return openssl_version
     return openssl_version
 
 
-def validate_processes_vector_three(pids, vulnerability, debug, container_name):
-    """This function loops over all processes and checks if they are loading to memory an affected so file."""
-    state = {}
+def check_so_files(so_files, pid, debug):
+    """This function loops over all loaded so files of the running process and checks if they are using an affected
+    OpenSSL version."""
+    so_files_and_openssl_versions = {}
+    for so_file in so_files:
+        if so_file not in so_files_and_openssl_versions:
+            openssl_version = check_affected_file(so_file, debug)
+            if openssl_version:
+                so_files_and_openssl_versions[so_file] = openssl_version
+    if so_files_and_openssl_versions:
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} running process list of so files and affected'
+                                                        f'OpenSSL versions:'))
+        for so_path in so_files_and_openssl_versions:
+            print(constants.FULL_EXPLANATION_MESSAGE.format(f'{so_path} - '
+                                                            f'{so_files_and_openssl_versions[so_path]}'))
+    return so_files_and_openssl_versions
+
+
+def check_executable_file(pid, debug, container_name):
+    """This function check if the executable file of the process is using an affected OpenSSL version."""
+    executable_file = process_functions.get_process_executable(pid, debug, container_name)
+    openssl_version = ''
+    if executable_file:
+        openssl_version = check_affected_file(executable_file, debug)
+        if openssl_version:
+            print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
+            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} running process executable file is using an '
+                                                            f'affected OpenSSL version:\n{executable_file} - '
+                                                            f'{openssl_version}'))
+    return openssl_version
+
+
+def validate_processes_vector_two(state, pids, vulnerability, debug, container_name):
+    """This function checks if the process uses an affected OpenSSL version."""
     for pid in pids:
-        for so_file_type in SO_FILE_TYPES:
-            so_path = process_functions.check_loaded_so_file_to_process(pid, so_file_type, debug, container_name)
-            if so_path:
-                if AFFECTED_VERSION_START_NUMBER in so_path.split('/')[constants.END]:
-                    openssl_version = check_affected_os_file(so_path, debug, container_name)
-                    if openssl_version:
-                        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-                        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} running process is loading a so '
-                                                                        f'file: {so_path} that has an affected OpenSSL '
-                                                                        f'version: {openssl_version}'))
-                        state[pid] = status.process_vulnerable(pid, vulnerability)
-                    else:
-                        state[pid] = status.process_not_determined(pid, vulnerability)
+        openssl_version = check_executable_file(pid, debug, container_name)
+        so_files_and_openssl_versions = {}
+        so_files = process_functions.get_loaded_so_files_of_a_process(pid, debug, container_name)
+        if so_files:
+            so_files_and_openssl_versions = check_so_files(so_files, pid, debug)
+        if openssl_version or so_files_and_openssl_versions:
+            state[pid] = status.process_vulnerable(pid, vulnerability)
     return state
 
 
-def vector_three(state, debug, container_name):
-    """This function performs the "vector three" of checking exploitability which is checking if there is a running
+def vector_two(state, debug, container_name):
+    """This function performs the "vector two" of checking exploitability which is checking if there is a running
     process that loads libcrypto/libssl/openssl files that are using an affected OpenSSL version."""
-    vulnerability = f'{VULNERABILITY} (the so files check)'
+    vulnerability = f'{VULNERABILITY} (the running processes check)'
     pids = process_functions.running_processes(debug, container_name)
     if pids:
-        print(constants.FULL_QUESTION_MESSAGE.format('Are there running processes that load "openssl/libssl/libcrypto" '
-                                                     'so files?'))
-        process_state = validate_processes_vector_three(pids, vulnerability, debug, container_name)
-        if process_state:
+        print(constants.FULL_QUESTION_MESSAGE.format('Are there running processes that use an affected OpenSSL '
+                                                     'version?'))
+        process_state = validate_processes_vector_two(state, pids, vulnerability, debug, container_name)
+        if len(process_state) > 1:
             status.remediation_mitigation(REMEDIATION, MITIGATION)
             state[vulnerability] = process_state
         else:
@@ -108,43 +130,6 @@ def vector_three(state, debug, container_name):
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'There are no running processes loading so files that have'
                                                             f' an affected OpenSSL version'))
             state[vulnerability] = status.not_vulnerable(vulnerability)
-    else:
-        state[vulnerability] = status.not_vulnerable(vulnerability)
-    return state
-
-
-def validate_processes_vector_two(state, pids, vulnerability, debug, container_name):
-    """This function loops over all Node processes and checks if their versions known to be using an affected OpenSSL
-    version."""
-    for pid in pids:
-        print(constants.FULL_QUESTION_MESSAGE.format('Is Node version affected?'))
-        version_output = process_functions.process_executable_version(pid, debug, container_name)
-        if version_output == constants.UNSUPPORTED:
-            state[pid] = status.process_not_determined(pid, vulnerability)
-        node_version = version_output[constants.FIRST:]
-        if version.parse(node_version) >= version.parse(MIN_VULNERABLE_NODE_VERSIONS):
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'Node versions that are equal or higher than 17.0.0 are '
-                                                            f'using OpenSSL versions 3.0.x\nYour node version which is:'
-                                                            f' {node_version}, is affected'))
-            state[pid] = status.process_vulnerable(pid, vulnerability)
-            status.remediation_mitigation(REMEDIATION, MITIGATION)
-        else:
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'Node versions that are equal or higher than 17.0.0 are '
-                                                            f'using OpenSSL versions 3.0.x\nYour node version which is:'
-                                                            f' {node_version}, is not affected'))
-            state[pid] = status.process_not_vulnerable(pid, vulnerability)
-    return state
-
-
-def vector_two(state, debug, container_name):
-    """This function performs the "vector two" of checking exploitability which is checking if there is a running node
-    process which is using the affected OpenSSL version."""
-    vulnerability = f'{VULNERABILITY} (the node check)'
-    pids = process_functions.pids_consolidation('node', debug, container_name)
-    if pids:
-        state[vulnerability] = validate_processes_vector_two(state, pids, vulnerability, debug, container_name)
     else:
         state[vulnerability] = status.not_vulnerable(vulnerability)
     return state
@@ -170,7 +155,7 @@ def compare_versions(openssl_version, fixed_openssl_version):
 def check_openssl_affected(openssl_version, debug, container_name):
     """This function checks if the OpenSSL version is affected."""
     affected = False
-    print(constants.FULL_QUESTION_MESSAGE.format('Is OpenSSL version affected?'))
+    print(constants.FULL_QUESTION_MESSAGE.format('Is the OpenSSL version affected?'))
     if openssl_version.startswith(AFFECTED_VERSION_START_NUMBER):
         information_fields = ['Distribution', 'Version']
         host_information = os_release.get_field(information_fields, debug, container_name)
@@ -181,9 +166,8 @@ def check_openssl_affected(openssl_version, debug, container_name):
         affected = compare_versions(openssl_version, fixed_openssl_version)
     else:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected OpenSSL versions are lower than 3.0.7\nYour '
-                                                        f'OpenSSL version which is: {openssl_version} is not '
-                                                        f'affected'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected OpenSSL versions are lower than 3.0.7\nYour OpenSSL '
+                                                        f'version which is: {openssl_version} is not affected'))
     return affected
 
 
@@ -223,7 +207,6 @@ def validate(debug, container_name):
     state = {}
     state = vector_one(state, debug, container_name)
     state = vector_two(state, debug, container_name)
-    state = vector_three(state, debug, container_name)
     return state
 
 
@@ -233,21 +216,13 @@ def validation_flow_chart():
     commons.graph_start(VULNERABILITY, vol_graph)
     vol_graph.edge('Is it Linux?', 'Is there OpenSSL?', label='Yes')
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is it Linux?', 'Is there node version that uses an affected OpenSS version?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is it Linux?', 'Are there running processes that load "openssl/libssl/libcrypto" so files?',
-                   label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vol_graph.edge('Is it Linux?', 'Are there running processes that use an affected OpenSSL versions?',  label='Yes')
     vol_graph.edge('Is there OpenSSL?', 'Is the OpenSSL version affected?', label='Yes')
     vol_graph.edge('Is there OpenSSL?', 'Not Vulnerable', label='No')
     vol_graph.edge('Is the OpenSSL version affected?', 'Vulnerable', label='Yes')
     vol_graph.edge('Is the OpenSSL version affected?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is there node version that uses an affected OpenSSL version?', 'Vulnerable', label='Yes')
-    vol_graph.edge('is there node version that uses an affected OpenSSL version?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Are there running processes that load "openssl/libssl/libcrypto" so files?', 'Vulnerable',
-                   label='Yes')
-    vol_graph.edge('Are there running processes that load "openssl/libssl/libcrypto" so files?', 'Not Vulnerable',
-                   label='No')
+    vol_graph.edge('Are there running processes that use an affected OpenSSL versions?', 'Vulnerable', label='Yes')
+    vol_graph.edge('Are there running processes that use an affected OpenSSL versions?', 'Not Vulnerable', label='No')
     commons.graph_end(vol_graph)
 
 

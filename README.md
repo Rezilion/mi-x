@@ -24,7 +24,7 @@
 ‘Am I Exploitable?’ is a python open source project that comes to meet the need of validating if your system is exploitable to specific vulnerabilities.
 The project can help you understand whether you are exploitable to a specific vulnerability and explain to you what is the vulnerable component or invulnerable component in your system.
 The project can create a graph that presents the validation flow according to the vulnerability checks we perform.
-MI-X supports machine readable output. The results can be exported to three different file formats: json, csv and text.
+MI-X supports readable machine output. The results can be exported to three different file formats: json, csv and text.
 After executing the tool, you will see the validation flow - it will print out which checks were performed on the host/container followed by remediation and mitigation recommendations.
 We want to create a community of researchers and programmers that can add vulnerability checks for new vulnerabilities or critical or famous vulnerabilities. Whenever a new vulnerability comes up, we can offer this service that helps people validate if they are exploitable or not.
 In addition, the vulnerabilities checks we wrote so far, can be expanded with some checks we might have missed.

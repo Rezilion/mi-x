@@ -28,7 +28,7 @@ In this case, an attacker still needs to craft a malicious email address in a ce
 order to overflow an arbitrary number of bytes containing the `.' character on the stack. This buffer overflow could 
 result in a crash which can result in a denial of service.
 
-MI-X supports two different methods to check if you have an affected OpenSSL
+MI-X supports two different methods to check if you have an affected OpenSSL version
 Vector one - use the package manager to check if you have an affected OpenSSL that installed via the package manager.
 Vector three - checks if the running processes are using an affected OpenSSL version.
 

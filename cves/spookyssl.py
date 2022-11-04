@@ -216,7 +216,7 @@ def validation_flow_chart():
     commons.graph_start(VULNERABILITY, vol_graph)
     vol_graph.edge('Is it Linux?', 'Is there OpenSSL?', label='Yes')
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is it Linux?', 'Are there running processes that use an affected OpenSSL versions?',  label='Yes')
+    vol_graph.edge('Is it Linux?', 'Are there running processes that use an affected OpenSSL version?',  label='Yes')
     vol_graph.edge('Is there OpenSSL?', 'Is the OpenSSL version affected?', label='Yes')
     vol_graph.edge('Is there OpenSSL?', 'Not Vulnerable', label='No')
     vol_graph.edge('Is the OpenSSL version affected?', 'Vulnerable', label='Yes')

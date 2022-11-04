@@ -4,6 +4,31 @@ Support for modules which written for avoiding repetitive code.
 import re
 from modules import run_command, commons, constants, docker_commands
 
+SO = '.so'
+
+
+def get_container_full_path(path, debug, container_name):
+    """This function returns the full path of a file in a container."""
+    merge_dir = docker_commands.get_merge_dir(debug, container_name)
+    path = f'{merge_dir}{path}'
+    return path
+
+
+def get_loaded_so_files_of_a_process(pid, debug, container_name):
+    """This function returns all so files within the running process."""
+    pid_maps_path = f'/proc/{pid}/maps'
+    pid_maps_content = commons.file_content(pid_maps_path, debug, container_name='')
+    so_files = []
+    if pid_maps_content:
+        for line in pid_maps_content:
+            if SO in line:
+                so_path = line.split(' ')[constants.END]
+                so_files.append(so_path)
+                if container_name:
+                    container_file_path = get_container_full_path(so_path, debug, container_name)
+                    so_files.append(container_file_path)
+    return so_files
+
 
 def check_loaded_so_file_to_process(pid, so_file, debug, container_name):
     """This function returns the path of the loaded so file if loaded."""
@@ -33,7 +58,7 @@ def find_relevant_pids(pids, container_pids_list, debug, container_name):
             container_maps_content = commons.file_content(container_maps_file, debug, container_name)
             if host_maps_content == container_maps_content:
                 relevant_pids.append(host_pid)
-    print(constants.FULL_QUESTION_MESSAGE.format(f'There is a match between container pids to host pids?'))
+    print(constants.FULL_QUESTION_MESSAGE.format(f'Is there a match between container pids to host pids?'))
     if relevant_pids:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'The following pids: {relevant_pids} have a match with '
@@ -84,7 +109,7 @@ def running_processes(debug, container_name):
         container_pids = list_of_running_processes(debug, container_name)
         return find_relevant_pids(pids, container_pids, debug, container_name)
     else:
-        print(constants.FULL_QUESTION_MESSAGE.format(f'There are running processes on the host?'))
+        print(constants.FULL_QUESTION_MESSAGE.format(f'Are there running processes on the host?'))
         if host_pids:
             print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'The following PIDs are running processes: '
@@ -121,7 +146,7 @@ def check_running_processes_by_name(process_type, software, debug, container_nam
     pids_command = f'pgrep {process_type}'
     pipe_pids = run_command.command_output(pids_command, debug, container_name)
     pids = pipe_pids.stdout
-    print(constants.FULL_QUESTION_MESSAGE.format(f'There are running {process_type} processes on the {software}?'))
+    print(constants.FULL_QUESTION_MESSAGE.format(f'Are there running {process_type} processes on the {software}?'))
     if not pids:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'There are no running {process_type} processes'))
@@ -141,7 +166,7 @@ def get_pids_by_name(process_type, debug, container_name):
         relevant_pids = find_pids_from_status_file(pids_list, debug, container_name)
     else:
         return pids_list
-    print(constants.FULL_QUESTION_MESSAGE.format(f'There are relevant running {process_type} processes on the '
+    print(constants.FULL_QUESTION_MESSAGE.format(f'Are there relevant running {process_type} processes on the '
                                                  f'{software}?'))
     if relevant_pids:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
@@ -180,23 +205,35 @@ def pids_consolidation(process_type, debug, container_name):
     return pids
 
 
-def read_output(pid, command, value, debug, container_name):
+def read_output(command, pid, value, debug, container_name):
     """This function returns command results and prints an error if something is wrong."""
     pipe = run_command.command_output(command, debug, container_name)
     output = pipe.stdout[:constants.END]
     if not output:
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Error while reading the {pid} process executable {value}'))
-        return constants.UNSUPPORTED
     return output
+
+
+def get_process_executable(pid, debug, container_name):
+    """This function returns the process's executable."""
+    executable_link_command = f'readlink -f /proc/{pid}/exe'
+    pipe = run_command.command_output(executable_link_command, debug, container_name='')
+    executable_link = pipe.stdout[:constants.END]
+    if executable_link:
+        if container_name:
+            executable_link = get_container_full_path(executable_link, debug, container_name)
+    return executable_link
 
 
 def process_executable_version(pid, debug, container_name):
     """This function returns the process's executable version."""
     executable_link_command = f'readlink -f /proc/{pid}/exe'
-    executable_link = read_output(pid, executable_link_command, 'file', debug, container_name='')
-    if not executable_link == constants.UNSUPPORTED:
+    executable_link = read_output(executable_link_command, pid, value, debug, container_name='')
+    if executable_link:
+        if container_name:
+            executable_link = get_container_full_path(executable_link, debug, container_name)
         executable_version_command = f'{executable_link} --version'
         version = read_output(pid, executable_version_command, 'version', debug, container_name)
-        if not version == constants.UNSUPPORTED:
+        if version:
             return version
-    return constants.UNSUPPORTED
+    return executable_link

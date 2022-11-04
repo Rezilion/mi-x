@@ -30,7 +30,7 @@ result in a crash which can result in a denial of service.
 
 MI-X supports two different methods to check if you have an affected OpenSSL version
 Vector one - use the package manager to check if you have an affected OpenSSL that installed via the package manager.
-Vector three - checks if the running processes are using an affected OpenSSL version.
+Vector two - checks if the running processes are using an affected OpenSSL version by analyzing the process memory.
 
 Related Links:
 https://www.rezilion.com/blog/clearing-the-fog-over-the-new-openssl-vulnerabilities/

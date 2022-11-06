@@ -2,7 +2,7 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import constants, graph_functions, status, process_functions, jave_functions
+from modules import constants, graph_functions, status, process_functions, java_functions
 
 VULNERABILITY = 'Log4Shell'
 DESCRIPTION = f'''your system will be scanned for all Log4Shell related CVEs.
@@ -76,15 +76,15 @@ def validate_processes(pids, debug, container_name):
     for pid in pids:
         jcmd_path = 'jcmd'
         if container_name:
-            jcmd_path = jave_functions.build_jcmd_path(pid, debug, container_name)
+            jcmd_path = java_functions.build_jcmd_path(pid, debug, container_name)
             if jcmd_path == constants.UNSUPPORTED:
                 state[pid] = status.process_not_determined(pid, VULNERABILITY)
                 break
         jcmd_command = f'sudo {jcmd_path} {pid} '
-        utility = jave_functions.available_jcmd_utilities(jcmd_command, debug)
+        utility = java_functions.available_jcmd_utilities(jcmd_command, debug)
         if utility:
             full_jcmd_command = jcmd_command + utility
-            cves = jave_functions.check_loaded_classes(pid, full_jcmd_command, CLASS_CVE, debug)
+            cves = java_functions.check_loaded_classes(pid, full_jcmd_command, CLASS_CVE, debug)
             if cves == constants.UNSUPPORTED:
                 state[pid] = status.process_not_determined(pid, VULNERABILITY)
             elif cves:

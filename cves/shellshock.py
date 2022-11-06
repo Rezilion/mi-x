@@ -225,7 +225,9 @@ def validate(debug, container_name):
             state['CVE-2014-7169'] = cve_2014_7169(container_name)
             state['CVE-2014-7186'] = cve_2014_7186(container_name)
             state['CVE-2014-7187'] = cve_2014_7187(container_name)
-            status.remediation_mitigation(REMEDIATION, MITIGATION)
+            for value in state:
+                if state[value] == 'vulnerable':
+                    status.remediation_mitigation(REMEDIATION, MITIGATION)
         else:
             state[VULNERABILITY] =  status.not_vulnerable(VULNERABILITY)
     else:

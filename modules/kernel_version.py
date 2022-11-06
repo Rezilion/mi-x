@@ -1,9 +1,23 @@
 """
-Support for semver and other modules which written for avoiding repetitive code.
+Support for re, version from packaging and other modules which written for avoiding repetitive code.
 """
 import re
 from packaging import version
 from modules import constants, run_command
+
+
+def get_aws(debug):
+    """This function returns the kernel version."""
+    hypervisor_path = '/sys/hypervisor/uuid'
+    
+    kernel_version_command = f'head -c 3 {hypervisor_path}'
+    pipe_kernel_version = run_command.command_output(kernel_version_command, debug, container_name='')
+    kernel_version = pipe_kernel_version.stdout
+    if kernel_version:
+        if kernel_version.endswith('\n'):
+            kernel_version = kernel_version[:constants.END]
+        return kernel_version
+    return ''
 
 
 def get_kernel_version(debug):

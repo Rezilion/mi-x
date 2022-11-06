@@ -1,8 +1,7 @@
 """
-Support for os and other modules which written for avoiding repetitive code.
+Support for modules which written for avoiding repetitive code.
 """
-import os
-from modules import constants, run_command
+from modules import constants, run_command, file_functions
 
 NAME_FIELD = 'NAME='
 VERSION_FIELD = 'VERSION_ID='
@@ -12,7 +11,7 @@ ALPINE = 'alpine'
 def file_content_host(file_path, debug, container_name):
     """This function returns the file's content if exists (in hosts)."""
     content = []
-    if os.path.isfile(file_path):
+    if file_functions.check_file_existence(file_path, debug, container_name):
         try:
             with open(file_path, 'r', encoding='utf-8') as file:
                 content = []

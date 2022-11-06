@@ -1,11 +1,10 @@
 """
-Support for graphviz, re, version, os from packaging and other modules which written for avoiding repetitive code.
+Support for graphviz, re, version from packaging and other modules which written for avoiding repetitive code.
 """
 import graphviz
 import re
 from packaging import version
-import os
-from modules import constants, graph_functions, status, run_command, os_release, receive_package, process_functions
+from modules import constants, graph_functions, status, run_command, file_functions, os_release, receive_package, process_functions
 
 VULNERABILITY = 'Spooky SSL'
 DESCRIPTION = f'''{VULNERABILITY} - CVE-2022-3786, CVE-2022-3602
@@ -49,7 +48,7 @@ MITIGATION = 'If your servers are running the affected OpenSSL version, make sur
 def check_affected_file(so_file, debug):
     """This function checks if the received file uses an affected OpenSSL version."""
     openssl_version = ''
-    if os.path.isfile(so_file):
+    if file_functions.check_file_existence(so_file, debug, container_name=''):
         strings_command = f'strings {so_file}'
         strings_content = run_command.command_output(strings_command, debug, container_name='')
         strings_content = strings_content.stdout

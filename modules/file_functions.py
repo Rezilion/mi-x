@@ -8,7 +8,6 @@ from modules import constants, run_command
 def check_file_existence(file_path, debug, container_name):
     """This function checks if the file is exist in the system."""
     exist = False
-    print(constants.FULL_QUESTION_MESSAGE.format(f'Is {file_path} file exists?'))
     if container_name:
         cat_file_command = f'cat {file_path}'
         pipe_cat_file = run_command.command_output(cat_file_command, debug, container_name)
@@ -17,12 +16,6 @@ def check_file_existence(file_path, debug, container_name):
     else:
         if os.path.isfile(file_path):
             exist = True
-    if exist:
-        print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format('The file exists in your system'))
-    else:
-        print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('No'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format('The file does not exist in your system'))
     return exist
 
 

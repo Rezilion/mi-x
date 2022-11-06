@@ -3,7 +3,7 @@ Support for os, re and other modules which written for avoiding repetitive code.
 """
 import re
 import os
-from modules import constants, run_command, docker_commands
+from modules import constants, run_command, file_functions, docker_commands
 
 VM_CLASS_HIERARCHY = 'VM.class_hierarchy'
 GC_CLASS_HISTOGRAM = 'GC.class_histogram'
@@ -56,7 +56,7 @@ def get_jcmd(pid, debug, container_name):
                     'jdk/bin'
         if os.path.isdir(jcmd_path):
             jcmd_path = jcmd_path + '/jcmd'
-            if not os.path.isfile(jcmd_path):
+            if not file_functions.check_file_existence(jcmd_path, debug, container_name=''):
                 jcmd_path = 'jcmd'
         else:
             jcmd_path = 'jcmd'

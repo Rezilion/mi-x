@@ -36,7 +36,7 @@ def check_java_version(pid, jcmd_command, debug):
     """This function checks the process`s java version."""
     pipe_jcmd = run_command.command_output(jcmd_command, debug, container_name='')
     jcmd = pipe_jcmd.stdout
-    print(constants.FULL_QUESTION_MESSAGE.format(f'Is the following process: {pid} java version affected?'))
+    print(constants.FULL_QUESTION_MESSAGE.format(f'Is the java version of the following {pid} process affected?'))
     if not jcmd:
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Unsupported {VM_VERSION} value'))
         return constants.UNSUPPORTED

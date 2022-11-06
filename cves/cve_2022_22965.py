@@ -3,7 +3,7 @@ Support for graphviz and other modules which written for avoiding repetitive cod
 """
 import graphviz
 from packaging import version
-from modules import status, run_command, process_functions, jave_functions, commons, constants
+from modules import constants, graph_functions, status, run_command, process_functions, jave_functions
 
 VULNERABILITY = 'CVE-2022-22965'
 DESCRIPTION = f'''{VULNERABILITY} - Spring4Shell
@@ -105,7 +105,7 @@ def validate(debug, container_name):
 def validation_flow_chart():
     """This function creates a graph that shows the vulnerability validation process of Spring4Shell."""
     vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    commons.graph_start(VULNERABILITY, vol_graph)
+    graph_functions.graph_start(VULNERABILITY, vol_graph)
     vol_graph.edge('Is it Linux?', 'Are there running Java processes?', label='Yes')
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge('Are there running Java processes?', 'Is java version affected?', label='Yes')
@@ -114,7 +114,7 @@ def validation_flow_chart():
     vol_graph.edge('Is java version affected?', 'Not Vulnerable', label='No')
     vol_graph.edge('Does the process use webmvc or webflux dependencies?', 'Vulnerable', label='Yes')
     vol_graph.edge('Does the process use webmvc or webflux dependencies?', 'Not Vulnerable', label='No')
-    commons.graph_end(vol_graph)
+    graph_functions.graph_end(vol_graph)
 
 
 def main(description, graph, debug, container_name):

@@ -2,7 +2,7 @@
 Support for os and other modules which written for avoiding repetitive code.
 """
 import os
-from modules import run_command, constants
+from modules import constants, run_command
 
 NAME_FIELD = 'NAME='
 VERSION_FIELD = 'VERSION_ID='

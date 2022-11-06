@@ -2,7 +2,7 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import status, run_command, process_functions, versions_functions, file_functions, commons, constants
+from modules import constants, graph_functions, status, run_command, file_functions, process_functions, versions_functions
 
 VULNERABILITY = 'CVE-2021-3711'
 DESCRIPTION = f'''{VULNERABILITY}
@@ -114,7 +114,7 @@ def validate(debug, container_name):
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of CVE-2021-3177."""
     vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    commons.graph_start(VULNERABILITY, vol_graph)
+    graph_functions.graph_start(VULNERABILITY, vol_graph)
     vol_graph.edge('Is it Linux?', 'Are there running Python processes?', label='Yes')
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge('Are there running Python processes?', 'Is python version affected?', label='Yes')
@@ -123,7 +123,7 @@ def validation_flow_chart():
     vol_graph.edge('Is python version affected?', 'Not Vulnerable', label='No')
     vol_graph.edge('Is ctypes module loaded into memory?', 'Vulnerable', label='Yes')
     vol_graph.edge('Is ctypes module loaded into memory?', 'Not Vulnerable', label='No')
-    commons.graph_end(vol_graph)
+    graph_functions.graph_end(vol_graph)
 
 
 def main(description, graph, debug, container_name):

@@ -4,7 +4,7 @@ Support for subprocess, semver, graphviz and other modules which written for avo
 import subprocess
 import graphviz
 from packaging import version
-from modules import status, run_command, commons, constants
+from modules import constants, graph_functions, status, run_command
 
 VULNERABILITY = 'Shellshock'
 DESCRIPTION = f'''your system will be scanned for all ShellShock related CVEs.
@@ -280,7 +280,7 @@ def validation_flow_chart():
     vol_graph.edge('Is bash version affected?', 'Is Vulnerable to CVE-2014-7187', label='Yes')
     vol_graph.edge('Is Vulnerable to CVE-2014-7187', 'Vulnerable to CVE-2014-7187', label='Yes')
     vol_graph.edge('Is Vulnerable to CVE-2014-7187', 'Not Vulnerable to CVE-2014-7187', label='No')
-    commons.graph_end(vol_graph)
+    graph_functions.graph_end(vol_graph)
 
 
 def main(description, graph, debug, container_name):

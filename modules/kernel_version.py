@@ -3,7 +3,7 @@ Support for semver and other modules which written for avoiding repetitive code.
 """
 import re
 from packaging import version
-from modules import run_command, constants
+from modules import constants, run_command
 
 
 def get_kernel_version(debug):

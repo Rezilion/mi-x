@@ -2,7 +2,7 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import status, commons, constants, file_functions, os_release
+from modules import constants, graph_functions, status, file_functions, os_release
 
 
 VULNERABILITY = 'CVE-2017-5715'
@@ -198,7 +198,7 @@ def validation_flow_chart():
     """This function creates a graph that shows the vulnerability validation process of Spectre Variant 2."""
     spectre_v2_path = '/sys/devices/system/cpu/vulnerabilities/spectre_v2'
     vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    commons.graph_start(VULNERABILITY, vol_graph)
+    graph_functions.graph_start(VULNERABILITY, vol_graph)
     vol_graph.edge('Is it Linux?', 'Does the system meet the edge case conditions?', label='Yes')
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge('Does the system meet the edge case conditions?', 'Vulnerable', label='Yes')
@@ -211,7 +211,7 @@ def validation_flow_chart():
     vol_graph.edge('Are ibpb or ibrs mitigations enabled?', 'Vulnerable', label='No')
     vol_graph.edge('Is spectre_v2 mitigation enabled?', 'Not Vulnerable', label='Yes')
     vol_graph.edge('Is spectre_v2 mitigation enabled?', 'Vulnerable', label='No')
-    commons.graph_end(vol_graph)
+    graph_functions.graph_end(vol_graph)
 
 
 def main(description, graph, debug, container_name):

@@ -3,7 +3,7 @@ Support for os, re and other modules which written for avoiding repetitive code.
 """
 import re
 import os
-from modules import run_command, docker_commands, constants
+from modules import constants, run_command, docker_commands
 
 VM_CLASS_HIERARCHY = 'VM.class_hierarchy'
 GC_CLASS_HISTOGRAM = 'GC.class_histogram'

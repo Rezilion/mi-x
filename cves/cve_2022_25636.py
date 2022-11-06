@@ -3,7 +3,7 @@ Support for semver, graphviz and other modules which written for avoiding repeti
 """
 import graphviz
 from packaging import version
-from modules import status, run_command, kernel_version, file_functions, commons, constants
+from modules import constants, graph_functions, status, run_command, file_functions, kernel_version
 
 VULNERABILITY = 'CVE-2022-25636'
 DESCRIPTION = f'''{VULNERABILITY}
@@ -113,7 +113,7 @@ def validate(debug, container_name):
 def validation_flow_chart():
     """This function creates a graph that shows the vulnerability validation process of CVE-2022-25636."""
     vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    commons.graph_start(VULNERABILITY, vol_graph)
+    graph_functions.graph_start(VULNERABILITY, vol_graph)
     vol_graph.edge('Is it Linux?', 'Is the kernel version affected?', label='Yes')
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge('Is the kernel version affected?', 'Does the `nf_tables.ko` file exists?', label='Yes')
@@ -122,7 +122,7 @@ def validation_flow_chart():
     vol_graph.edge('Does the `nf_tables.ko` file exists?', 'Not Vulnerable', label='No')
     vol_graph.edge('Is `nf_tables.ko` file affected?', 'Vulnerable', label='Yes')
     vol_graph.edge('Is `nf_tables.ko` file affected?', 'Not Vulnerable', label='No')
-    commons.graph_end(vol_graph)
+    graph_functions.graph_end(vol_graph)
 
 
 def main(description, graph, debug, container_name):

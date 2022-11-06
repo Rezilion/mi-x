@@ -2,7 +2,7 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import status, process_functions, jave_functions, commons, constants
+from modules import constants, graph_functions, status, process_functions, jave_functions
 
 VULNERABILITY = 'Log4Shell'
 DESCRIPTION = f'''your system will be scanned for all Log4Shell related CVEs.
@@ -111,14 +111,14 @@ def validate(debug, container_name):
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of Log4Shell."""
     vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    commons.graph_start(VULNERABILITY, vol_graph)
+    graph_functions.graph_start(VULNERABILITY, vol_graph)
     vol_graph.edge('Is it Linux?', 'Are there running Java processes?', label='Yes')
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge('Are there running Java processes?', 'Are the vulnerable classes loaded?', label='Yes')
     vol_graph.edge('Are there running Java processes?', 'Not Vulnerable', label='No')
     vol_graph.edge('Are the vulnerable classes loaded?', 'Vulnerable', label='Yes')
     vol_graph.edge('Are the vulnerable classes loaded?', 'Not Vulnerable', label='No')
-    commons.graph_end(vol_graph)
+    graph_functions.graph_end(vol_graph)
 
 
 def main(description, graph, debug, container_name):

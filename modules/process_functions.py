@@ -2,7 +2,7 @@
 Support for modules which written for avoiding repetitive code.
 """
 import re
-from modules import run_command, docker_commands, file_functions, commons, constants
+from modules import constants, run_command, file_functions, docker_commands
 
 SO = '.so'
 

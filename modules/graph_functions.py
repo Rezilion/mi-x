@@ -1,8 +1,7 @@
 """
 Support for os, re, semver, version from packaging and other modules which written for avoiding repetitive code.
 """
-import os
-from modules import run_command, constants, docker_commands, os_type, os_release
+from modules import constants
 
 
 def graph_start(cve, vol_graph):

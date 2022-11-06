@@ -5,7 +5,7 @@ import graphviz
 import re
 from packaging import version
 import os
-from modules import status, commons, constants, os_release, receive_package, process_functions, run_command
+from modules import constants, graph_functions, status, run_command, os_release, receive_package, process_functions
 
 VULNERABILITY = 'Spooky SSL'
 DESCRIPTION = f'''{VULNERABILITY} - CVE-2022-3786, CVE-2022-3602
@@ -213,7 +213,7 @@ def validate(debug, container_name):
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of SpookySSL."""
     vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    commons.graph_start(VULNERABILITY, vol_graph)
+    graph_functions.graph_start(VULNERABILITY, vol_graph)
     vol_graph.edge('Is it Linux?', 'Is there OpenSSL?', label='Yes')
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge('Is it Linux?', 'Are there running processes that use an affected OpenSSL version?',  label='Yes')
@@ -223,7 +223,7 @@ def validation_flow_chart():
     vol_graph.edge('Is the OpenSSL version affected?', 'Not Vulnerable', label='No')
     vol_graph.edge('Are there running processes that use an affected OpenSSL version?', 'Vulnerable', label='Yes')
     vol_graph.edge('Are there running processes that use an affected OpenSSL version?', 'Not Vulnerable', label='No')
-    commons.graph_end(vol_graph)
+    graph_functions.graph_end(vol_graph)
 
 
 def main(description, graph, debug, container_name):

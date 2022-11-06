@@ -3,7 +3,7 @@ Support for graphviz, version from packaging and other modules which written for
 """
 import graphviz
 from packaging import version
-from modules import status, run_command, commons, os_release, versions_functions, constants, receive_package
+from modules import constants, graph_functions, status, run_command, os_release, versions_functions, receive_package
 
 VULNERABILITY = 'CVE-2021-4034'
 DESCRIPTION = f'''{VULNERABILITY} - PwnKit
@@ -250,7 +250,7 @@ def validate(debug, container_name):
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of PwnKit."""
     vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    commons.graph_start(VULNERABILITY, vol_graph)
+    graph_functions.graph_start(VULNERABILITY, vol_graph)
     vol_graph.edge('Is it Linux?', 'Is there an affected PolicyKit package installed?', label='Yes')
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge('Is there an affected PolicyKit package installed?', 'Does pkexec have execute permissions?',
@@ -262,7 +262,7 @@ def validation_flow_chart():
     vol_graph.edge('Does pkexec have suid bit?', 'Not Vulnerable', label='No')
     vol_graph.edge('Is pkexec binary owner root?', 'Vulnerable', label='Yes')
     vol_graph.edge('Is pkexec binary owner root?', 'Not Vulnerable', label='No')
-    commons.graph_end(vol_graph)
+    graph_functions.graph_end(vol_graph)
 
 
 def main(description, graph, debug, container_name):

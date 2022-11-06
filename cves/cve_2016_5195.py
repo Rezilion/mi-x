@@ -3,7 +3,7 @@ Support for importlib, graphviz and other modules which written for avoiding rep
 """
 import importlib
 import graphviz
-from modules import status, run_command, kernel_version, commons, os_release, constants
+from modules import constants, graph_functions, status, run_command, kernel_version, os_release
 
 VULNERABILITY = 'CVE-2016-5195'
 NEXT_VULNERABILITY = 'cve_2017_1000405'
@@ -134,7 +134,7 @@ def validate(debug, container_name):
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of CVE-2016-5195."""
     vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    commons.graph_start(VULNERABILITY, vol_graph)
+    graph_functions.graph_start(VULNERABILITY, vol_graph)
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge('Is it Linux?', 'Is os release effected?', label='Yes')
     vol_graph.edge('Is os release effected?', 'Is the kernel release effected?', label='Yes')
@@ -147,7 +147,7 @@ def validation_flow_chart():
     vol_graph.edge('Are There loaded modules?', 'Vulnerable', label='No')
     vol_graph.edge('Is it Patched with kpatch?', 'Not Vulnerable', label='Yes')
     vol_graph.edge('Is it Patched with kpatch?', 'Vulnerable', label='No')
-    commons.graph_end(vol_graph)
+    graph_functions.graph_end(vol_graph)
 
 
 def main(description, graph, debug, container_name):

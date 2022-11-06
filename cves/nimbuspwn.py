@@ -3,7 +3,7 @@ Support for graphviz, version from packaging and other modules which written for
 """
 import graphviz
 from packaging import version
-from modules import status, commons, os_release, constants, receive_package
+from modules import constants, graph_functions, status, os_release, receive_package
 
 VULNERABILITY = 'NIMBUSPWN'
 DESCRIPTION = f'''{VULNERABILITY} - CVE-2022-29799, CVE-2022-29800
@@ -136,7 +136,7 @@ def validate(debug, container_name):
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of NIMBUSPWN."""
     vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    commons.graph_start(VULNERABILITY, vol_graph)
+    graph_functions.graph_start(VULNERABILITY, vol_graph)
     vol_graph.edge('Is it Linux?', 'Are os distribution and version affected?', label='Yes')
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge('Are os distribution and version affected?', 'Is networkd-dispatcher policy version affected?',
@@ -144,7 +144,7 @@ def validation_flow_chart():
     vol_graph.edge('Are os distribution and version affected?', 'Not Vulnerable', label='No')
     vol_graph.edge('Is networkd-dispatcher policy version affected?', 'Vulnerable', label='Yes')
     vol_graph.edge('Is networkd-dispatcher policy version affected?', 'Not Vulnerable', label='No')
-    commons.graph_end(vol_graph)
+    graph_functions.graph_end(vol_graph)
 
 
 def main(description, graph, debug, container_name):

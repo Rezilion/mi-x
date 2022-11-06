@@ -2,7 +2,7 @@
 Support for graphviz, version from packaging and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import status, commons, os_release, kernel_version, file_functions, run_command, constants
+from modules import constants, graph_functions, status, run_command, file_functions, os_release, kernel_version
 
 VULNERABILITY = 'CVE-2021-4154'
 DESCRIPTION = '''Dirty Cred
@@ -122,14 +122,14 @@ def validate(debug, container_name):
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of Dirty Cred."""
     vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    commons.graph_start(VULNERABILITY, vol_graph)
+    graph_functions.graph_start(VULNERABILITY, vol_graph)
     vol_graph.edge('Is it Linux?', 'Is kernel version affected?', label='Yes')
     vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vol_graph.edge('Is kernel version affected?', 'There is a patch installed?', label='Yes')
     vol_graph.edge('Is kernel version affected?', 'Not Vulnerable', label='No')
     vol_graph.edge('Is there a patch installed?', 'Not Vulnerable', label='Yes')
     vol_graph.edge('Is there a patch installed?', 'Vulnerable', label='No')
-    commons.graph_end(vol_graph)
+    graph_functions.graph_end(vol_graph)
 
 
 def main(description, graph, debug, container_name):

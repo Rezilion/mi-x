@@ -3,7 +3,7 @@ Support for semver, graphviz and other modules which written for avoiding repeti
 """
 import graphviz
 from packaging import version
-from modules import status, kernel_version, commons, constants
+from modules import status, kernel_version, versions_functions, commons, constants
 
 VULNERABILITY = 'CVE-2022-0847'
 DESCRIPTION = f'''{VULNERABILITY} - Dirty Pipe
@@ -45,7 +45,7 @@ def check_kernel_version(debug):
                                                         f'in the affected kernel versions range which is: '
                                                         f'{FIRST_AFFECTED_VERSION} to {FIXED_VERSION}'))
     else:
-        return commons.check_patched_version('Kernel', valid_kernel_version, PATCHED_VERSIONS)
+        return versions_functions.check_patched_version('Kernel', valid_kernel_version, PATCHED_VERSIONS)
     return affected
 
 

@@ -3,7 +3,7 @@ Support for graphviz, version from packaging and other modules which written for
 """
 import graphviz
 from packaging import version
-from modules import status, run_command, commons, os_release, constants, receive_package
+from modules import status, run_command, commons, os_release, versions_functions, constants, receive_package
 
 VULNERABILITY = 'CVE-2021-4034'
 DESCRIPTION = f'''{VULNERABILITY} - PwnKit
@@ -157,7 +157,7 @@ def policykit_affected_rpm(host_information, package_name, debug, container_name
                                                         f'higher than the patched version which is: {fixed_version}'))
     elif version.parse(host_version) == version.parse(fixed_version):
         patched_version = polkit_fixed_version[constants.FIRST]
-        return commons.compare_versions(patched_version, host_release, package_name)
+        return versions_functions.compare_versions(patched_version, host_release, package_name)
     else:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: {host_version}, is '
@@ -173,7 +173,7 @@ def policykit_affected_apt(host_information, package_name, debug, container_name
     if not host_version:
         return False
     polkit_fixed_version = FIXED_APT[host_information]
-    return commons.compare_versions(polkit_fixed_version, host_version, package_name)
+    return versions_functions.compare_versions(polkit_fixed_version, host_version, package_name)
 
 
 def check_policykit(host_information, debug, container_name):

@@ -3,7 +3,7 @@ Support for graphviz and other modules which written for avoiding repetitive cod
 """
 import graphviz
 from packaging import version
-from modules import status, run_command, process_functions, commons, constants
+from modules import status, run_command, process_functions, jave_functions, commons, constants
 
 VULNERABILITY = 'CVE-2022-22965'
 DESCRIPTION = f'''{VULNERABILITY} - Spring4Shell
@@ -60,7 +60,7 @@ def validate_processes(pids, debug, container_name):
     for pid in pids:
         jcmd_path = 'jcmd'
         if container_name:
-            jcmd_path = commons.build_jcmd_path(pid, debug, container_name)
+            jcmd_path = jave_functions.build_jcmd_path(pid, debug, container_name)
             if jcmd_path == constants.UNSUPPORTED:
                 state[pid] = status.process_not_determined(pid, VULNERABILITY)
                 break
@@ -73,10 +73,10 @@ def validate_processes(pids, debug, container_name):
             state[pid] = status.process_not_vulnerable(pid, VULNERABILITY)
             break
         jcmd_command = f'sudo {jcmd_path} {pid} '
-        utility = commons.available_jcmd_utilities(jcmd_command, debug)
+        utility = jave_functions.available_jcmd_utilities(jcmd_command, debug)
         if utility:
             full_jcmd_command = jcmd_command + utility
-            webmvc_webflux = commons.check_loaded_classes(pid, full_jcmd_command, CLASSES, debug)
+            webmvc_webflux = jave_functions.check_loaded_classes(pid, full_jcmd_command, CLASSES, debug)
             if webmvc_webflux == constants.UNSUPPORTED:
                 state[pid] = status.process_not_determined(pid, VULNERABILITY)
             elif webmvc_webflux:

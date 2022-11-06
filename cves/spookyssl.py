@@ -77,7 +77,7 @@ def check_so_files(so_files, pid, debug):
                 so_files_and_openssl_versions[so_file] = openssl_version
     if so_files_and_openssl_versions:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} running process list of so files and affected'
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} running process list of so files and affected '
                                                         f'OpenSSL versions:'))
         for so_path in so_files_and_openssl_versions:
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'{so_path} - '

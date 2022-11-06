@@ -5,6 +5,11 @@ import re
 import os
 from modules import run_command, docker_commands, constants
 
+VM_CLASS_HIERARCHY = 'VM.class_hierarchy'
+GC_CLASS_HISTOGRAM = 'GC.class_histogram'
+HELP = 'help'
+JDK_MINIMUM_VERSION = '10.0.0'
+
 
 def get_java_version(debug, container_name):
     """This function returns the java version."""

@@ -61,11 +61,10 @@ def nf_tables_affected(nf_tables_path, debug, container_name):
 def check_kernel(debug):
     """This function checks if the kernel version is affected."""
     print(constants.FULL_QUESTION_MESSAGE.format('Is kernel version affected?'))
-    host_kernel_version = kernel_version.get_kernel_version(debug)
-    if not host_kernel_version:
+    valid_kernel_version = kernel_version.get_valid_kernel_version(debug)
+    if not valid_kernel_version:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Kernel version unsupported value'))
         return constants.UNSUPPORTED
-    valid_kernel_version = commons.valid_kernel_version(host_kernel_version)
     if version.parse(valid_kernel_version) > version.parse(MAX_AFFECTED_VERSION) or \
             version.parse(valid_kernel_version) < version.parse(MIN_AFFECTED_VERSION):
         print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))

@@ -102,21 +102,18 @@ def distribution_version_affected(debug, container_name):
         return constants.UNSUPPORTED
     if host_information in AFFECTED_DISTRIBUTIONS:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os releases: {list(AFFECTED_VERSIONS.keys())}\n'
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os releases: {AFFECTED_DISTRIBUTIONS}\n'
                                                         f'Your os release: {host_information}\nThe os release you '
                                                         f'are running on is potentially affected'))
         return host_information
     if host_information.split(' ')[constants.START] in constants.APT_DISTRIBUTIONS:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your os distribution and version which is: '
-                                                        f'{host_information}\nAffected distributions and versions: '
-                                                        f'{list(AFFECTED_VERSIONS.keys())}\nYour distribution and '
-                                                        f'version are not affected'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your os distribution and version which are: '
+                                                        f'{host_information}, are not affected'))
         return ''
     print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os distributions: Ubuntu and Debian\nYour os '
-                                                    f'distribution: {host_information}\nThe os distribution you'
-                                                    f' are running on is not affected'))
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os distributions are: Ubuntu and Debian\nYour os '
+                                                    f'distribution which is: {host_information}, is not affected'))
     return ''
 
 

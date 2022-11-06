@@ -39,7 +39,7 @@ AFFECTED_VERSION_START_NUMBER = '3'
 FIXED_VERSION = '3.0.7'
 FIXED_UBUNTU_VERSIONS = {'Ubuntu 22.04': '3.0.2-0ubuntu1.7', 'Ubuntu 22.10': '3.0.5-2ubuntu2'}
 OPENSSL = 'openssl'
-REGEX_STRINGS = ['openssl-3.0.[1-6]', 'openssl_3.0.[1-6]', 'openssl 3.0.[1-6]']
+REGEX_STRINGS = ['openssl-3\.0\.[1-6]', 'openssl_3\.0\.[1-6]', 'openssl 3\.0\.[1-6]']
 REMEDIATION = 'Upgrade openssl version to 3.0.7 or higher, if Ubuntu 22.04 upgrade to 3.0.2-0ubuntu1.7, if Ubuntu ' \
                 '22.10 upgrade to 3.0.5-2ubuntu2'
 MITIGATION = 'If your servers are running the affected OpenSSL version, make sure they are segmented. It will avoid ' \
@@ -94,9 +94,9 @@ def check_executable_file(pid, debug, container_name):
         openssl_version = check_affected_file(executable_file, debug)
         if openssl_version:
             print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} running process executable file is using an '
-                                                            f'affected OpenSSL version:\n{executable_file} - '
-                                                            f'{openssl_version}'))
+            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} running process executable file which is: '
+                                                            f'{executable_file} is using an affected OpenSSL version:\n'
+                                                            f'{executable_file} - {openssl_version}'))
     return openssl_version
 
 

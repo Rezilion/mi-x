@@ -32,12 +32,11 @@ MITIGATION = ''
 def check_kernel_version(debug):
     """This function checks if the kernel version is affected by CVE-2022-0847."""
     affected = False
-    host_kernel_version = kernel_version.get_kernel_version(debug)
-    if not host_kernel_version:
+    valid_kernel_version = kernel_version.get_valid_kernel_version(debug)
+    if not valid_kernel_version:
         print(constants.FULL_QUESTION_MESSAGE.format('Is kernel version affected?'))
         print(constants.FULL_EXPLANATION_MESSAGE.format('Unsupported kernel version value'))
         return constants.UNSUPPORTED
-    valid_kernel_version = commons.valid_kernel_version(host_kernel_version)
     if version.parse(valid_kernel_version) >= version.parse(FIXED_VERSION) or \
             version.parse(valid_kernel_version) < version.parse(FIRST_AFFECTED_VERSION):
         print(constants.FULL_QUESTION_MESSAGE.format('Is kernel version affected?'))

@@ -196,12 +196,12 @@ def pids_consolidation(process_type, debug, container_name):
         pids = get_pids_by_name_container(process_type, debug, container_name)
         process_type = check_another_format_of_process_type(process_type)
         other_pids = get_pids_by_name_container(process_type, debug, container_name)
-        pids = list_pids(pids, other_pids)
+        pids = aggregate_pids_to_list(pids, other_pids)
     else:
         pids = get_pids_by_name(process_type, debug, container_name)
         process_type = check_another_format_of_process_type(process_type)
         other_pids = get_pids_by_name(process_type, debug, container_name)
-        pids = list_pids(pids, other_pids)
+        pids = aggregate_pids_to_list(pids, other_pids)
     return pids
 
 
@@ -228,12 +228,12 @@ def get_process_executable(pid, debug, container_name):
 def process_executable_version(pid, debug, container_name):
     """This function returns the process's executable version."""
     executable_link_command = f'readlink -f /proc/{pid}/exe'
-    executable_link = read_output(executable_link_command, pid, value, debug, container_name='')
+    executable_link = read_output(executable_link_command, pid, 'file', debug, container_name='')
     if executable_link:
         if container_name:
             executable_link = get_container_full_path(executable_link, debug, container_name)
         executable_version_command = f'{executable_link} --version'
-        version = read_output(pid, executable_version_command, 'version', debug, container_name)
+        version = read_output(executable_version_command, pid, 'version', debug, container_name)
         if version:
             return version
-    return executable_link
+    return ''

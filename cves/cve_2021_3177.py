@@ -2,7 +2,7 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import constants, graph_functions, status, run_command, file_functions, process_functions, versions_function
+from modules import constants, graph_functions, status, run_command, file_functions, process_functions, version_functions
 
 VULNERABILITY = 'CVE-2021-3711'
 DESCRIPTION = f'''{VULNERABILITY}
@@ -81,7 +81,7 @@ def validate_processes(pids, debug, container_name):
         if python_version == constants.UNSUPPORTED:
             state[pid] = status.process_not_determined(pid, VULNERABILITY)
         elif python_version:
-            if versions_functions.check_patched_version('Python', python_version, PATCHED_VERSIONS):
+            if version_functions.check_patched_version('Python', python_version, PATCHED_VERSIONS):
                 ctypes_file_name = find_ctypes_file_name(pid, debug, container_name)
                 if ctypes_file_name == constants.UNSUPPORTED:
                     state[pid] = status.process_not_determined(pid, VULNERABILITY)

@@ -2,7 +2,7 @@
 Support for graphviz, version from packaging and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import constants, graph_functions, status, run_command, file_functions, versions_function
+from modules import constants, graph_functions, status, run_command, file_functions, version_functions
 
 VULNERABILITY = 'CVE-2020-1938'
 DESCRIPTION = f'''{VULNERABILITY} - GhostCat
@@ -93,7 +93,7 @@ def tomcat_version(printenv):
         return version
     print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
     print(constants.FULL_EXPLANATION_MESSAGE.format('This is an Apache Tomcat'))
-    return versions_functions.check_patched_version('Apache Tomcat', version, PATCHED_VERSIONS)
+    return version_functions.check_patched_version('Apache Tomcat', version, PATCHED_VERSIONS)
 
 
 def printenv_content(debug, container_name):

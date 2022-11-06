@@ -2,7 +2,7 @@
 Support for os, semver, graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import status, apache as apache_functions, commons, constants
+from modules import status, apache as apache_functions, file_functions, commons, constants
 
 FIRST_CVE_ID = 'CVE-2021-41773'
 SECOND_CVE_ID = 'CVE-2021-42013'
@@ -84,7 +84,7 @@ def apache_configuration_file(debug, container_name):
     """This function checks which configuration file path is the correct one for the system."""
     configuration_files_paths = ['/etc/apache2/apache2.conf', '/etc/httpd/conf/httpd.conf', 'etc/apache2/httpd.conf']
     for configuration_file_path in configuration_files_paths:
-        configuration_content = commons.file_content(configuration_file_path, debug, container_name)
+        configuration_content = file_functions.file_content(configuration_file_path, debug, container_name)
         if configuration_content:
             return filesystem_directory_configuration(configuration_content)
     return constants.UNSUPPORTED

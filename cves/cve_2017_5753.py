@@ -2,7 +2,7 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import status, commons, constants
+from modules import status, file_cunctions, commons, constants
 
 VULNERABILITY = 'CVE-2017-5753'
 DESCRIPTION = f'''{VULNERABILITY} - Spectre Variant 1
@@ -28,7 +28,7 @@ MITIGATION = ''
 def spectre_file(debug, container_name):
     """This function checks if the meltdown file contains the 'vulnerable' string in it."""
     spectre_path = '/sys/devices/system/cpu/vulnerabilities/spectre_v1'
-    spectre_content = commons.file_content(spectre_path, debug, container_name)
+    spectre_content = file_cunctions.file_content(spectre_path, debug, container_name)
     if not spectre_content:
         return constants.UNSUPPORTED
     print(constants.FULL_QUESTION_MESSAGE.format(f'Does the {spectre_path} file contain the "vulnerable" string?'))

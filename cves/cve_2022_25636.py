@@ -3,7 +3,7 @@ Support for semver, graphviz and other modules which written for avoiding repeti
 """
 import graphviz
 from packaging import version
-from modules import status, run_command, kernel_version, commons, constants
+from modules import status, run_command, kernel_version, file_functions, commons, constants
 
 VULNERABILITY = 'CVE-2022-25636'
 DESCRIPTION = f'''{VULNERABILITY}
@@ -90,7 +90,7 @@ def validate(debug, container_name):
             state[VULNERABILITY] = status.not_determind(VULNERABILITY)
         elif affected_kernel_version:
             nf_tables_path = f'/usr/lib/modules/{affected_kernel_version}/kernel/net/netfilter/nf_tables.ko'
-            nf_tables_file = commons.check_file_existence(nf_tables_path, debug, container_name)
+            nf_tables_file = file_functions.check_file_existence(nf_tables_path, debug, container_name)
             if nf_tables_file:
                 affected = nf_tables_affected(nf_tables_path, debug, container_name)
                 if affected == constants.UNSUPPORTED:

@@ -2,7 +2,7 @@
 Support for modules which written for avoiding repetitive code.
 """
 import re
-from modules import run_command, commons, constants, docker_commands
+from modules import run_command, docker_commands, file_functions, commons, constants
 
 SO = '.so'
 
@@ -17,7 +17,7 @@ def get_container_full_path(path, debug, container_name):
 def get_loaded_so_files_of_a_process(pid, debug, container_name):
     """This function returns all so files within the running process."""
     pid_maps_path = f'/proc/{pid}/maps'
-    pid_maps_content = commons.file_content(pid_maps_path, debug, container_name='')
+    pid_maps_content = file_functions.file_content(pid_maps_path, debug, container_name='')
     so_files = []
     if pid_maps_content:
         for line in pid_maps_content:
@@ -33,7 +33,7 @@ def get_loaded_so_files_of_a_process(pid, debug, container_name):
 def check_loaded_so_file_to_process(pid, so_file, debug, container_name):
     """This function returns the path of the loaded so file if loaded."""
     pid_maps_path = f'/proc/{pid}/maps'
-    pid_maps_content = commons.file_content(pid_maps_path, debug, container_name='')
+    pid_maps_content = file_functions.file_content(pid_maps_path, debug, container_name='')
     so_path = ''
     for line in pid_maps_content:
         if so_file in line:
@@ -54,8 +54,8 @@ def find_relevant_pids(pids, container_pids_list, debug, container_name):
         if container_pid in container_pids_list:
             host_maps_file = f'/proc/{host_pid}/maps'
             container_maps_file = f'/proc/{container_pid}/maps'
-            host_maps_content = commons.file_content(host_maps_file, debug, container_name='')
-            container_maps_content = commons.file_content(container_maps_file, debug, container_name)
+            host_maps_content = file_functions.file_content(host_maps_file, debug, container_name='')
+            container_maps_content = file_functions.file_content(container_maps_file, debug, container_name)
             if host_maps_content == container_maps_content:
                 relevant_pids.append(host_pid)
     print(constants.FULL_QUESTION_MESSAGE.format(f'Is there a match between container pids to host pids?'))
@@ -74,7 +74,7 @@ def find_pids_from_status_file(pids, debug, container_name):
     relevant_pids = []
     for pid in pids:
         pid_status_path = f'/proc/{pid}/status'
-        pid_status_content = commons.file_content(pid_status_path, debug, container_name='')
+        pid_status_content = file_functions.file_content(pid_status_path, debug, container_name='')
         if pid_status_content:
             for line in pid_status_content:
                 if line.startswith('NSpid:'):

@@ -2,7 +2,7 @@
 Support for graphviz, version from packaging and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import status, commons, constants, os_release, kernel_version, run_command
+from modules import status, commons, os_release, kernel_version, file_functions, run_command, constants
 
 VULNERABILITY = 'CVE-2021-4154'
 DESCRIPTION = '''Dirty Cred
@@ -42,7 +42,7 @@ def find_patch(debug, container_name):
         print(constants.FULL_EXPLANATION_MESSAGE.format('Error finding kernel version'))
         return constants.UNSUPPORTED
     config_path = f'/boot/config-{full_kernel_version}'
-    config_content = commons.file_content(config_path, debug, container_name)
+    config_content = file_functions.file_content(config_path, debug, container_name)
     print(constants.FULL_QUESTION_MESSAGE.format('Is there a patch installed?'))
     if not config_content:
         return constants.UNSUPPORTED

@@ -2,7 +2,7 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import status, run_command, process_functions, versions_functions, commons, constants
+from modules import status, run_command, process_functions, versions_functions, file_functions, commons, constants
 
 VULNERABILITY = 'CVE-2021-3711'
 DESCRIPTION = f'''{VULNERABILITY}
@@ -26,7 +26,7 @@ MITIGATION = ''
 def check_ctypes_loaded(pid, ctypes_file_name, debug):
     """This function checks if the ctypes file is loaded into the process memory or not."""
     pid_maps_path = f'/proc/{pid}/maps'
-    pid_maps_file = commons.file_content(pid_maps_path, debug, container_name='')
+    pid_maps_file = file_functions.file_content(pid_maps_path, debug, container_name='')
     if not pid_maps_file:
         return pid_maps_file
     print(constants.FULL_QUESTION_MESSAGE.format(f'Is the _ctypes module loaded to the {pid} process memory?'))

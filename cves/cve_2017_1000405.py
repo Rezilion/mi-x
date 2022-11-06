@@ -2,7 +2,7 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import status, kernel_version, commons, constants
+from modules import status, kernel_version, file_functions, commons, constants
 
 VULNERABILITY = 'CVE-2017-1000405'
 DESCRIPTION = f'''{VULNERABILITY} - Huge Dirty COW
@@ -37,7 +37,7 @@ def huge_page(debug, container_name):
     """This function performs the check for zero pages."""
     affected = False
     huge_page_path = '/sys/kernel/mm/transparent_hugepage/enabled'
-    huge_page_content = commons.file_content(huge_page_path, debug, container_name)
+    huge_page_content = file_functions.file_content(huge_page_path, debug, container_name)
     if not huge_page_content:
         return huge_page_content
     print(constants.FULL_QUESTION_MESSAGE.format('Does your system use huge pages mechanism?'))
@@ -64,7 +64,7 @@ def zero_page(debug, container_name):
     """This function perform the check for zero pages."""
     affected = False
     zero_page_path = '/sys/kernel/mm/transparent_hugepage/use_zero_page'
-    zero_page_content = commons.file_content(zero_page_path, debug, container_name)
+    zero_page_content = file_functions.file_content(zero_page_path, debug, container_name)
     if not zero_page_content:
         return affected
     print(constants.FULL_QUESTION_MESSAGE.format('Does your system use zero pages mechanism?'))

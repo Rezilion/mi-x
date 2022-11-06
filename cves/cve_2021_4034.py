@@ -3,7 +3,7 @@ Support for graphviz, version from packaging and other modules which written for
 """
 import graphviz
 from packaging import version
-from modules import constants, graph_functions, status, run_command, os_release, versions_functions, receive_package
+from modules import constants, graph_functions, status, run_command, os_release, versions_function, receive_package
 
 VULNERABILITY = 'CVE-2021-4034'
 DESCRIPTION = f'''{VULNERABILITY} - PwnKit

@@ -2,7 +2,7 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import constants, graph_functions, status, run_command, file_functions, process_functions, versions_functions
+from modules import constants, graph_functions, status, run_command, file_functions, process_functions, versions_function
 
 VULNERABILITY = 'CVE-2021-3711'
 DESCRIPTION = f'''{VULNERABILITY}

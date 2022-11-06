@@ -1,5 +1,5 @@
 """
-Support for os, re, semver, version from packaging and other modules which written for avoiding repetitive code.
+Support for os, re and other modules which written for avoiding repetitive code.
 """
 import re
 import os

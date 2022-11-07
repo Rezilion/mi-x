@@ -53,7 +53,7 @@ MITIGATION = 'Remove the networkd-dispatcher by using one of the following comma
 def print_not_affected(host_network_version, affected_networkd_version):
     """This function prints out the not affected message."""
     print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is higher that or '
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is higher than or '
                                                     f'equals to the patched version which is: '
                                                     f'{affected_networkd_version}'))
 

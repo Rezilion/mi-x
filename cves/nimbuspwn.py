@@ -53,8 +53,9 @@ MITIGATION = 'Remove the networkd-dispatcher by using one of the following comma
 def print_not_affected(host_network_version, affected_networkd_version):
     """This function prints out the not affected message."""
     print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is higher that the'
-                                                    f' patched version which is: {affected_networkd_version}'))
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is higher that or '
+                                                    f'equals to the patched version which is: '
+                                                    f'{affected_networkd_version}'))
 
 
 def print_affected(host_network_version, affected_networkd_version):
@@ -82,20 +83,20 @@ def check_networkd_version(host_information, debug, container_name):
     if host_network_version:
         print(constants.FULL_QUESTION_MESSAGE.format('Is networkd-dispatcher policy version affected?'))
         affected_versions = AFFECTED_CVE_2
-        affected_networkd_version = affected_versions[host_information]
+        affected_networkd_version_1 = affected_versions[host_information]
         affected = compare_versions(host_information, host_network_version)
         if affected:
-            print_affected(host_network_version, affected_networkd_version)
+            print_affected(host_network_version, affected_networkd_version_1)
             return CVE_2
         else:
             affected_versions = AFFECTED_CVE_1
-            affected_networkd_version = affected_versions[host_information]
+            affected_networkd_version_2 = affected_versions[host_information]
             affected = compare_versions(host_information, host_network_version)
             if affected:
-                print_affected(host_network_version, affected_networkd_version)
+                print_affected(host_network_version, affected_networkd_version_2)
                 return CVE_1
             else:
-                print_not_affected(host_network_version, affected_networkd_version)
+                print_not_affected(host_network_version, affected_networkd_version_1)
     return vulnerability
 
 

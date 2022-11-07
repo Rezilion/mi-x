@@ -2,7 +2,7 @@
 Support for graphviz and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import constants, graph_functions, status, file_functions, kernel_version
+from modules import constants, graph_functions, status, file_functions, kernel_functions
 
 VULNERABILITY = 'CVE-2017-1000405'
 DESCRIPTION = f'''{VULNERABILITY} - Huge Dirty COW
@@ -91,7 +91,7 @@ def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2017-1000405."""
     state = {}
     if not container_name:
-        kernel_version_output = kernel_version.check_kernel_version(FIXED_KERNEL_VERSIONS, FIXED_AWS_KERNEL_VERSIONS, debug, container_name)
+        kernel_version_output = kernel_functions.check_kernel_version(FIXED_KERNEL_VERSIONS, FIXED_AWS_KERNEL_VERSIONS, debug, container_name)
         if kernel_version_output == constants.UNSUPPORTED:
             state[VULNERABILITY] = status.not_determined(VULNERABILITY)
         elif kernel_version_output:

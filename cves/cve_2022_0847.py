@@ -3,7 +3,7 @@ Support for semver, graphviz and other modules which written for avoiding repeti
 """
 import graphviz
 from packaging import version
-from modules import constants, graph_functions, status, version_functions, kernel_version
+from modules import constants, graph_functions, status, version_functions, kernel_functions
 
 VULNERABILITY = 'CVE-2022-0847'
 DESCRIPTION = f'''{VULNERABILITY} - Dirty Pipe
@@ -34,7 +34,7 @@ def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2022-0847."""
     state = {}
     if not container_name:
-        affected = kernel_version.check_kernel_version(FIXED_KERNEL_VERSIONS, FIXED_AWS_KERNEL_VERSIONS, debug, container_name)
+        affected = kernel_functions.check_kernel_version(FIXED_KERNEL_VERSIONS, FIXED_AWS_KERNEL_VERSIONS, debug, container_name)
         if affected == constants.UNSUPPORTED:
             state[VULNERABILITY] = status.not_determined(VULNERABILITY)
         elif affected:

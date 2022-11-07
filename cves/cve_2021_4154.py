@@ -2,7 +2,7 @@
 Support for graphviz, version from packaging and other modules which written for avoiding repetitive code.
 """
 import graphviz
-from modules import constants, graph_functions, status, run_command, file_functions, os_release, kernel_version
+from modules import constants, graph_functions, status, run_command, file_functions, os_release, kernel_functions
 
 VULNERABILITY = 'CVE-2021-4154'
 DESCRIPTION = '''Dirty Cred
@@ -90,7 +90,7 @@ def check_distribution_functional(debug, container_name):
         return_value = check_red_hat_patch(debug, container_name)
     elif 'Ubuntu' in host_information or 'Debian' in host_information:
         print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
-        return_value = kernel_version.check_kernel_version(FIXED_KERNEL_VERSIONS, FIXED_AWS_KERNEL_VERSIONS, debug, container_name)
+        return_value = kernel_functions.check_kernel_version(FIXED_KERNEL_VERSIONS, FIXED_AWS_KERNEL_VERSIONS, debug, container_name)
     else:
         print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('No'))
     return return_value

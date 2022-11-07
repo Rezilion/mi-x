@@ -3,7 +3,7 @@ Support for importlib, graphviz and other modules which written for avoiding rep
 """
 import importlib
 import graphviz
-from modules import constants, graph_functions, status, run_command, kernel_version, os_release
+from modules import constants, graph_functions, status, run_command, kernel_functions, os_release
 
 VULNERABILITY = 'CVE-2016-5195'
 NEXT_VULNERABILITY = 'cve_2017_1000405'
@@ -113,7 +113,7 @@ def validate(debug, container_name):
             state[VULNERABILITY] = status.not_determined(VULNERABILITY)
         elif fixed_release:
             max_kernel_version = FIXED[fixed_release]
-            check_kernel_version = kernel_version.check_kernel(MIN_KERNEL_VERSION, max_kernel_version, debug)
+            check_kernel_version = kernel_functions.check_kernel(MIN_KERNEL_VERSION, max_kernel_version, debug)
             if check_kernel_version == constants.UNSUPPORTED:
                 state[VULNERABILITY] = status.not_determined(VULNERABILITY)
             elif check_kernel_version:

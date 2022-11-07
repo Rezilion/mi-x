@@ -25,7 +25,7 @@ https://medium.com/bindecy/huge-dirty-cow-cve-2017-1000405-110eca132de0
 https://threatpost.com/flaw-found-in-dirty-cow-patch/129064/
 '''
 MIN_KERNEL_VERSION = '0'
-FIXED_KERNEL_VERSIONS = {'Debian unstable': '4.7.8-1', 'Debian 12': '6.0.5-1', 'Debian 11': '5.10.140-1',
+FIXED_KERNEL_VERSIONS = {'Debian unstable': '6.0.7-1', 'Debian 12': '6.0.5-1', 'Debian 11': '5.10.140-1',
                          'Debian 10': '4.19.249-2', 'Debian 9': '4.9.65-1', 'Debian 8': '3.16.51-1',
                          'Ubuntu 17.10': '4.13.0-19.22', 'Ubuntu 17.04': '4.10.0-42.46',
                          'Ubuntu 16.04': '4.4.0-103.126', 'Ubuntu 14.04': '3.13.0-137.186'}

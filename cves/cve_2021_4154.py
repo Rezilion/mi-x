@@ -25,9 +25,9 @@ https://www.rezilion.com/blog/dirty-cred-what-you-need-to-know/
 https://i.blackhat.com/USA-22/Thursday/US-22-Lin-Cautious-A-New-Exploitation-Method.pdf
 '''
 PATCH_VARIABLE = 'CONFIG_CRED_ISOLATION=y'
-FIXED_KERNEL_VERSIONS = {'Debian 12': '', 'Debian 10': '4.19.235-1', 'Debian 11': '5.10.127-1', 'Debian unstable': '5.18.16-1',
-                         'Ubuntu 20.04': '5.4.0-88.99'}
-FIXED_AWS_KERNEL_VERSIONS = {'Ubuntu 20.02': '5.4.0-1057.60'}
+FIXED_KERNEL_VERSIONS = {'Debian unstable': '6.0.7-1', 'Debian 12': '6.0.5-1', 'Debian 11': '5.10.140-1',
+                         'Debian 10': '4.19.249-2', 'Ubuntu 20.04': '5.4.0-88.99'}
+FIXED_AWS_KERNEL_VERSIONS = {'Ubuntu 20.04': '5.4.0-1057.60'}
 RED_HAT_FIXES = ['RHBA-2022:0238', 'RHSA-2022:0186', 'RHSA-2022:0187', 'RHSA-2022:0231', 'RHSA-2022:0819',
                  'RHSA-2022:0825', 'RHSA-2022:0841', 'RHSA-2022:0849']
 REMEDIATION = f'Choose one of these:\n- Upgrade kernel versions to:{FIXED_KERNEL_VERSIONS} or if running on an EC2 ' \

@@ -7,8 +7,8 @@ from modules import constants, graph_functions, status, run_command, file_functi
 VULNERABILITY = 'CVE-2021-4154'
 DESCRIPTION = '''Dirty Cred
 
-CVSS Score: 7.5
-NVD Link: https://nvd.nist.gov/vuln/detail/cve-2014-0160
+CVSS Score: 8.8
+NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2021-4154
 
 Dirty Cred are (now) two `use-after-free` privilege escalation vulnerabilities (CVE-2021-4154 and CVE-2022-2588) in the 
 Linux kernel which can also be utilized for container escape.

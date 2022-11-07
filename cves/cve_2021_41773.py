@@ -14,6 +14,9 @@ scanned for both CVE-2021-41773 and CVE-2021-42013.
 
 CVSS Score: 7.5
 NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2021-41773
+
+CVSS Score: 9.8
+NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2021-42013
  
 An apache HTTP server vulnerability that can lead to Path Traversal and Remote Code Execution on the apache HTTP server.
 To avoid path traversal attack, the normalization function (only in apache 2.4.49 version) which is responsible for 

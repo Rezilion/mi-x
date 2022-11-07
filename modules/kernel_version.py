@@ -64,7 +64,7 @@ def check_kernel(min_kernel_version, max_kernel_version, debug):
 def is_aws(debug):
     """This function returns is the host is an ec2 instance."""
     hypervisor_path = '/sys/hypervisor/uuid'
-    if file_functions.check_file_existence(file_path, debug, container_name=''):
+    if file_functions.check_file_existence(hypervisor_path, debug, container_name=''):
         check_hypervisor_command = f'head -c 3 {hypervisor_path}'
         check_hypervisor_pipe = run_command.command_output(check_hypervisor_command, debug, container_name='')
         hypervisor = check_hypervisor_pipe.stdout

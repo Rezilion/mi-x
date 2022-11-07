@@ -50,26 +50,25 @@ MITIGATION = 'Remove the networkd-dispatcher by using one of the following comma
              'systemd-networkd.service'
 
 
-def compare_versions(affected_versions, host_information, host_network_version):
+def print_not_affected(host_network_version, affected_networkd_version):
+    """This function prints out the not affected message."""
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is higher that the'
+                                                    f' patched version which is: {affected_networkd_version}'))
+
+
+def print_affected(host_network_version, affected_networkd_version):
+    """This function prints out the affected message."""
+    print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is lower that the '
+                                                    f'patched version which is: {affected_networkd_version}'))
+
+
+def compare_versions(affected_networkd_version, host_network_version):
     """This function compares the networkd-dispatcher version between the founded version on host and the maximum
     affected version."""
     affected = False
-    affected_networkd_version = affected_versions[host_information]
-    if version.parse(host_network_version) > version.parse(affected_networkd_version):
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is higher '
-                                                        f'than the patched version which is: '
-                                                        f'{affected_networkd_version}'))
-    elif version.parse(host_network_version) == version.parse(affected_networkd_version):
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is '
-                                                        f'affected'))
-        affected = True
-    else:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is lower '
-                                                        f'than the patched version which is: '
-                                                        f'{affected_networkd_version}'))
+    if version.parse(host_network_version) <= version.parse(affected_networkd_version):
         affected = True
     return affected
 
@@ -82,10 +81,21 @@ def check_networkd_version(host_information, debug, container_name):
     host_network_version = receive_package.package_version_apt(distribution, package_name, debug, container_name)
     if host_network_version:
         print(constants.FULL_QUESTION_MESSAGE.format('Is networkd-dispatcher policy version affected?'))
-        if compare_versions(AFFECTED_CVE_2, host_information, host_network_version):
+        affected_versions = AFFECTED_CVE_2
+        affected_networkd_version = affected_versions[host_information]
+        affected = compare_versions(host_information, host_network_version)
+        if affected:
+            print_affected(host_network_version, affected_networkd_version)
             return CVE_2
-        if compare_versions(AFFECTED_CVE_1, host_information, host_network_version):
-            return CVE_1
+        else:
+            affected_versions = AFFECTED_CVE_1
+            affected_networkd_version = affected_versions[host_information]
+            affected = compare_versions(host_information, host_network_version)
+            if affected:
+                print_affected(host_network_version, affected_networkd_version)
+                return CVE_1
+            else:
+                print_not_affected(host_network_version, affected_networkd_version)
     return vulnerability
 
 

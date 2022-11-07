@@ -8,7 +8,7 @@ VULNERABILITY = 'CVE-2021-3711'
 DESCRIPTION = f'''{VULNERABILITY}
 
 CVSS Score: 9.8
-NVD Link: https://nvd.nist.gov/vuln/detail/cve-2021-3711
+NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2021-3711
 
 Python 3.x through 3.9.1 has a buffer overflow in `PyCArg_repr` in `_ctypes/callproc.c`, because `sprintf` is used 
 unsafely. The vulnerability can cause Remote Code Execution, but most likely lead to application Denial of Service or 

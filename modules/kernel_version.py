@@ -8,14 +8,14 @@ from modules import constants, run_command, file_functions
 AWS_SIGNATURE = 'ec2'
 
 
-def get_aws(debug):
+def is_aws(debug):
     """This function returns is the host is an ec2 instance."""
     hypervisor_path = '/sys/hypervisor/uuid'
     if file_functions.check_file_existence(file_path, debug, container_name=''):
-        kernel_version_command = f'head -c 3 {hypervisor_path}'
-        pipe_kernel_version = run_command.command_output(kernel_version_command, debug, container_name='')
-        kernel_version = pipe_kernel_version.stdout
-        if kernel_version == AWS_SIGNATURE:
+        check_hypervisor_command = f'head -c 3 {hypervisor_path}'
+        check_hypervisor_pipe = run_command.command_output(check_hypervisor_command, debug, container_name='')
+        hypervisor = check_hypervisor_pipe.stdout
+        if hypervisor == AWS_SIGNATURE:
             return True
     return False
 

@@ -133,21 +133,21 @@ def validate(debug, container_name):
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of CVE-2016-5195."""
-    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    graph_functions.graph_start(VULNERABILITY, vol_graph)
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is it Linux?', 'Is os release effected?', label='Yes')
-    vol_graph.edge('Is os release effected?', 'Is the kernel release effected?', label='Yes')
-    vol_graph.edge('Is os release effected?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is the kernel release effected?', 'Is it Red Hat?', label='Yes')
-    vol_graph.edge('Is the kernel release effected?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is it Red Hat?', 'Are There loaded modules?', label='Yes')
-    vol_graph.edge('Is it Red Hat?', 'Vulnerable', label='No')
-    vol_graph.edge('Are There loaded modules?', 'Is it Patched with kpatch?', label='Yes')
-    vol_graph.edge('Are There loaded modules?', 'Vulnerable', label='No')
-    vol_graph.edge('Is it Patched with kpatch?', 'Not Vulnerable', label='Yes')
-    vol_graph.edge('Is it Patched with kpatch?', 'Vulnerable', label='No')
-    graph_functions.graph_end(vol_graph)
+    vulnerability_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
+    graph_functions.graph_start(VULNERABILITY, vulnerability_graph)
+    vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is it Linux?', 'Is os release effected?', label='Yes')
+    vulnerability_graph.edge('Is os release effected?', 'Is the kernel release effected?', label='Yes')
+    vulnerability_graph.edge('Is os release effected?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is the kernel release effected?', 'Is it Red Hat?', label='Yes')
+    vulnerability_graph.edge('Is the kernel release effected?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is it Red Hat?', 'Are There loaded modules?', label='Yes')
+    vulnerability_graph.edge('Is it Red Hat?', 'Vulnerable', label='No')
+    vulnerability_graph.edge('Are There loaded modules?', 'Is it Patched with kpatch?', label='Yes')
+    vulnerability_graph.edge('Are There loaded modules?', 'Vulnerable', label='No')
+    vulnerability_graph.edge('Is it Patched with kpatch?', 'Not Vulnerable', label='Yes')
+    vulnerability_graph.edge('Is it Patched with kpatch?', 'Vulnerable', label='No')
+    graph_functions.graph_end(vulnerability_graph)
 
 
 def main(description, graph, debug, container_name):

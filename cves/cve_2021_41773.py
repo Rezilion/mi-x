@@ -148,24 +148,24 @@ def validate(debug, container_name):
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of CVE-2021-41773 or
     CVE-2021-42013."""
-    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    graph_functions.graph_start(VULNERABILITY, vol_graph)
-    vol_graph.edge('Is it Linux?', 'Is host distribution affected?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is host distribution affected?', 'Is Apache HTTP Server installed?', label='Yes')
-    vol_graph.edge('Is host distribution affected?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is Apache HTTP Server installed?', 'Is apache version affected?', label='Yes')
-    vol_graph.edge('Is Apache HTTP Server installed?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is apache version affected?', 'Is configuration file set the filesystem directory "Require '
+    vulnerability_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
+    graph_functions.graph_start(VULNERABILITY, vulnerability_graph)
+    vulnerability_graph.edge('Is it Linux?', 'Is host distribution affected?', label='Yes')
+    vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is host distribution affected?', 'Is Apache HTTP Server installed?', label='Yes')
+    vulnerability_graph.edge('Is host distribution affected?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is Apache HTTP Server installed?', 'Is apache version affected?', label='Yes')
+    vulnerability_graph.edge('Is Apache HTTP Server installed?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is apache version affected?', 'Is configuration file set the filesystem directory "Require '
                                                   'all granted"?', label='Yes')
-    vol_graph.edge('Is apache version affected?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is configuration file set the filesystem directory "Require all granted"?', 'Is "cgi_module" '
+    vulnerability_graph.edge('Is apache version affected?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is configuration file set the filesystem directory "Require all granted"?', 'Is "cgi_module" '
                                                                                                 'loaded?', label='Yes')
-    vol_graph.edge('Is configuration file set the filesystem directory "Require all granted"?', 'Not Vulnerable',
+    vulnerability_graph.edge('Is configuration file set the filesystem directory "Require all granted"?', 'Not Vulnerable',
                    label='No')
-    vol_graph.edge('Is "cgi_module" loaded?', 'Vulnerable to Path Traversal and Remote Code Execution', label='Yes')
-    vol_graph.edge('Is "cgi_module" loaded?', 'Vulnerable to Path Traversal', label='No')
-    graph_functions.graph_end(vol_graph)
+    vulnerability_graph.edge('Is "cgi_module" loaded?', 'Vulnerable to Path Traversal and Remote Code Execution', label='Yes')
+    vulnerability_graph.edge('Is "cgi_module" loaded?', 'Vulnerable to Path Traversal', label='No')
+    graph_functions.graph_end(vulnerability_graph)
 
 
 def main(description, graph, debug, container_name):

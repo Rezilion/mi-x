@@ -249,20 +249,20 @@ def validate(debug, container_name):
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of PwnKit."""
-    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    graph_functions.graph_start(VULNERABILITY, vol_graph)
-    vol_graph.edge('Is it Linux?', 'Is there an affected PolicyKit package installed?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is there an affected PolicyKit package installed?', 'Does pkexec have execute permissions?',
+    vulnerability_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
+    graph_functions.graph_start(VULNERABILITY, vulnerability_graph)
+    vulnerability_graph.edge('Is it Linux?', 'Is there an affected PolicyKit package installed?', label='Yes')
+    vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is there an affected PolicyKit package installed?', 'Does pkexec have execute permissions?',
                    label='Yes')
-    vol_graph.edge('Is there an affected PolicyKit package installed?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Does pkexec have execute permissions?', 'Does pkexec have suid bit?', label='Yes')
-    vol_graph.edge('Does pkexec have execute permissions?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Does pkexec have suid bit?', 'Is pkexec binary owner root?', label='Yes')
-    vol_graph.edge('Does pkexec have suid bit?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is pkexec binary owner root?', 'Vulnerable', label='Yes')
-    vol_graph.edge('Is pkexec binary owner root?', 'Not Vulnerable', label='No')
-    graph_functions.graph_end(vol_graph)
+    vulnerability_graph.edge('Is there an affected PolicyKit package installed?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Does pkexec have execute permissions?', 'Does pkexec have suid bit?', label='Yes')
+    vulnerability_graph.edge('Does pkexec have execute permissions?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Does pkexec have suid bit?', 'Is pkexec binary owner root?', label='Yes')
+    vulnerability_graph.edge('Does pkexec have suid bit?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is pkexec binary owner root?', 'Vulnerable', label='Yes')
+    vulnerability_graph.edge('Is pkexec binary owner root?', 'Not Vulnerable', label='No')
+    graph_functions.graph_end(vulnerability_graph)
 
 
 def main(description, graph, debug, container_name):

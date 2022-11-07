@@ -197,21 +197,21 @@ def validate(debug, container_name):
 def validation_flow_chart():
     """This function creates a graph that shows the vulnerability validation process of Spectre Variant 2."""
     spectre_v2_path = '/sys/devices/system/cpu/vulnerabilities/spectre_v2'
-    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    graph_functions.graph_start(VULNERABILITY, vol_graph)
-    vol_graph.edge('Is it Linux?', 'Does the system meet the edge case conditions?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Does the system meet the edge case conditions?', 'Vulnerable', label='Yes')
-    vol_graph.edge('Does the system meet the edge case conditions?', f'Does {spectre_v2_path} file contain the '
+    vulnerability_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
+    graph_functions.graph_start(VULNERABILITY, vulnerability_graph)
+    vulnerability_graph.edge('Is it Linux?', 'Does the system meet the edge case conditions?', label='Yes')
+    vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Does the system meet the edge case conditions?', 'Vulnerable', label='Yes')
+    vulnerability_graph.edge('Does the system meet the edge case conditions?', f'Does {spectre_v2_path} file contain the '
                                                                      f'"vulnerable" string?', label='No')
-    vol_graph.edge(f'Does {spectre_v2_path} file contain the "vulnerable" string?', 'Are ibpb or ibrs mitigations '
+    vulnerability_graph.edge(f'Does {spectre_v2_path} file contain the "vulnerable" string?', 'Are ibpb or ibrs mitigations '
                                                                                     'enabled?', label='No')
-    vol_graph.edge(f'Does {spectre_v2_path} file contain the "vulnerable" string?', 'Vulnerable', label='Yes')
-    vol_graph.edge('Are ibpb or ibrs mitigations enabled?', 'Is spectre_v2 mitigation enabled?', label='Yes')
-    vol_graph.edge('Are ibpb or ibrs mitigations enabled?', 'Vulnerable', label='No')
-    vol_graph.edge('Is spectre_v2 mitigation enabled?', 'Not Vulnerable', label='Yes')
-    vol_graph.edge('Is spectre_v2 mitigation enabled?', 'Vulnerable', label='No')
-    graph_functions.graph_end(vol_graph)
+    vulnerability_graph.edge(f'Does {spectre_v2_path} file contain the "vulnerable" string?', 'Vulnerable', label='Yes')
+    vulnerability_graph.edge('Are ibpb or ibrs mitigations enabled?', 'Is spectre_v2 mitigation enabled?', label='Yes')
+    vulnerability_graph.edge('Are ibpb or ibrs mitigations enabled?', 'Vulnerable', label='No')
+    vulnerability_graph.edge('Is spectre_v2 mitigation enabled?', 'Not Vulnerable', label='Yes')
+    vulnerability_graph.edge('Is spectre_v2 mitigation enabled?', 'Vulnerable', label='No')
+    graph_functions.graph_end(vulnerability_graph)
 
 
 def main(description, graph, debug, container_name):

@@ -136,17 +136,17 @@ def validate(debug, container_name):
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of GhostCat."""
-    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    graph_functions.graph_start(VULNERABILITY, vol_graph)
-    vol_graph.edge('Is it Linux?', 'Is it an Apache Tomcat?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is it an Apache Tomcat?', 'Is the Apache Tomcat version affected?', label='Yes')
-    vol_graph.edge('Is it an Apache Tomcat?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is the Apache Tomcat version affected?', 'Is AJP in the server.xml file enabled?', label='Yes')
-    vol_graph.edge('Is the Apache Tomcat version affected?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is AJP in the server.xml file enabled?', 'Vulnerable', label='Yes')
-    vol_graph.edge('Is AJP in the server.xml file enabled?', 'Not Vulnerable', label='No')
-    graph_functions.graph_end(vol_graph)
+    vulnerability_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
+    graph_functions.graph_start(VULNERABILITY, vulnerability_graph)
+    vulnerability_graph.edge('Is it Linux?', 'Is it an Apache Tomcat?', label='Yes')
+    vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is it an Apache Tomcat?', 'Is the Apache Tomcat version affected?', label='Yes')
+    vulnerability_graph.edge('Is it an Apache Tomcat?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is the Apache Tomcat version affected?', 'Is AJP in the server.xml file enabled?', label='Yes')
+    vulnerability_graph.edge('Is the Apache Tomcat version affected?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is AJP in the server.xml file enabled?', 'Vulnerable', label='Yes')
+    vulnerability_graph.edge('Is AJP in the server.xml file enabled?', 'Not Vulnerable', label='No')
+    graph_functions.graph_end(vulnerability_graph)
 
 
 def main(description, graph, debug, container_name):

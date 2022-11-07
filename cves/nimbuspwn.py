@@ -135,16 +135,16 @@ def validate(debug, container_name):
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of NIMBUSPWN."""
-    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    graph_functions.graph_start(VULNERABILITY, vol_graph)
-    vol_graph.edge('Is it Linux?', 'Are os distribution and version affected?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Are os distribution and version affected?', 'Is networkd-dispatcher policy version affected?',
+    vulnerability_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
+    graph_functions.graph_start(VULNERABILITY, vulnerability_graph)
+    vulnerability_graph.edge('Is it Linux?', 'Are os distribution and version affected?', label='Yes')
+    vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Are os distribution and version affected?', 'Is networkd-dispatcher policy version affected?',
                    label='Yes')
-    vol_graph.edge('Are os distribution and version affected?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is networkd-dispatcher policy version affected?', 'Vulnerable', label='Yes')
-    vol_graph.edge('Is networkd-dispatcher policy version affected?', 'Not Vulnerable', label='No')
-    graph_functions.graph_end(vol_graph)
+    vulnerability_graph.edge('Are os distribution and version affected?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is networkd-dispatcher policy version affected?', 'Vulnerable', label='Yes')
+    vulnerability_graph.edge('Is networkd-dispatcher policy version affected?', 'Not Vulnerable', label='No')
+    graph_functions.graph_end(vulnerability_graph)
 
 
 def main(description, graph, debug, container_name):

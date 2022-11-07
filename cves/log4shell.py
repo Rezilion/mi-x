@@ -110,15 +110,15 @@ def validate(debug, container_name):
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of Log4Shell."""
-    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    graph_functions.graph_start(VULNERABILITY, vol_graph)
-    vol_graph.edge('Is it Linux?', 'Are there running Java processes?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Are there running Java processes?', 'Are the vulnerable classes loaded?', label='Yes')
-    vol_graph.edge('Are there running Java processes?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Are the vulnerable classes loaded?', 'Vulnerable', label='Yes')
-    vol_graph.edge('Are the vulnerable classes loaded?', 'Not Vulnerable', label='No')
-    graph_functions.graph_end(vol_graph)
+    vulnerability_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
+    graph_functions.graph_start(VULNERABILITY, vulnerability_graph)
+    vulnerability_graph.edge('Is it Linux?', 'Are there running Java processes?', label='Yes')
+    vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Are there running Java processes?', 'Are the vulnerable classes loaded?', label='Yes')
+    vulnerability_graph.edge('Are there running Java processes?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Are the vulnerable classes loaded?', 'Vulnerable', label='Yes')
+    vulnerability_graph.edge('Are the vulnerable classes loaded?', 'Not Vulnerable', label='No')
+    graph_functions.graph_end(vulnerability_graph)
 
 
 def main(description, graph, debug, container_name):

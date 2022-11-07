@@ -3,21 +3,21 @@ Support for re, version from packaging and other modules which written for avoid
 """
 import re
 from packaging import version
-from modules import constants, run_command
+from modules import constants, run_command, file_functions
+
+AWS_SIGNATURE = 'ec2'
 
 
 def get_aws(debug):
-    """This function returns the kernel version."""
+    """This function returns is the host is an ec2 instance."""
     hypervisor_path = '/sys/hypervisor/uuid'
-    
-    kernel_version_command = f'head -c 3 {hypervisor_path}'
-    pipe_kernel_version = run_command.command_output(kernel_version_command, debug, container_name='')
-    kernel_version = pipe_kernel_version.stdout
-    if kernel_version:
-        if kernel_version.endswith('\n'):
-            kernel_version = kernel_version[:constants.END]
-        return kernel_version
-    return ''
+    if file_functions.check_file_existence(file_path, debug, container_name=''):
+        kernel_version_command = f'head -c 3 {hypervisor_path}'
+        pipe_kernel_version = run_command.command_output(kernel_version_command, debug, container_name='')
+        kernel_version = pipe_kernel_version.stdout
+        if kernel_version == AWS_SIGNATURE:
+            return True
+    return False
 
 
 def get_kernel_version(debug):

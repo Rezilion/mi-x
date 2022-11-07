@@ -50,7 +50,7 @@ def check_mitigation(printenv, debug, container_name):
         return constants.UNSUPPORTED
     print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
     server_xml_path = f'{tomcat_path}/conf/server.xml'
-    content = file_functions.file_content(server_xml_path, debug, container_name)
+    content = file_functions.get_file_content(server_xml_path, debug, container_name)
     if not content:
         return constants.UNSUPPORTED
     print(constants.FULL_QUESTION_MESSAGE.format('Is AJP in the server.xml file enabled?'))

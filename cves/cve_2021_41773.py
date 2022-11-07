@@ -87,7 +87,7 @@ def apache_configuration_file(debug, container_name):
     """This function checks which configuration file path is the correct one for the system."""
     configuration_files_paths = ['/etc/apache2/apache2.conf', '/etc/httpd/conf/httpd.conf', 'etc/apache2/httpd.conf']
     for configuration_file_path in configuration_files_paths:
-        configuration_content = file_functions.file_content(configuration_file_path, debug, container_name)
+        configuration_content = file_functions.get_file_content(configuration_file_path, debug, container_name)
         if configuration_content:
             return filesystem_directory_configuration(configuration_content)
     return constants.UNSUPPORTED

@@ -44,7 +44,7 @@ def find_patch(debug, container_name):
         print(constants.FULL_EXPLANATION_MESSAGE.format('Error finding kernel version'))
         return constants.UNSUPPORTED
     config_path = f'/boot/config-{full_kernel_version}'
-    config_content = file_functions.file_content(config_path, debug, container_name)
+    config_content = file_functions.get_file_content(config_path, debug, container_name)
     print(constants.FULL_QUESTION_MESSAGE.format('Is there a patch installed?'))
     if not config_content:
         return constants.UNSUPPORTED

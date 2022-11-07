@@ -26,7 +26,7 @@ MITIGATION = ''
 def meltdown_file(debug, container_name):
     """This function checks if the meltdown file contains the 'vulnerable' string in it."""
     meltdown_path = '/sys/devices/system/cpu/vulnerabilities/meltdown'
-    meltdown_content = file_functions.file_content(meltdown_path, debug, container_name)
+    meltdown_content = file_functions.get_file_content(meltdown_path, debug, container_name)
     if not meltdown_content:
         return constants.UNSUPPORTED
     print(constants.FULL_QUESTION_MESSAGE.format(f'Does the {meltdown_path} file contain the "vulnerable" string?'))
@@ -43,7 +43,7 @@ def meltdown_file(debug, container_name):
 def check_vendor(debug, container_name):
     """This function checks if the vendor is affected by the meltdown vulnerabilities."""
     cpuinfo_path = '/proc/cpuinfo'
-    cpuinfo_content = file_functions.file_content(cpuinfo_path, debug, container_name)
+    cpuinfo_content = file_functions.get_file_content(cpuinfo_path, debug, container_name)
     if not cpuinfo_content:
         return constants.UNSUPPORTED
     print(constants.FULL_QUESTION_MESSAGE.format('Does the system run with AMD processor?'))

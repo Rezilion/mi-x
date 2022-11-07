@@ -19,7 +19,7 @@ def check_file_existence(file_path, debug, container_name):
     return exist
 
 
-def file_content(file_path, debug, container_name):
+def get_file_content(file_path, debug, container_name):
     """This function checks returns the file's content if exists."""
     content = ''
     if container_name:

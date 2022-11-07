@@ -42,7 +42,7 @@ def huge_page(debug, container_name):
     """This function performs the check for zero pages."""
     affected = False
     huge_page_path = '/sys/kernel/mm/transparent_hugepage/enabled'
-    huge_page_content = file_functions.file_content(huge_page_path, debug, container_name)
+    huge_page_content = file_functions.get_file_content(huge_page_path, debug, container_name)
     if not huge_page_content:
         return huge_page_content
     print(constants.FULL_QUESTION_MESSAGE.format('Does your system use huge pages mechanism?'))
@@ -69,7 +69,7 @@ def zero_page(debug, container_name):
     """This function perform the check for zero pages."""
     affected = False
     zero_page_path = '/sys/kernel/mm/transparent_hugepage/use_zero_page'
-    zero_page_content = file_functions.file_content(zero_page_path, debug, container_name)
+    zero_page_content = file_functions.get_file_content(zero_page_path, debug, container_name)
     if not zero_page_content:
         return affected
     print(constants.FULL_QUESTION_MESSAGE.format('Does your system use zero pages mechanism?'))

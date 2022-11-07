@@ -24,8 +24,12 @@ Related Links:
 https://medium.com/bindecy/huge-dirty-cow-cve-2017-1000405-110eca132de0
 https://threatpost.com/flaw-found-in-dirty-cow-patch/129064/
 '''
-MAX_KERNEL_VERSION = '4.15.0'
-MIN_KERNEL_VERSION = '2.6.37'
+MIN_KERNEL_VERSION = '0'
+FIXED_KERNEL_VERSIONS = {'Debian unstable': '4.7.8-1', 'Debian 12': '6.0.5-1', 'Debian 11': '5.10.140-1',
+                         'Debian 10': '4.19.249-2', 'Debian 9': '4.9.65-1', 'Debian 8': '3.16.51-1',
+                         'Ubuntu 17.10': '4.13.0-19.22', 'Ubuntu 17.04': '4.10.0-42.46',
+                         'Ubuntu 16.04': '4.4.0-103.126', 'Ubuntu 14.04': '3.13.0-137.186'}
+FIXED_AWS_KERNEL_VERSIONS = {'Ubuntu 16.04': '4.4.0-1043.52', 'Ubuntu 14.04': '4.4.0-1005.5'}
 REMEDIATION = f'Upgrade kernel version to {MAX_KERNEL_VERSION} or higher.'
 MITIGATION_1 = 'Disable zero page.\nUse the following command to prevent the flaw from being exercised in this method:\n' \
                'echo 0 > /sys/kernel/mm/transparent_hugepage/use_zero_page'
@@ -82,11 +86,25 @@ def zero_page(debug, container_name):
     return affected
 
 
+def check_kernel_version(debug, container_name):
+    """This function returns if the kernel version is affected."""
+    fixed_kernel_versions = FIXED_KERNEL_VERSIONS
+    if kernel_version.is_aws(debug):
+        fixed_kernel_versions = FIXED_AWS_KERNEL_VERSIONS
+    host_os_release = os_release.check_release(fixed_kernel_versions, debug, container_name)
+    if host_os_release == constants.UNSUPPORTED or not host_os_release:
+        return host_os_release
+    if host_os_release in fixed_kernel_versions:
+        fixed_kernel_version = fixed_kernel_versions[host_os_release]
+        return kernel_version.check_kernel(MIN_KERNEL_VERSION, fixed_kernel_version, debug)
+    return ''
+
+
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2017-1000405."""
     state = {}
     if not container_name:
-        kernel_version_output = kernel_version.check_kernel(MIN_KERNEL_VERSION, MAX_KERNEL_VERSION, debug)
+        kernel_version_output = check_kernel_version(debug, container_name)
         if kernel_version_output == constants.UNSUPPORTED:
             state[VULNERABILITY] = status.not_determined(VULNERABILITY)
         elif kernel_version_output:

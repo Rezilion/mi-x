@@ -22,31 +22,26 @@ https://www.rezilion.com/blog/dirty-pipe-what-you-need-to-know/
 https://dirtypipe.cm4all.com/
 https://blog.malwarebytes.com/exploits-and-vulnerabilities/2022/03/linux-dirty-pipe-vulnerability-gives-unprivileged-users-root-access/
 '''
-FIRST_AFFECTED_VERSION = '5.8.0'
-PATCHED_VERSIONS = ['5.10.102', '5.15.25', '5.16.11']
-FIXED_VERSION = '5.17.0-rc6'
-REMEDIATION = 'Upgrade kernel versions to 5.10.102, 5.15.25, 5.16.11, 5.17.0-rc6 or higher.'
+FIXED_KERNEL_VERSIONS = {'Debian unstable': '6.0.7-1', 'Debian 12': '6.0.5-1', 'Debian 11': '5.10.140-1',
+                         'Debian 10': '4.19.249-2', 'Ubuntu 21.10': '5.13.0-35.40'}
+FIXED_AWS_KERNEL_VERSIONS = {'Ubuntu 21.10': '5.13.0-1017.19'}
+REMEDIATION = f'Upgrade kernel versions to:{FIXED_KERNEL_VERSIONS} or if running on an EC2 instance update kernel ' \
+              f'version to: {FIXED_AWS_KERNEL_VERSIONS} or higher'
 MITIGATION = ''
 
 
 def check_kernel_version(debug):
-    """This function checks if the kernel version is affected by CVE-2022-0847."""
-    affected = False
-    valid_kernel_version = kernel_version.get_valid_kernel_version(debug)
-    if not valid_kernel_version:
-        print(constants.FULL_QUESTION_MESSAGE.format('Is kernel version affected?'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format('Unsupported kernel version value'))
-        return constants.UNSUPPORTED
-    if version.parse(valid_kernel_version) >= version.parse(FIXED_VERSION) or \
-            version.parse(valid_kernel_version) < version.parse(FIRST_AFFECTED_VERSION):
-        print(constants.FULL_QUESTION_MESSAGE.format('Is kernel version affected?'))
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your kernel version which is: {valid_kernel_version}, is not'
-                                                        f'in the affected kernel versions range which is: '
-                                                        f'{FIRST_AFFECTED_VERSION} to {FIXED_VERSION}'))
-    else:
-        return version_functions.check_patched_version('Kernel', valid_kernel_version, PATCHED_VERSIONS)
-    return affected
+    """This function returns if the kernel version is affected."""
+    fixed_kernel_versions = FIXED_KERNEL_VERSIONS
+    if kernel_version.is_aws(debug):
+        fixed_kernel_versions = FIXED_AWS_KERNEL_VERSIONS
+    host_os_release = os_release.check_release(fixed_kernel_versions, debug, container_name)
+    if host_os_release == constants.UNSUPPORTED or not host_os_release:
+        return host_os_release
+    if host_os_release in fixed_kernel_versions:
+        fixed_kernel_version = fixed_kernel_versions[host_os_release]
+        return kernel_version.check_kernel(MIN_KERNEL_VERSION, fixed_kernel_version, debug)
+    return ''
 
 
 def validate(debug, container_name):

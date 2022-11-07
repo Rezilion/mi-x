@@ -87,25 +87,11 @@ def zero_page(debug, container_name):
     return affected
 
 
-def check_kernel_version(debug, container_name):
-    """This function returns if the kernel version is affected."""
-    fixed_kernel_versions = FIXED_KERNEL_VERSIONS
-    if kernel_version.is_aws(debug):
-        fixed_kernel_versions = FIXED_AWS_KERNEL_VERSIONS
-    host_os_release = os_release.check_release(fixed_kernel_versions, debug, container_name)
-    if host_os_release == constants.UNSUPPORTED or not host_os_release:
-        return host_os_release
-    if host_os_release in fixed_kernel_versions:
-        fixed_kernel_version = fixed_kernel_versions[host_os_release]
-        return kernel_version.check_kernel(MIN_KERNEL_VERSION, fixed_kernel_version, debug)
-    return ''
-
-
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2017-1000405."""
     state = {}
     if not container_name:
-        kernel_version_output = check_kernel_version(debug, container_name)
+        kernel_version_output = kernel_version.check_kernel_version(FIXED_KERNEL_VERSIONS, FIXED_AWS_KERNEL_VERSIONS, debug, container_name)
         if kernel_version_output == constants.UNSUPPORTED:
             state[VULNERABILITY] = status.not_determined(VULNERABILITY)
         elif kernel_version_output:

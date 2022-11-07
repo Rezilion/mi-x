@@ -80,7 +80,7 @@ def check_red_hat_patch(debug, container_name):
 
 
 def check_distribution_functional(debug, container_name):
-    """This function maps vulnerability check according to the host's os release."""
+    """This function performs the vulnerability checks according to the host's os release."""
     information_fields = ['Distribution', 'Version']
     host_information = os_release.get_field(information_fields, debug, container_name)
     return_value = ''
@@ -90,10 +90,7 @@ def check_distribution_functional(debug, container_name):
         return_value = check_red_hat_patch(debug, container_name)
     elif 'Ubuntu' in host_information or 'Debian' in host_information:
         print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
-        fixed_kernel_versions = FIXED_KERNEL_VERSIONS
-        if kernel_version.is_aws(debug):
-            fixed_kernel_versions = FIXED_AWS_KERNEL_VERSIONS
-        return_value = os_release.check_release(fixed_kernel_versions, debug, container_name)
+        return_value = kernel_version.check_kernel_version(FIXED_KERNEL_VERSIONS, FIXED_AWS_KERNEL_VERSIONS, debug, container_name)
     else:
         print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('No'))
     return return_value

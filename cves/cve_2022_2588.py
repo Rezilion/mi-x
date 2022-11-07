@@ -24,40 +24,21 @@ https://i.blackhat.com/USA-22/Thursday/US-22-Lin-Cautious-A-New-Exploitation-Met
 '''
 MIN_KERNEL_VERSION = '0'
 FIXED_KERNEL_VERSIONS = {'Debian unstable': '6.0.7-1', 'Debian 12': '6.0.5-1', 'Debian 11': '5.10.140-1',
-                         'Ubuntu 14.04': '3.13.0-191.242', 'Ubuntu 16.04': '4.4.0-231.265',
+                         'Debian 10': '4.19.260-1', 'Ubuntu 14.04': '3.13.0-191.242', 'Ubuntu 16.04': '4.4.0-231.265',
                          'Ubuntu 18.04': '4.15.0-191.202', 'Ubuntu 20.04': '5.4.0-124.140',
                          'Ubuntu 22.04': '5.15.0-46.49', 'Ubuntu 22.10': '5.19.0-16.16'}
 FIXED_AWS_KERNEL_VERSIONS = {'Ubuntu 14.04': '4.4.0-1111.117', 'Ubuntu 16.04': '4.4.0-1147.162',
                              'Ubuntu 18.04': '4.15.0-1139.150', 'Ubuntu 20.04': '5.4.0-1083.90',
                              'Ubuntu 22.04': '5.15.0-1017.21', 'Ubuntu 22.10': '5.19.0-1006.6'}
-AFFECTED = {'Debian 10': '4.19.249-2'}
 REMEDIATION = f'Upgrade kernel versions to:\n{FIXED}'
 MITIGATION = ''
-
-
-def check_kernel_version(debug):
-    """This function returns if the kernel version is affected."""
-    affected_releases = FIXED_KERNEL_VERSIONS
-    if kernel_version.is_aws(debug):
-        affected_releases = FIXED_AWS_KERNEL_VERSIONS
-    all_affected_releases = dict(affected_releases, **AFFECTED)
-    host_os_release = os_release.check_release(all_affected_releases, debug, container_name)
-    if host_os_release == constants.UNSUPPORTED or not host_os_release:
-        return host_os_release
-    if host_os_release in affected_releases:
-        fixed_kernel_version = affected_releases[host_os_release]
-        return kernel_version.check_kernel(MIN_KERNEL_VERSION, fixed_kernel_version, debug)
-    elif host_os_release in AFFECTED:
-        fixed_kernel_version = affected_releases[host_os_release]
-        return kernel_version.check_kernel(MIN_KERNEL_VERSION, fixed_kernel_version, debug)
-    return ''
 
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to Heartbleed vulnerabilities."""
     state = {}
     if not container_name:
-        kernel_version_output = check_kernel_version(debug)
+        kernel_version_output = kernel_version.check_kernel_version(FIXED_KERNEL_VERSIONS, FIXED_AWS_KERNEL_VERSIONS, debug, container_name)
         if kernel_version_output == constants.UNSUPPORTED:
             state[VULNERABILITY] = status.not_determind(VULNERABILITY)
         elif kernel_version_output:

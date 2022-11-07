@@ -30,7 +30,8 @@ FIXED_KERNEL_VERSIONS = {'Debian unstable': '4.7.8-1', 'Debian 12': '6.0.5-1', '
                          'Ubuntu 17.10': '4.13.0-19.22', 'Ubuntu 17.04': '4.10.0-42.46',
                          'Ubuntu 16.04': '4.4.0-103.126', 'Ubuntu 14.04': '3.13.0-137.186'}
 FIXED_AWS_KERNEL_VERSIONS = {'Ubuntu 16.04': '4.4.0-1043.52', 'Ubuntu 14.04': '4.4.0-1005.5'}
-REMEDIATION = f'Upgrade kernel version to {MAX_KERNEL_VERSION} or higher.'
+REMEDIATION = f'Upgrade kernel version to {FIXED_KERNEL_VERSIONS} or if running on an EC2 instance update kernel ' \
+              f'version to: {FIXED_AWS_KERNEL_VERSIONS} or higher.'
 MITIGATION_1 = 'Disable zero page.\nUse the following command to prevent the flaw from being exercised in this method:\n' \
                'echo 0 > /sys/kernel/mm/transparent_hugepage/use_zero_page'
 MITIGATION_2 = 'Disable huge pages\nUse the following command to prevent the flaw from being exercised in this method:\n' \

@@ -25,13 +25,15 @@ https://www.rezilion.com/blog/dirty-cred-what-you-need-to-know/
 https://i.blackhat.com/USA-22/Thursday/US-22-Lin-Cautious-A-New-Exploitation-Method.pdf
 '''
 PATCH_VARIABLE = 'CONFIG_CRED_ISOLATION=y'
-FIXED = {'Debian 10': '4.19.235-1', 'Debian 11': '5.10.127-1', 'Debian unstable': '5.18.16-1',
-         'Ubuntu 20.02': '5.4.0-88.99'}
+FIXED_KERNEL_VERSIONS = {'Debian 12': '', 'Debian 10': '4.19.235-1', 'Debian 11': '5.10.127-1', 'Debian unstable': '5.18.16-1',
+                         'Ubuntu 20.04': '5.4.0-88.99'}
+FIXED_AWS_KERNEL_VERSIONS = {'Ubuntu 20.02': '5.4.0-1057.60'}
 RED_HAT_FIXES = ['RHBA-2022:0238', 'RHSA-2022:0186', 'RHSA-2022:0187', 'RHSA-2022:0231', 'RHSA-2022:0819',
                  'RHSA-2022:0825', 'RHSA-2022:0841', 'RHSA-2022:0849']
-REMEDIATION = f'Choose one of these:\n- Upgrade kernel versions to:\n{FIXED}- If running on RedHat, update to one of the ' \
-              f'following patches:\n{RED_HAT_FIXES}\n- Patch the kernel using the following script:' \
-              f' https://github.com/Markakd/DirtyCred/tree/master/defense'
+REMEDIATION = f'Choose one of these:\n- Upgrade kernel versions to:{FIXED_KERNEL_VERSIONS} or if running on an EC2 ' \
+              f'instance update kernel version to: {FIXED_AWS_KERNEL_VERSIONS} or higher\n- If running on RedHat, ' \
+              f'update to one of the following patches:\n{RED_HAT_FIXES}\n- Patch the kernel using the following ' \
+              f'script: https://github.com/Markakd/DirtyCred/tree/master/defense'
 MITIGATION = ''
 
 
@@ -88,7 +90,10 @@ def check_distribution_functional(debug, container_name):
         return_value = check_red_hat_patch(debug, container_name)
     elif 'Ubuntu' in host_information or 'Debian' in host_information:
         print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
-        return_value = os_release.check_release(FIXED, debug, container_name)
+        fixed_kernel_versions = FIXED_KERNEL_VERSIONS
+        if kernel_version.is_aws(debug):
+            fixed_kernel_versions = FIXED_AWS_KERNEL_VERSIONS
+        return_value = os_release.check_release(fixed_kernel_versions, debug, container_name)
     else:
         print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('No'))
     return return_value

@@ -20,8 +20,9 @@ Related Links:
 https://nickgregory.me/linux/security/2022/03/12/cve-2022-25636/
 https://support.f5.com/csp/article/K13559191
 '''
-MIN_AFFECTED_VERSION = '5.4.0'
-MAX_AFFECTED_VERSION = '5.6.10'
+FIXED_KERNEL_VERSIONS = {'Debian unstable': '6.0.7-1', 'Debian 12': '6.0.5-1', 'Debian 11': '5.10.140-1',
+                         'Debian 10': '4.19.249-2', 'Ubuntu 21.10': '5.13.0-35.40', 'Ubuntu 20.04': '5.4.0-104.118'}
+FIXED_AWS_KERNEL_VERSIONS = {'Ubuntu 21.10': '5.4.0-1068.72', 'Ubuntu 20.04': '5.13.0-1017.19'}
 AFFECTED_VARIABLE = 'offload_flags'
 FIXED_VARIABLE = 'offload_action'
 REMEDIATION = 'Upgrade kernel version to 5.6.11 or higher'
@@ -58,34 +59,11 @@ def nf_tables_affected(nf_tables_path, debug, container_name):
     return constants.UNSUPPORTED
 
 
-def check_kernel(debug):
-    """This function checks if the kernel version is affected."""
-    print(constants.FULL_QUESTION_MESSAGE.format('Is kernel version affected?'))
-    valid_kernel_version = kernel_version.get_valid_kernel_version(debug)
-    if not valid_kernel_version:
-        print(constants.FULL_EXPLANATION_MESSAGE.format('Kernel version unsupported value'))
-        return constants.UNSUPPORTED
-    if version.parse(valid_kernel_version) > version.parse(MAX_AFFECTED_VERSION) or \
-            version.parse(valid_kernel_version) < version.parse(MIN_AFFECTED_VERSION):
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'According to your os release, affected kernel versions '
-                                                        f'range is: {MIN_AFFECTED_VERSION} to {MAX_AFFECTED_VERSION}\n'
-                                                        f'Your kernel version which is: '
-                                                        f'{valid_kernel_version[:constants.END]}, is not affected'))
-        return ''
-    print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-    print(constants.FULL_EXPLANATION_MESSAGE.format(f'According to your os release, affected kernel versions range is: '
-                                                    f'{MIN_AFFECTED_VERSION} to {MAX_AFFECTED_VERSION}\nYour kernel '
-                                                    f'version which is: {valid_kernel_version[:constants.END]}, is '
-                                                    f'potentially affected'))
-    return host_kernel_version
-
-
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2022-25636."""
     state = {}
     if not container_name:
-        affected_kernel_version = check_kernel(debug)
+        affected_kernel_version = kernel_version.check_kernel_version(FIXED_KERNEL_VERSIONS, FIXED_AWS_KERNEL_VERSIONS, debug, container_name)
         if affected_kernel_version == constants.UNSUPPORTED:
             state[VULNERABILITY] = status.not_determind(VULNERABILITY)
         elif affected_kernel_version:

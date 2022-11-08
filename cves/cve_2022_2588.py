@@ -1,14 +1,13 @@
 """
-Support for graphviz, version from packaging and other modules which written for avoiding repetitive code.
+Support for modules written to avoid repetitive code.
 """
-import graphviz
-from modules import status, commons, constants, os_release, kernel_version
+from modules import constants, graph_functions, status, os_release, kernel_functions
 
 VULNERABILITY = 'CVE-2022-2588'
 DESCRIPTION = '''Dirty Cred
 
-CVSS Score: 7.5
-NVD Link: https://nvd.nist.gov/vuln/detail/cve-2014-0160
+CVSS Score: 8.8
+NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2021-4154
 
 Dirty Cred are (now) two `use-after-free` privilege escalation vulnerabilities (CVE-2021-4154 and CVE-2022-2588) in the 
 Linux kernel which can also be utilized for container escape.
@@ -23,8 +22,13 @@ https://www.rezilion.com/blog/dirty-cred-what-you-need-to-know/
 https://i.blackhat.com/USA-22/Thursday/US-22-Lin-Cautious-A-New-Exploitation-Method.pdf
 '''
 MIN_KERNEL_VERSION = '0'
-FIXED = {'Debian 11': '5.10.136-1', 'Debian unstable': '5.18.16-1', 'Ubuntu 16.04': '4.4.0-231.265',
-         'Ubuntu 18.04': '4.15.0-191.202', 'Ubuntu 20.02': '5.4.0-124.140', 'Ubuntu 22.04': '5.15.0-46.49'}
+FIXED_KERNEL_VERSIONS = {'Debian unstable': '6.0.7-1', 'Debian 12': '6.0.5-1', 'Debian 11': '5.10.140-1',
+                         'Debian 10': '4.19.260-1', 'Ubuntu 14.04': '3.13.0-191.242', 'Ubuntu 16.04': '4.4.0-231.265',
+                         'Ubuntu 18.04': '4.15.0-191.202', 'Ubuntu 20.04': '5.4.0-124.140',
+                         'Ubuntu 22.04': '5.15.0-46.49', 'Ubuntu 22.10': '5.19.0-16.16'}
+FIXED_AWS_KERNEL_VERSIONS = {'Ubuntu 14.04': '4.4.0-1111.117', 'Ubuntu 16.04': '4.4.0-1147.162',
+                             'Ubuntu 18.04': '4.15.0-1139.150', 'Ubuntu 20.04': '5.4.0-1083.90',
+                             'Ubuntu 22.04': '5.15.0-1017.21', 'Ubuntu 22.10': '5.19.0-1006.6'}
 REMEDIATION = f'Upgrade kernel versions to:\n{FIXED}'
 MITIGATION = ''
 
@@ -33,16 +37,12 @@ def validate(debug, container_name):
     """This function validates if the host is vulnerable to Heartbleed vulnerabilities."""
     state = {}
     if not container_name:
-        affected_kernel = os_release.check_release(FIXED, debug, container_name)
-        if affected_kernel == constants.UNSUPPORTED:
+        kernel_version_output = kernel_functions.check_kernel_version(FIXED_KERNEL_VERSIONS, FIXED_AWS_KERNEL_VERSIONS, debug, container_name)
+        if kernel_version_output == constants.UNSUPPORTED:
             state[VULNERABILITY] = status.not_determind(VULNERABILITY)
-        elif affected_kernel:
-            patched_kernel_version = FIXED[affected_kernel]
-            if kernel_version.check_kernel(MIN_KERNEL_VERSION, patched_kernel_version, debug):
-                state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
-                status.remediation_mitigation(REMEDIATION, MITIGATION)
-            else:
-                state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+        elif kernel_version_output:
+            state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
+            status.remediation_mitigation(REMEDIATION, MITIGATION)
         else:
             state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
     else:
@@ -53,13 +53,12 @@ def validate(debug, container_name):
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of Heartbleed."""
-    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    commons.graph_start(VULNERABILITY, vol_graph)
-    vol_graph.edge('Is it Linux?', 'Is kernel version affected?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is kernel version affected?', 'Vulnerable', label='Yes')
-    vol_graph.edge('Is kernel version affected?', 'Not Vulnerable', label='No')
-    commons.graph_end(vol_graph)
+    vulnerability_graph = graph_functions.generate_graph(VULNERABILITY)
+    vulnerability_graph.edge('Is it Linux?', 'Is kernel version affected?', label='Yes')
+    vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is kernel version affected?', 'Vulnerable', label='Yes')
+    vulnerability_graph.edge('Is kernel version affected?', 'Not Vulnerable', label='No')
+    vulnerability_graph.view()
 
 
 def main(description, graph, debug, container_name):

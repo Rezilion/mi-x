@@ -1,9 +1,8 @@
 """
-Support for graphviz and other modules which written for avoiding repetitive code.
+Support for version from packaging and other modules written to avoid repetitive code.
 """
-import graphviz
 from packaging import version
-from modules import status, run_command, process_functions, commons, constants
+from modules import constants, graph_functions, status, run_command, process_functions, java_functions
 
 VULNERABILITY = 'CVE-2022-22965'
 DESCRIPTION = f'''{VULNERABILITY} - Spring4Shell
@@ -36,7 +35,7 @@ def check_java_version(pid, jcmd_command, debug):
     """This function checks the process`s java version."""
     pipe_jcmd = run_command.command_output(jcmd_command, debug, container_name='')
     jcmd = pipe_jcmd.stdout
-    print(constants.FULL_QUESTION_MESSAGE.format(f'Is the following process: {pid} java version affected?'))
+    print(constants.FULL_QUESTION_MESSAGE.format(f'Is the java version of the following {pid} process affected?'))
     if not jcmd:
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Unsupported {VM_VERSION} value'))
         return constants.UNSUPPORTED
@@ -60,7 +59,7 @@ def validate_processes(pids, debug, container_name):
     for pid in pids:
         jcmd_path = 'jcmd'
         if container_name:
-            jcmd_path = commons.build_jcmd_path(pid, debug, container_name)
+            jcmd_path = java_functions.build_jcmd_path(pid, debug, container_name)
             if jcmd_path == constants.UNSUPPORTED:
                 state[pid] = status.process_not_determined(pid, VULNERABILITY)
                 break
@@ -73,10 +72,10 @@ def validate_processes(pids, debug, container_name):
             state[pid] = status.process_not_vulnerable(pid, VULNERABILITY)
             break
         jcmd_command = f'sudo {jcmd_path} {pid} '
-        utility = commons.available_jcmd_utilities(jcmd_command, debug)
+        utility = java_functions.available_jcmd_utilities(jcmd_command, debug)
         if utility:
             full_jcmd_command = jcmd_command + utility
-            webmvc_webflux = commons.check_loaded_classes(pid, full_jcmd_command, CLASSES, debug)
+            webmvc_webflux = java_functions.check_loaded_classes(pid, full_jcmd_command, CLASSES, debug)
             if webmvc_webflux == constants.UNSUPPORTED:
                 state[pid] = status.process_not_determined(pid, VULNERABILITY)
             elif webmvc_webflux:
@@ -104,17 +103,16 @@ def validate(debug, container_name):
 
 def validation_flow_chart():
     """This function creates a graph that shows the vulnerability validation process of Spring4Shell."""
-    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    commons.graph_start(VULNERABILITY, vol_graph)
-    vol_graph.edge('Is it Linux?', 'Are there running Java processes?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Are there running Java processes?', 'Is java version affected?', label='Yes')
-    vol_graph.edge('Are there running Java processes?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is java version affected?', 'Does the process use webmvc or webflux dependencies?', label='Yes')
-    vol_graph.edge('Is java version affected?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Does the process use webmvc or webflux dependencies?', 'Vulnerable', label='Yes')
-    vol_graph.edge('Does the process use webmvc or webflux dependencies?', 'Not Vulnerable', label='No')
-    commons.graph_end(vol_graph)
+    vulnerability_graph = graph_functions.generate_graph(VULNERABILITY)
+    vulnerability_graph.edge('Is it Linux?', 'Are there running Java processes?', label='Yes')
+    vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Are there running Java processes?', 'Is java version affected?', label='Yes')
+    vulnerability_graph.edge('Are there running Java processes?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is java version affected?', 'Does the process use webmvc or webflux dependencies?', label='Yes')
+    vulnerability_graph.edge('Is java version affected?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Does the process use webmvc or webflux dependencies?', 'Vulnerable', label='Yes')
+    vulnerability_graph.edge('Does the process use webmvc or webflux dependencies?', 'Not Vulnerable', label='No')
+    vulnerability_graph.view()
 
 
 def main(description, graph, debug, container_name):

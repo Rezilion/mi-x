@@ -1,8 +1,7 @@
 """
-Support for os and other modules which written for avoiding repetitive code.
+Support for modules written to avoid repetitive code.
 """
-import os
-from modules import run_command, constants
+from modules import constants, run_command, file_functions
 
 NAME_FIELD = 'NAME='
 VERSION_FIELD = 'VERSION_ID='
@@ -12,7 +11,7 @@ ALPINE = 'alpine'
 def file_content_host(file_path, debug, container_name):
     """This function returns the file's content if exists (in hosts)."""
     content = []
-    if os.path.isfile(file_path):
+    if file_functions.check_file_existence(file_path, debug, container_name):
         try:
             with open(file_path, 'r', encoding='utf-8') as file:
                 content = []
@@ -108,7 +107,7 @@ def is_linux(debug, container_name):
 
 def check_linux_supported_environment(debug, container_name, vulnerability_identifier):
     """This function checks if the machine is running on linux and if the os distribution is supported."""
-    print(constants.FULL_QUESTION_MESSAGE.format('Is the environment supported by MI-X?'))
+    print(constants.FULL_QUESTION_MESSAGE.format('\n\nIs the environment supported by MI-X?'))
     if is_linux(debug, container_name):
         if vulnerability_identifier in constants.SUPPORTED_ALPINE_VULNERABILITIES:
             supported_distribution = check_distribution_with_alpine_support(debug, container_name)

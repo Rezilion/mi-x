@@ -1,9 +1,8 @@
 """
-Support for importlib, graphviz and other modules which written for avoiding repetitive code.
+Support for importlib and other modules written to avoid repetitive code.
 """
 import importlib
-import graphviz
-from modules import status, run_command, kernel_version, commons, os_release, constants
+from modules import constants, graph_functions, status, run_command, kernel_functions, os_release
 
 VULNERABILITY = 'CVE-2016-5195'
 NEXT_VULNERABILITY = 'cve_2017_1000405'
@@ -113,7 +112,7 @@ def validate(debug, container_name):
             state[VULNERABILITY] = status.not_determined(VULNERABILITY)
         elif fixed_release:
             max_kernel_version = FIXED[fixed_release]
-            check_kernel_version = kernel_version.check_kernel(MIN_KERNEL_VERSION, max_kernel_version, debug)
+            check_kernel_version = kernel_functions.check_kernel(MIN_KERNEL_VERSION, max_kernel_version, debug)
             if check_kernel_version == constants.UNSUPPORTED:
                 state[VULNERABILITY] = status.not_determined(VULNERABILITY)
             elif check_kernel_version:
@@ -133,21 +132,20 @@ def validate(debug, container_name):
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of CVE-2016-5195."""
-    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    commons.graph_start(VULNERABILITY, vol_graph)
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is it Linux?', 'Is os release effected?', label='Yes')
-    vol_graph.edge('Is os release effected?', 'Is the kernel release effected?', label='Yes')
-    vol_graph.edge('Is os release effected?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is the kernel release effected?', 'Is it Red Hat?', label='Yes')
-    vol_graph.edge('Is the kernel release effected?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is it Red Hat?', 'Are There loaded modules?', label='Yes')
-    vol_graph.edge('Is it Red Hat?', 'Vulnerable', label='No')
-    vol_graph.edge('Are There loaded modules?', 'Is it Patched with kpatch?', label='Yes')
-    vol_graph.edge('Are There loaded modules?', 'Vulnerable', label='No')
-    vol_graph.edge('Is it Patched with kpatch?', 'Not Vulnerable', label='Yes')
-    vol_graph.edge('Is it Patched with kpatch?', 'Vulnerable', label='No')
-    commons.graph_end(vol_graph)
+    vulnerability_graph = graph_functions.generate_graph(VULNERABILITY)
+    vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is it Linux?', 'Is os release effected?', label='Yes')
+    vulnerability_graph.edge('Is os release effected?', 'Is the kernel release effected?', label='Yes')
+    vulnerability_graph.edge('Is os release effected?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is the kernel release effected?', 'Is it Red Hat?', label='Yes')
+    vulnerability_graph.edge('Is the kernel release effected?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is it Red Hat?', 'Are There loaded modules?', label='Yes')
+    vulnerability_graph.edge('Is it Red Hat?', 'Vulnerable', label='No')
+    vulnerability_graph.edge('Are There loaded modules?', 'Is it Patched with kpatch?', label='Yes')
+    vulnerability_graph.edge('Are There loaded modules?', 'Vulnerable', label='No')
+    vulnerability_graph.edge('Is it Patched with kpatch?', 'Not Vulnerable', label='Yes')
+    vulnerability_graph.edge('Is it Patched with kpatch?', 'Vulnerable', label='No')
+    vulnerability_graph.view()
 
 
 def main(description, graph, debug, container_name):

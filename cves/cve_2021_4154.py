@@ -1,14 +1,13 @@
 """
-Support for graphviz, version from packaging and other modules which written for avoiding repetitive code.
+Support for modules written to avoid repetitive code.
 """
-import graphviz
-from modules import status, commons, constants, os_release, kernel_version, run_command
+from modules import constants, graph_functions, status, run_command, file_functions, os_release, kernel_functions
 
 VULNERABILITY = 'CVE-2021-4154'
 DESCRIPTION = '''Dirty Cred
 
-CVSS Score: 7.5
-NVD Link: https://nvd.nist.gov/vuln/detail/cve-2014-0160
+CVSS Score: 8.8
+NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2021-4154
 
 Dirty Cred are (now) two `use-after-free` privilege escalation vulnerabilities (CVE-2021-4154 and CVE-2022-2588) in the 
 Linux kernel which can also be utilized for container escape.
@@ -25,13 +24,15 @@ https://www.rezilion.com/blog/dirty-cred-what-you-need-to-know/
 https://i.blackhat.com/USA-22/Thursday/US-22-Lin-Cautious-A-New-Exploitation-Method.pdf
 '''
 PATCH_VARIABLE = 'CONFIG_CRED_ISOLATION=y'
-FIXED = {'Debian 10': '4.19.235-1', 'Debian 11': '5.10.127-1', 'Debian unstable': '5.18.16-1',
-         'Ubuntu 20.02': '5.4.0-88.99'}
+FIXED_KERNEL_VERSIONS = {'Debian unstable': '6.0.7-1', 'Debian 12': '6.0.5-1', 'Debian 11': '5.10.140-1',
+                         'Debian 10': '4.19.249-2', 'Ubuntu 20.04': '5.4.0-88.99'}
+FIXED_AWS_KERNEL_VERSIONS = {'Ubuntu 20.04': '5.4.0-1057.60'}
 RED_HAT_FIXES = ['RHBA-2022:0238', 'RHSA-2022:0186', 'RHSA-2022:0187', 'RHSA-2022:0231', 'RHSA-2022:0819',
                  'RHSA-2022:0825', 'RHSA-2022:0841', 'RHSA-2022:0849']
-REMEDIATION = f'Choose one of these:\n- Upgrade kernel versions to:\n{FIXED}- If running on RedHat, update to one of the ' \
-              f'following patches:\n{RED_HAT_FIXES}\n- Patch the kernel using the following script:' \
-              f' https://github.com/Markakd/DirtyCred/tree/master/defense'
+REMEDIATION = f'Choose one of these:\n- Upgrade kernel versions to:{FIXED_KERNEL_VERSIONS} or if running on an EC2 ' \
+              f'instance update kernel version to: {FIXED_AWS_KERNEL_VERSIONS} or higher\n- If running on RedHat, ' \
+              f'update to one of the following patches:\n{RED_HAT_FIXES}\n- Patch the kernel using the following ' \
+              f'script: https://github.com/Markakd/DirtyCred/tree/master/defense'
 MITIGATION = ''
 
 
@@ -42,7 +43,7 @@ def find_patch(debug, container_name):
         print(constants.FULL_EXPLANATION_MESSAGE.format('Error finding kernel version'))
         return constants.UNSUPPORTED
     config_path = f'/boot/config-{full_kernel_version}'
-    config_content = commons.file_content(config_path, debug, container_name)
+    config_content = file_functions.get_file_content(config_path, debug, container_name)
     print(constants.FULL_QUESTION_MESSAGE.format('Is there a patch installed?'))
     if not config_content:
         return constants.UNSUPPORTED
@@ -78,7 +79,7 @@ def check_red_hat_patch(debug, container_name):
 
 
 def check_distribution_functional(debug, container_name):
-    """This function maps vulnerability check according to the host's os release."""
+    """This function performs the vulnerability checks according to the host's os release."""
     information_fields = ['Distribution', 'Version']
     host_information = os_release.get_field(information_fields, debug, container_name)
     return_value = ''
@@ -88,7 +89,7 @@ def check_distribution_functional(debug, container_name):
         return_value = check_red_hat_patch(debug, container_name)
     elif 'Ubuntu' in host_information or 'Debian' in host_information:
         print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
-        return_value = os_release.check_release(FIXED, debug, container_name)
+        return_value = kernel_functions.check_kernel_version(FIXED_KERNEL_VERSIONS, FIXED_AWS_KERNEL_VERSIONS, debug, container_name)
     else:
         print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('No'))
     return return_value
@@ -121,15 +122,14 @@ def validate(debug, container_name):
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of Dirty Cred."""
-    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    commons.graph_start(VULNERABILITY, vol_graph)
-    vol_graph.edge('Is it Linux?', 'Is kernel version affected?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is kernel version affected?', 'There is a patch installed?', label='Yes')
-    vol_graph.edge('Is kernel version affected?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is there a patch installed?', 'Not Vulnerable', label='Yes')
-    vol_graph.edge('Is there a patch installed?', 'Vulnerable', label='No')
-    commons.graph_end(vol_graph)
+    vulnerability_graph = graph_functions.generate_graph(VULNERABILITY)
+    vulnerability_graph.edge('Is it Linux?', 'Is kernel version affected?', label='Yes')
+    vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is kernel version affected?', 'There is a patch installed?', label='Yes')
+    vulnerability_graph.edge('Is kernel version affected?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is there a patch installed?', 'Not Vulnerable', label='Yes')
+    vulnerability_graph.edge('Is there a patch installed?', 'Vulnerable', label='No')
+    vulnerability_graph.view()
 
 
 def main(description, graph, debug, container_name):

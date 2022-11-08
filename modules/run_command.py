@@ -1,5 +1,5 @@
 """
-Support for subprocess, shlex and other modules which written for avoiding repetitive code.
+Support for subprocess, shlex and other modules written to avoid repetitive code.
 """
 import subprocess
 import shlex

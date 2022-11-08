@@ -1,8 +1,7 @@
 """
-Support for os, semver, graphviz and other modules which written for avoiding repetitive code.
+Support for modules written to avoid repetitive code.
 """
-import graphviz
-from modules import status, apache as apache_functions, commons, constants
+from modules import constants, graph_functions, status, file_functions, apache as apache_functions
 
 FIRST_CVE_ID = 'CVE-2021-41773'
 SECOND_CVE_ID = 'CVE-2021-42013'
@@ -14,6 +13,9 @@ scanned for both CVE-2021-41773 and CVE-2021-42013.
 
 CVSS Score: 7.5
 NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2021-41773
+
+CVSS Score: 9.8
+NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2021-42013
  
 An apache HTTP server vulnerability that can lead to Path Traversal and Remote Code Execution on the apache HTTP server.
 To avoid path traversal attack, the normalization function (only in apache 2.4.49 version) which is responsible for 
@@ -84,7 +86,7 @@ def apache_configuration_file(debug, container_name):
     """This function checks which configuration file path is the correct one for the system."""
     configuration_files_paths = ['/etc/apache2/apache2.conf', '/etc/httpd/conf/httpd.conf', 'etc/apache2/httpd.conf']
     for configuration_file_path in configuration_files_paths:
-        configuration_content = commons.file_content(configuration_file_path, debug, container_name)
+        configuration_content = file_functions.get_file_content(configuration_file_path, debug, container_name)
         if configuration_content:
             return filesystem_directory_configuration(configuration_content)
     return constants.UNSUPPORTED
@@ -148,24 +150,23 @@ def validate(debug, container_name):
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of CVE-2021-41773 or
     CVE-2021-42013."""
-    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    commons.graph_start(VULNERABILITY, vol_graph)
-    vol_graph.edge('Is it Linux?', 'Is host distribution affected?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is host distribution affected?', 'Is Apache HTTP Server installed?', label='Yes')
-    vol_graph.edge('Is host distribution affected?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is Apache HTTP Server installed?', 'Is apache version affected?', label='Yes')
-    vol_graph.edge('Is Apache HTTP Server installed?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is apache version affected?', 'Is configuration file set the filesystem directory "Require '
+    vulnerability_graph = graph_functions.generate_graph(VULNERABILITY)
+    vulnerability_graph.edge('Is it Linux?', 'Is host distribution affected?', label='Yes')
+    vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is host distribution affected?', 'Is Apache HTTP Server installed?', label='Yes')
+    vulnerability_graph.edge('Is host distribution affected?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is Apache HTTP Server installed?', 'Is apache version affected?', label='Yes')
+    vulnerability_graph.edge('Is Apache HTTP Server installed?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is apache version affected?', 'Is configuration file set the filesystem directory "Require '
                                                   'all granted"?', label='Yes')
-    vol_graph.edge('Is apache version affected?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is configuration file set the filesystem directory "Require all granted"?', 'Is "cgi_module" '
+    vulnerability_graph.edge('Is apache version affected?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is configuration file set the filesystem directory "Require all granted"?', 'Is "cgi_module" '
                                                                                                 'loaded?', label='Yes')
-    vol_graph.edge('Is configuration file set the filesystem directory "Require all granted"?', 'Not Vulnerable',
+    vulnerability_graph.edge('Is configuration file set the filesystem directory "Require all granted"?', 'Not Vulnerable',
                    label='No')
-    vol_graph.edge('Is "cgi_module" loaded?', 'Vulnerable to Path Traversal and Remote Code Execution', label='Yes')
-    vol_graph.edge('Is "cgi_module" loaded?', 'Vulnerable to Path Traversal', label='No')
-    commons.graph_end(vol_graph)
+    vulnerability_graph.edge('Is "cgi_module" loaded?', 'Vulnerable to Path Traversal and Remote Code Execution', label='Yes')
+    vulnerability_graph.edge('Is "cgi_module" loaded?', 'Vulnerable to Path Traversal', label='No')
+    vulnerability_graph.view()
 
 
 def main(description, graph, debug, container_name):

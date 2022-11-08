@@ -1,9 +1,8 @@
 """
-Support for graphviz, version from packaging and other modules which written for avoiding repetitive code.
+Support for version from packaging and other modules written to avoid repetitive code.
 """
-import graphviz
 from packaging import version
-from modules import status, commons, os_release, constants, receive_package
+from modules import constants, graph_functions, status, os_release, receive_package
 
 VULNERABILITY = 'NIMBUSPWN'
 DESCRIPTION = f'''{VULNERABILITY} - CVE-2022-29799, CVE-2022-29800
@@ -50,26 +49,26 @@ MITIGATION = 'Remove the networkd-dispatcher by using one of the following comma
              'systemd-networkd.service'
 
 
-def compare_versions(affected_versions, host_information, host_network_version):
+def print_not_affected(host_network_version, affected_networkd_version):
+    """This function prints out the not affected message."""
+    print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is higher than or '
+                                                    f'equals to the patched version which is: '
+                                                    f'{affected_networkd_version}'))
+
+
+def print_affected(host_network_version, affected_networkd_version):
+    """This function prints out the affected message."""
+    print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is lower that the '
+                                                    f'patched version which is: {affected_networkd_version}'))
+
+
+def compare_versions(affected_networkd_version, host_network_version):
     """This function compares the networkd-dispatcher version between the founded version on host and the maximum
     affected version."""
     affected = False
-    affected_networkd_version = affected_versions[host_information]
-    if version.parse(host_network_version) > version.parse(affected_networkd_version):
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is higher '
-                                                        f'than the patched version which is: '
-                                                        f'{affected_networkd_version}'))
-    elif version.parse(host_network_version) == version.parse(affected_networkd_version):
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is '
-                                                        f'affected'))
-        affected = True
-    else:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your version which is: {host_network_version}, is lower '
-                                                        f'than the patched version which is: '
-                                                        f'{affected_networkd_version}'))
+    if version.parse(host_network_version) <= version.parse(affected_networkd_version):
         affected = True
     return affected
 
@@ -82,10 +81,21 @@ def check_networkd_version(host_information, debug, container_name):
     host_network_version = receive_package.package_version_apt(distribution, package_name, debug, container_name)
     if host_network_version:
         print(constants.FULL_QUESTION_MESSAGE.format('Is networkd-dispatcher policy version affected?'))
-        if compare_versions(AFFECTED_CVE_2, host_information, host_network_version):
+        affected_versions = AFFECTED_CVE_2
+        affected_networkd_version_1 = affected_versions[host_information]
+        affected = compare_versions(host_information, host_network_version)
+        if affected:
+            print_affected(host_network_version, affected_networkd_version_1)
             return CVE_2
-        if compare_versions(AFFECTED_CVE_1, host_information, host_network_version):
-            return CVE_1
+        else:
+            affected_versions = AFFECTED_CVE_1
+            affected_networkd_version_2 = affected_versions[host_information]
+            affected = compare_versions(host_information, host_network_version)
+            if affected:
+                print_affected(host_network_version, affected_networkd_version_2)
+                return CVE_1
+            else:
+                print_not_affected(host_network_version, affected_networkd_version_1)
     return vulnerability
 
 
@@ -102,21 +112,18 @@ def distribution_version_affected(debug, container_name):
         return constants.UNSUPPORTED
     if host_information in AFFECTED_DISTRIBUTIONS:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os releases: {list(AFFECTED_VERSIONS.keys())}\n'
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os releases: {AFFECTED_DISTRIBUTIONS}\n'
                                                         f'Your os release: {host_information}\nThe os release you '
                                                         f'are running on is potentially affected'))
         return host_information
     if host_information.split(' ')[constants.START] in constants.APT_DISTRIBUTIONS:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your os distribution and version which is: '
-                                                        f'{host_information}\nAffected distributions and versions: '
-                                                        f'{list(AFFECTED_VERSIONS.keys())}\nYour distribution and '
-                                                        f'version are not affected'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your os distribution and version which are: '
+                                                        f'{host_information}, are not affected'))
         return ''
     print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os distributions: Ubuntu and Debian\nYour os '
-                                                    f'distribution: {host_information}\nThe os distribution you'
-                                                    f' are running on is not affected'))
+    print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected os distributions are: Ubuntu and Debian\nYour os '
+                                                    f'distribution which is: {host_information}, is not affected'))
     return ''
 
 
@@ -138,16 +145,15 @@ def validate(debug, container_name):
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of NIMBUSPWN."""
-    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    commons.graph_start(VULNERABILITY, vol_graph)
-    vol_graph.edge('Is it Linux?', 'Are os distribution and version affected?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Are os distribution and version affected?', 'Is networkd-dispatcher policy version affected?',
+    vulnerability_graph = graph_functions.generate_graph(VULNERABILITY)
+    vulnerability_graph.edge('Is it Linux?', 'Are os distribution and version affected?', label='Yes')
+    vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Are os distribution and version affected?', 'Is networkd-dispatcher policy version affected?',
                    label='Yes')
-    vol_graph.edge('Are os distribution and version affected?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is networkd-dispatcher policy version affected?', 'Vulnerable', label='Yes')
-    vol_graph.edge('Is networkd-dispatcher policy version affected?', 'Not Vulnerable', label='No')
-    commons.graph_end(vol_graph)
+    vulnerability_graph.edge('Are os distribution and version affected?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is networkd-dispatcher policy version affected?', 'Vulnerable', label='Yes')
+    vulnerability_graph.edge('Is networkd-dispatcher policy version affected?', 'Not Vulnerable', label='No')
+    vulnerability_graph.view()
 
 
 def main(description, graph, debug, container_name):

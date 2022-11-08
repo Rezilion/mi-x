@@ -1,7 +1,7 @@
 """
-Support for modules which written for avoiding repetitive code.
+Support for modules written to avoid repetitive code.
 """
-from modules import commons, constants
+from modules import constants, file_functions
 
 NAME_FIELD = 'NAME='
 VERSION_FIELD = 'VERSION_ID='
@@ -11,7 +11,7 @@ PRETTY_NAME_FIELD = 'PRETTY_NAME='
 def get_field(information_fields, debug, container_name):
     """This function receives the requested field information."""
     os_release_path = '/etc/os-release'
-    release_information = commons.file_content(os_release_path, debug, container_name)
+    release_information = file_functions.get_file_content(os_release_path, debug, container_name)
     host_information = ''
     if release_information:
         for field in release_information:

@@ -1,9 +1,7 @@
 """
-Support for semver, graphviz and other modules which written for avoiding repetitive code.
+Support for modules written to avoid repetitive code.
 """
-import graphviz
-from packaging import version
-from modules import status, run_command, kernel_version, commons, constants
+from modules import constants, graph_functions, status, run_command, file_functions, kernel_functions
 
 VULNERABILITY = 'CVE-2022-25636'
 DESCRIPTION = f'''{VULNERABILITY}
@@ -20,8 +18,9 @@ Related Links:
 https://nickgregory.me/linux/security/2022/03/12/cve-2022-25636/
 https://support.f5.com/csp/article/K13559191
 '''
-MIN_AFFECTED_VERSION = '5.4.0'
-MAX_AFFECTED_VERSION = '5.6.10'
+FIXED_KERNEL_VERSIONS = {'Debian unstable': '6.0.7-1', 'Debian 12': '6.0.5-1', 'Debian 11': '5.10.140-1',
+                         'Debian 10': '4.19.249-2', 'Ubuntu 21.10': '5.13.0-35.40', 'Ubuntu 20.04': '5.4.0-104.118'}
+FIXED_AWS_KERNEL_VERSIONS = {'Ubuntu 21.10': '5.4.0-1068.72', 'Ubuntu 20.04': '5.13.0-1017.19'}
 AFFECTED_VARIABLE = 'offload_flags'
 FIXED_VARIABLE = 'offload_action'
 REMEDIATION = 'Upgrade kernel version to 5.6.11 or higher'
@@ -58,40 +57,16 @@ def nf_tables_affected(nf_tables_path, debug, container_name):
     return constants.UNSUPPORTED
 
 
-def check_kernel(debug):
-    """This function checks if the kernel version is affected."""
-    print(constants.FULL_QUESTION_MESSAGE.format('Is kernel version affected?'))
-    host_kernel_version = kernel_version.get_kernel_version(debug)
-    if not host_kernel_version:
-        print(constants.FULL_EXPLANATION_MESSAGE.format('Kernel version unsupported value'))
-        return constants.UNSUPPORTED
-    valid_kernel_version = commons.valid_kernel_version(host_kernel_version)
-    if version.parse(valid_kernel_version) > version.parse(MAX_AFFECTED_VERSION) or \
-            version.parse(valid_kernel_version) < version.parse(MIN_AFFECTED_VERSION):
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'According to your os release, affected kernel versions '
-                                                        f'range is: {MIN_AFFECTED_VERSION} to {MAX_AFFECTED_VERSION}\n'
-                                                        f'Your kernel version which is: '
-                                                        f'{valid_kernel_version[:constants.END]}, is not affected'))
-        return ''
-    print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-    print(constants.FULL_EXPLANATION_MESSAGE.format(f'According to your os release, affected kernel versions range is: '
-                                                    f'{MIN_AFFECTED_VERSION} to {MAX_AFFECTED_VERSION}\nYour kernel '
-                                                    f'version which is: {valid_kernel_version[:constants.END]}, is '
-                                                    f'potentially affected'))
-    return host_kernel_version
-
-
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2022-25636."""
     state = {}
     if not container_name:
-        affected_kernel_version = check_kernel(debug)
+        affected_kernel_version = kernel_functions.check_kernel_version(FIXED_KERNEL_VERSIONS, FIXED_AWS_KERNEL_VERSIONS, debug, container_name)
         if affected_kernel_version == constants.UNSUPPORTED:
             state[VULNERABILITY] = status.not_determind(VULNERABILITY)
         elif affected_kernel_version:
             nf_tables_path = f'/usr/lib/modules/{affected_kernel_version}/kernel/net/netfilter/nf_tables.ko'
-            nf_tables_file = commons.check_file_existence(nf_tables_path, debug, container_name)
+            nf_tables_file = file_functions.check_file_existence(nf_tables_path, debug, container_name)
             if nf_tables_file:
                 affected = nf_tables_affected(nf_tables_path, debug, container_name)
                 if affected == constants.UNSUPPORTED:
@@ -113,17 +88,16 @@ def validate(debug, container_name):
 
 def validation_flow_chart():
     """This function creates a graph that shows the vulnerability validation process of CVE-2022-25636."""
-    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    commons.graph_start(VULNERABILITY, vol_graph)
-    vol_graph.edge('Is it Linux?', 'Is the kernel version affected?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is the kernel version affected?', 'Does the `nf_tables.ko` file exists?', label='Yes')
-    vol_graph.edge('Is the kernel version affected?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Does the `nf_tables.ko` file exists?', 'Is `nf_tables.ko` file affected?', label='Yes')
-    vol_graph.edge('Does the `nf_tables.ko` file exists?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is `nf_tables.ko` file affected?', 'Vulnerable', label='Yes')
-    vol_graph.edge('Is `nf_tables.ko` file affected?', 'Not Vulnerable', label='No')
-    commons.graph_end(vol_graph)
+    vulnerability_graph = graph_functions.generate_graph(VULNERABILITY)
+    vulnerability_graph.edge('Is it Linux?', 'Is the kernel version affected?', label='Yes')
+    vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is the kernel version affected?', 'Does the `nf_tables.ko` file exists?', label='Yes')
+    vulnerability_graph.edge('Is the kernel version affected?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Does the `nf_tables.ko` file exists?', 'Is `nf_tables.ko` file affected?', label='Yes')
+    vulnerability_graph.edge('Does the `nf_tables.ko` file exists?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is `nf_tables.ko` file affected?', 'Vulnerable', label='Yes')
+    vulnerability_graph.edge('Is `nf_tables.ko` file affected?', 'Not Vulnerable', label='No')
+    vulnerability_graph.view()
 
 
 def main(description, graph, debug, container_name):

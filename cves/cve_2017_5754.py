@@ -1,8 +1,7 @@
 """
-Support for graphviz and other modules which written for avoiding repetitive code.
+Support for modules written to avoid repetitive code.
 """
-import graphviz
-from modules import status, commons, constants
+from modules import constants, graph_functions, status, file_functions
 
 VULNERABILITY = 'CVE-2017-5754'
 DESCRIPTION = f'''{VULNERABILITY} - Meltdown
@@ -26,7 +25,7 @@ MITIGATION = ''
 def meltdown_file(debug, container_name):
     """This function checks if the meltdown file contains the 'vulnerable' string in it."""
     meltdown_path = '/sys/devices/system/cpu/vulnerabilities/meltdown'
-    meltdown_content = commons.file_content(meltdown_path, debug, container_name)
+    meltdown_content = file_functions.get_file_content(meltdown_path, debug, container_name)
     if not meltdown_content:
         return constants.UNSUPPORTED
     print(constants.FULL_QUESTION_MESSAGE.format(f'Does the {meltdown_path} file contain the "vulnerable" string?'))
@@ -43,7 +42,7 @@ def meltdown_file(debug, container_name):
 def check_vendor(debug, container_name):
     """This function checks if the vendor is affected by the meltdown vulnerabilities."""
     cpuinfo_path = '/proc/cpuinfo'
-    cpuinfo_content = commons.file_content(cpuinfo_path, debug, container_name)
+    cpuinfo_content = file_functions.get_file_content(cpuinfo_path, debug, container_name)
     if not cpuinfo_content:
         return constants.UNSUPPORTED
     print(constants.FULL_QUESTION_MESSAGE.format('Does the system run with AMD processor?'))
@@ -78,15 +77,14 @@ def validate(debug, container_name):
 def validation_flow_chart():
     """This function creates a graph that shows the vulnerability validation process of Meltdown."""
     meltdown_path = '/sys/devices/system/cpu/vulnerabilities/meltdown'
-    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    commons.graph_start(VULNERABILITY, vol_graph)
-    vol_graph.edge('Is it Linux?', 'Is it amd?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is it amd?', 'Not Vulnerable', label='Yes')
-    vol_graph.edge('Is it amd?', f'Does {meltdown_path} file contain the "vulnerable" string?', label='No')
-    vol_graph.edge(f'Does {meltdown_path} file contain the "vulnerable" string?', 'Not Vulnerable', label='No')
-    vol_graph.edge(f'Does {meltdown_path} file contain the "vulnerable" string?', 'Vulnerable', label='Yes')
-    commons.graph_end(vol_graph)
+    vulnerability_graph = graph_functions.generate_graph(VULNERABILITY)
+    vulnerability_graph.edge('Is it Linux?', 'Is it amd?', label='Yes')
+    vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is it amd?', 'Not Vulnerable', label='Yes')
+    vulnerability_graph.edge('Is it amd?', f'Does {meltdown_path} file contain the "vulnerable" string?', label='No')
+    vulnerability_graph.edge(f'Does {meltdown_path} file contain the "vulnerable" string?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge(f'Does {meltdown_path} file contain the "vulnerable" string?', 'Vulnerable', label='Yes')
+    vulnerability_graph.view()
 
 
 def main(description, graph, debug, container_name):

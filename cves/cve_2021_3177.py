@@ -1,14 +1,13 @@
 """
-Support for graphviz and other modules which written for avoiding repetitive code.
+Support for modules written to avoid repetitive code.
 """
-import graphviz
-from modules import status, run_command, process_functions, commons, constants
+from modules import constants, graph_functions, status, run_command, file_functions, process_functions, version_functions
 
 VULNERABILITY = 'CVE-2021-3711'
 DESCRIPTION = f'''{VULNERABILITY}
 
 CVSS Score: 9.8
-NVD Link: https://nvd.nist.gov/vuln/detail/cve-2021-3711
+NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2021-3711
 
 Python 3.x through 3.9.1 has a buffer overflow in `PyCArg_repr` in `_ctypes/callproc.c`, because `sprintf` is used 
 unsafely. The vulnerability can cause Remote Code Execution, but most likely lead to application Denial of Service or 
@@ -26,7 +25,7 @@ MITIGATION = ''
 def check_ctypes_loaded(pid, ctypes_file_name, debug):
     """This function checks if the ctypes file is loaded into the process memory or not."""
     pid_maps_path = f'/proc/{pid}/maps'
-    pid_maps_file = commons.file_content(pid_maps_path, debug, container_name='')
+    pid_maps_file = file_functions.get_file_content(pid_maps_path, debug, container_name='')
     if not pid_maps_file:
         return pid_maps_file
     print(constants.FULL_QUESTION_MESSAGE.format(f'Is the _ctypes module loaded to the {pid} process memory?'))
@@ -81,7 +80,7 @@ def validate_processes(pids, debug, container_name):
         if python_version == constants.UNSUPPORTED:
             state[pid] = status.process_not_determined(pid, VULNERABILITY)
         elif python_version:
-            if commons.check_patched_version('Python', python_version, PATCHED_VERSIONS):
+            if version_functions.check_patched_version('Python', python_version, PATCHED_VERSIONS):
                 ctypes_file_name = find_ctypes_file_name(pid, debug, container_name)
                 if ctypes_file_name == constants.UNSUPPORTED:
                     state[pid] = status.process_not_determined(pid, VULNERABILITY)
@@ -113,17 +112,16 @@ def validate(debug, container_name):
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of CVE-2021-3177."""
-    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    commons.graph_start(VULNERABILITY, vol_graph)
-    vol_graph.edge('Is it Linux?', 'Are there running Python processes?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Are there running Python processes?', 'Is python version affected?', label='Yes')
-    vol_graph.edge('Are there running Python processes?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is python version affected?', 'Is ctypes module loaded into memory?', label='Yes')
-    vol_graph.edge('Is python version affected?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is ctypes module loaded into memory?', 'Vulnerable', label='Yes')
-    vol_graph.edge('Is ctypes module loaded into memory?', 'Not Vulnerable', label='No')
-    commons.graph_end(vol_graph)
+    vulnerability_graph = graph_functions.generate_graph(VULNERABILITY)
+    vulnerability_graph.edge('Is it Linux?', 'Are there running Python processes?', label='Yes')
+    vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Are there running Python processes?', 'Is python version affected?', label='Yes')
+    vulnerability_graph.edge('Are there running Python processes?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is python version affected?', 'Is ctypes module loaded into memory?', label='Yes')
+    vulnerability_graph.edge('Is python version affected?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is ctypes module loaded into memory?', 'Vulnerable', label='Yes')
+    vulnerability_graph.edge('Is ctypes module loaded into memory?', 'Not Vulnerable', label='No')
+    vulnerability_graph.view()
 
 
 def main(description, graph, debug, container_name):

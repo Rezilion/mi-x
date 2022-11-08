@@ -1,8 +1,7 @@
 """
-Support for graphviz and other modules which written for avoiding repetitive code.
+Support for modules written to avoid repetitive code.
 """
-import graphviz
-from modules import status, commons, constants
+from modules import constants, graph_functions, status, file_functions
 
 VULNERABILITY = 'CVE-2017-5753'
 DESCRIPTION = f'''{VULNERABILITY} - Spectre Variant 1
@@ -28,7 +27,7 @@ MITIGATION = ''
 def spectre_file(debug, container_name):
     """This function checks if the meltdown file contains the 'vulnerable' string in it."""
     spectre_path = '/sys/devices/system/cpu/vulnerabilities/spectre_v1'
-    spectre_content = commons.file_content(spectre_path, debug, container_name)
+    spectre_content = file_functions.get_file_content(spectre_path, debug, container_name)
     if not spectre_content:
         return constants.UNSUPPORTED
     print(constants.FULL_QUESTION_MESSAGE.format(f'Does the {spectre_path} file contain the "vulnerable" string?'))
@@ -58,13 +57,12 @@ def validate(debug, container_name):
 def validation_flow_chart():
     """This function creates a graph that shows the vulnerability validation process of Spectre Variant 1."""
     spectre_v1_path = '/sys/devices/system/cpu/vulnerabilities/spectre_v1'
-    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    commons.graph_start(VULNERABILITY, vol_graph)
-    vol_graph.edge('Is it Linux?', f'Does {spectre_v1_path} file contain the "vulnerable" string?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge(f'Does {spectre_v1_path} file contain the "vulnerable" string?', 'Not Vulnerable', label='No')
-    vol_graph.edge(f'Does {spectre_v1_path} file contain the "vulnerable" string?', 'Vulnerable', label='Yes')
-    commons.graph_end(vol_graph)
+    vulnerability_graph = graph_functions.generate_graph(VULNERABILITY)
+    vulnerability_graph.edge('Is it Linux?', f'Does {spectre_v1_path} file contain the "vulnerable" string?', label='Yes')
+    vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge(f'Does {spectre_v1_path} file contain the "vulnerable" string?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge(f'Does {spectre_v1_path} file contain the "vulnerable" string?', 'Vulnerable', label='Yes')
+    vulnerability_graph.view()
 
 
 def main(description, graph, debug, container_name):

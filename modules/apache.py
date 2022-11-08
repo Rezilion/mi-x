@@ -1,7 +1,7 @@
 """
-Support for modules which written for avoiding repetitive code.
+Support for modules written to avoid repetitive code.
 """
-from modules import run_command, constants
+from modules import constants, run_command
 
 APACHE = 'apache2'
 HTTPD = 'httpd'

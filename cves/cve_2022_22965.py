@@ -103,7 +103,7 @@ def validate(debug, container_name):
 
 def validation_flow_chart():
     """This function creates a graph that shows the vulnerability validation process of Spring4Shell."""
-    vulnerability_graph = graph_functions.graph_start(VULNERABILITY)
+    vulnerability_graph = graph_functions.generate_graph(VULNERABILITY)
     vulnerability_graph.edge('Is it Linux?', 'Are there running Java processes?', label='Yes')
     vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vulnerability_graph.edge('Are there running Java processes?', 'Is java version affected?', label='Yes')

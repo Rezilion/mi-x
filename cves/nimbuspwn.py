@@ -145,7 +145,7 @@ def validate(debug, container_name):
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of NIMBUSPWN."""
-    vulnerability_graph = graph_functions.graph_start(VULNERABILITY)
+    vulnerability_graph = graph_functions.generate_graph(VULNERABILITY)
     vulnerability_graph.edge('Is it Linux?', 'Are os distribution and version affected?', label='Yes')
     vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vulnerability_graph.edge('Are os distribution and version affected?', 'Is networkd-dispatcher policy version affected?',

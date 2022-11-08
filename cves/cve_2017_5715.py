@@ -196,7 +196,7 @@ def validate(debug, container_name):
 def validation_flow_chart():
     """This function creates a graph that shows the vulnerability validation process of Spectre Variant 2."""
     spectre_v2_path = '/sys/devices/system/cpu/vulnerabilities/spectre_v2'
-    vulnerability_graph = graph_functions.graph_start(VULNERABILITY)
+    vulnerability_graph = graph_functions.generate_graph(VULNERABILITY)
     vulnerability_graph.edge('Is it Linux?', 'Does the system meet the edge case conditions?', label='Yes')
     vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vulnerability_graph.edge('Does the system meet the edge case conditions?', 'Vulnerable', label='Yes')

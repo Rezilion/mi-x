@@ -1,7 +1,6 @@
 """
-Support for graphviz and other modules which written for avoiding repetitive code.
+Support for version from packaging and other modules written to avoid repetitive code.
 """
-import graphviz
 from packaging import version
 from modules import constants, graph_functions, status, run_command, process_functions, java_functions
 
@@ -104,8 +103,7 @@ def validate(debug, container_name):
 
 def validation_flow_chart():
     """This function creates a graph that shows the vulnerability validation process of Spring4Shell."""
-    vulnerability_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    graph_functions.graph_start(VULNERABILITY, vulnerability_graph)
+    vulnerability_graph = graph_functions.graph_start(VULNERABILITY)
     vulnerability_graph.edge('Is it Linux?', 'Are there running Java processes?', label='Yes')
     vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vulnerability_graph.edge('Are there running Java processes?', 'Is java version affected?', label='Yes')
@@ -114,7 +112,7 @@ def validation_flow_chart():
     vulnerability_graph.edge('Is java version affected?', 'Not Vulnerable', label='No')
     vulnerability_graph.edge('Does the process use webmvc or webflux dependencies?', 'Vulnerable', label='Yes')
     vulnerability_graph.edge('Does the process use webmvc or webflux dependencies?', 'Not Vulnerable', label='No')
-    graph_functions.graph_end(vulnerability_graph)
+    vulnerability_graph.view()
 
 
 def main(description, graph, debug, container_name):

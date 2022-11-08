@@ -1,5 +1,5 @@
 """
-Support for modules which written for avoiding repetitive code.
+Support for re and modules written to avoid repetitive code.
 """
 import re
 from modules import constants, run_command, file_functions, docker_commands

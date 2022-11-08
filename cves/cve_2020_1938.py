@@ -1,7 +1,6 @@
 """
-Support for graphviz, version from packaging and other modules which written for avoiding repetitive code.
+Support for modules written to avoid repetitive code.
 """
-import graphviz
 from modules import constants, graph_functions, status, run_command, file_functions, version_functions
 
 VULNERABILITY = 'CVE-2020-1938'
@@ -136,8 +135,7 @@ def validate(debug, container_name):
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of GhostCat."""
-    vulnerability_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    graph_functions.graph_start(VULNERABILITY, vulnerability_graph)
+    vulnerability_graph = graph_functions.graph_start(VULNERABILITY)
     vulnerability_graph.edge('Is it Linux?', 'Is it an Apache Tomcat?', label='Yes')
     vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vulnerability_graph.edge('Is it an Apache Tomcat?', 'Is the Apache Tomcat version affected?', label='Yes')
@@ -146,7 +144,7 @@ def validation_flow_chart():
     vulnerability_graph.edge('Is the Apache Tomcat version affected?', 'Not Vulnerable', label='No')
     vulnerability_graph.edge('Is AJP in the server.xml file enabled?', 'Vulnerable', label='Yes')
     vulnerability_graph.edge('Is AJP in the server.xml file enabled?', 'Not Vulnerable', label='No')
-    graph_functions.graph_end(vulnerability_graph)
+    vulnerability_graph.view()
 
 
 def main(description, graph, debug, container_name):

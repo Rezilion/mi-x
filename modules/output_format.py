@@ -1,5 +1,5 @@
 """
-Support for csv, json, os and other modules which written for avoiding repetitive code.
+Support for csv, json, os and other modules written to avoid repetitive code.
 """
 import json
 import csv

@@ -1,7 +1,6 @@
 """
-Support for graphviz, version from packaging and other modules which written for avoiding repetitive code.
+Support for version from packaging and other modules written to avoid repetitive code.
 """
-import graphviz
 from packaging import version
 from modules import constants, graph_functions, status, os_release, receive_package
 
@@ -88,15 +87,14 @@ def validate(debug, container_name):
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of Heartbleed."""
-    vulnerability_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    graph_functions.graph_start(VULNERABILITY, vulnerability_graph)
+    vulnerability_graph = graph_functions.graph_start(VULNERABILITY)
     vulnerability_graph.edge('Is it Linux?', 'Is there openssl?', label='Yes')
     vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vulnerability_graph.edge('Is there openssl?', 'Is the openssl version affected?', label='Yes')
     vulnerability_graph.edge('Is there openssl?', 'Not Vulnerable', label='No')
     vulnerability_graph.edge('Is the openssl version affected?', 'Vulnerable', label='Yes')
     vulnerability_graph.edge('Is the openssl version affected?', 'Not Vulnerable', label='No')
-    graph_functions.graph_end(vulnerability_graph)
+    vulnerability_graph.view()
 
 
 def main(description, graph, debug, container_name):

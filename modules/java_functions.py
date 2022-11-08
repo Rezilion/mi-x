@@ -1,5 +1,5 @@
 """
-Support for os, re and other modules which written for avoiding repetitive code.
+Support for os, re and other modules written to avoid repetitive code.
 """
 import re
 import os

@@ -1,22 +1,22 @@
 """
-Support for os, re, semver, version from packaging and other modules which written for avoiding repetitive code.
+Support for graphviz and other modules written to avoid repetitive code.
 """
+import graphviz
 from modules import constants
 
 
-def graph_start(cve, vulnerability_graph):
+def graph_start(vulnerability):
     """Graphviz start function."""
-    vulnerability_graph.attr(label=f'{cve}\n\n', labelloc='t')
+    vulnerability_graph = graphviz.Digraph('G', filename=vulnerability, format='png')
+    vulnerability_graph.attr(label=f'{vulnerability}\n\n', labelloc='t')
     vulnerability_graph.attr('node', shape='box', style='filled', color='red')
     vulnerability_graph.node(constants.GRAPH_VULNERABLE)
     vulnerability_graph.attr('node', shape='box', style='filled', color='green')
     vulnerability_graph.node(constants.GRAPH_NOT_VULNERABLE)
     vulnerability_graph.attr('node', shape='box', color='lightgrey')
+    return vulnerability_graph
 
 
 def graph_end(vol_graph):
     """Graphviz end function."""
-    try:
-        vol_graph.view()
-    except ValueError:
-        print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format(constants.NOT_INSTALLED_MESSAGE.format('Graphviz')))
+    vol_graph.view()

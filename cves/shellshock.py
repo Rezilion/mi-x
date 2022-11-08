@@ -1,5 +1,5 @@
 """
-Support for subprocess, semver, graphviz and other modules which written for avoiding repetitive code.
+Support for subprocess, semver, graphviz and other modules written to avoid repetitive code.
 """
 import subprocess
 import graphviz
@@ -282,7 +282,7 @@ def validation_flow_chart():
     vulnerability_graph.edge('Is bash version affected?', 'Is Vulnerable to CVE-2014-7187', label='Yes')
     vulnerability_graph.edge('Is Vulnerable to CVE-2014-7187', 'Vulnerable to CVE-2014-7187', label='Yes')
     vulnerability_graph.edge('Is Vulnerable to CVE-2014-7187', 'Not Vulnerable to CVE-2014-7187', label='No')
-    graph_functions.graph_end(vulnerability_graph)
+    vulnerability_graph.view()
 
 
 def main(description, graph, debug, container_name):

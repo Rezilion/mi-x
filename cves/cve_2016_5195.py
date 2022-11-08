@@ -1,8 +1,7 @@
 """
-Support for importlib, graphviz and other modules which written for avoiding repetitive code.
+Support for importlib and other modules written to avoid repetitive code.
 """
 import importlib
-import graphviz
 from modules import constants, graph_functions, status, run_command, kernel_functions, os_release
 
 VULNERABILITY = 'CVE-2016-5195'
@@ -133,8 +132,7 @@ def validate(debug, container_name):
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of CVE-2016-5195."""
-    vulnerability_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    graph_functions.graph_start(VULNERABILITY, vulnerability_graph)
+    vulnerability_graph = graph_functions.graph_start(VULNERABILITY)
     vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vulnerability_graph.edge('Is it Linux?', 'Is os release effected?', label='Yes')
     vulnerability_graph.edge('Is os release effected?', 'Is the kernel release effected?', label='Yes')
@@ -147,7 +145,7 @@ def validation_flow_chart():
     vulnerability_graph.edge('Are There loaded modules?', 'Vulnerable', label='No')
     vulnerability_graph.edge('Is it Patched with kpatch?', 'Not Vulnerable', label='Yes')
     vulnerability_graph.edge('Is it Patched with kpatch?', 'Vulnerable', label='No')
-    graph_functions.graph_end(vulnerability_graph)
+    vulnerability_graph.view()
 
 
 def main(description, graph, debug, container_name):

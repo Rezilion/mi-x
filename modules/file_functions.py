@@ -1,5 +1,5 @@
 """
-Support for os and other modules which written for avoiding repetitive code.
+Support for os and other modules written to avoid repetitive code.
 """
 import os
 from modules import constants, run_command

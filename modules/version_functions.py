@@ -1,5 +1,5 @@
 """
-Support for re, version from packaging and other modules which written for avoiding repetitive code.
+Support for re, version from packaging and other modules written to avoid repetitive code.
 """
 import re
 from packaging import version

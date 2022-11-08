@@ -1,7 +1,6 @@
 """
-Support for os, semver, graphviz and other modules which written for avoiding repetitive code.
+Support for modules written to avoid repetitive code.
 """
-import graphviz
 from modules import constants, graph_functions, status, file_functions, apache as apache_functions
 
 FIRST_CVE_ID = 'CVE-2021-41773'
@@ -151,8 +150,7 @@ def validate(debug, container_name):
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of CVE-2021-41773 or
     CVE-2021-42013."""
-    vulnerability_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    graph_functions.graph_start(VULNERABILITY, vulnerability_graph)
+    vulnerability_graph = graph_functions.graph_start(VULNERABILITY)
     vulnerability_graph.edge('Is it Linux?', 'Is host distribution affected?', label='Yes')
     vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
     vulnerability_graph.edge('Is host distribution affected?', 'Is Apache HTTP Server installed?', label='Yes')
@@ -168,7 +166,7 @@ def validation_flow_chart():
                    label='No')
     vulnerability_graph.edge('Is "cgi_module" loaded?', 'Vulnerable to Path Traversal and Remote Code Execution', label='Yes')
     vulnerability_graph.edge('Is "cgi_module" loaded?', 'Vulnerable to Path Traversal', label='No')
-    graph_functions.graph_end(vulnerability_graph)
+    vulnerability_graph.view()
 
 
 def main(description, graph, debug, container_name):

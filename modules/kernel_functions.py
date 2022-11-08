@@ -1,9 +1,11 @@
 """
-Support for semver and other modules which written for avoiding repetitive code.
+Support for re, version from packaging and other modules written to avoid repetitive code.
 """
 import re
 from packaging import version
-from modules import run_command, constants
+from modules import constants, run_command, file_functions, os_release
+
+AWS_SIGNATURE = 'ec2'
 
 
 def get_kernel_version(debug):
@@ -57,3 +59,29 @@ def check_kernel(min_kernel_version, max_kernel_version, debug):
                                                         f'kernel version which is: '
                                                         f'{valid_kernel_version[:constants.END]}, is not affected'))
     return affected
+
+
+def is_aws(debug):
+    """This function returns is the host is an ec2 instance."""
+    hypervisor_path = '/sys/hypervisor/uuid'
+    if file_functions.check_file_existence(hypervisor_path, debug, container_name=''):
+        check_hypervisor_command = f'head -c 3 {hypervisor_path}'
+        check_hypervisor_pipe = run_command.command_output(check_hypervisor_command, debug, container_name='')
+        hypervisor = check_hypervisor_pipe.stdout
+        if hypervisor == AWS_SIGNATURE:
+            return True
+    return False
+
+
+def check_kernel_version(fixed_kernel_versions, fixed_aws_kernel_versions, debug, container_name):
+    """This function returns if the kernel version is affected."""
+    affected_releases = fixed_kernel_versions
+    if is_aws(debug):
+        affected_releases = fixed_aws_kernel_versions
+    host_os_release = os_release.check_release(affected_releases, debug, container_name)
+    if host_os_release == constants.UNSUPPORTED or not host_os_release:
+        return host_os_release
+    if host_os_release in affected_releases:
+        fixed_kernel_version = affected_releases[host_os_release]
+        return check_kernel(MIN_KERNEL_VERSION, fixed_kernel_version, debug)
+    return ''

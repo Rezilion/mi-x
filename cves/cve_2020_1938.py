@@ -1,8 +1,7 @@
 """
-Support for graphviz, version from packaging and other modules which written for avoiding repetitive code.
+Support for modules written to avoid repetitive code.
 """
-import graphviz
-from modules import status, run_command, commons, constants
+from modules import constants, graph_functions, status, run_command, file_functions, version_functions
 
 VULNERABILITY = 'CVE-2020-1938'
 DESCRIPTION = f'''{VULNERABILITY} - GhostCat
@@ -50,7 +49,7 @@ def check_mitigation(printenv, debug, container_name):
         return constants.UNSUPPORTED
     print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
     server_xml_path = f'{tomcat_path}/conf/server.xml'
-    content = commons.file_content(server_xml_path, debug, container_name)
+    content = file_functions.get_file_content(server_xml_path, debug, container_name)
     if not content:
         return constants.UNSUPPORTED
     print(constants.FULL_QUESTION_MESSAGE.format('Is AJP in the server.xml file enabled?'))
@@ -93,7 +92,7 @@ def tomcat_version(printenv):
         return version
     print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
     print(constants.FULL_EXPLANATION_MESSAGE.format('This is an Apache Tomcat'))
-    return commons.check_patched_version('Apache Tomcat', version, PATCHED_VERSIONS)
+    return version_functions.check_patched_version('Apache Tomcat', version, PATCHED_VERSIONS)
 
 
 def printenv_content(debug, container_name):
@@ -136,17 +135,16 @@ def validate(debug, container_name):
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of GhostCat."""
-    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    commons.graph_start(VULNERABILITY, vol_graph)
-    vol_graph.edge('Is it Linux?', 'Is it an Apache Tomcat?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is it an Apache Tomcat?', 'Is the Apache Tomcat version affected?', label='Yes')
-    vol_graph.edge('Is it an Apache Tomcat?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is the Apache Tomcat version affected?', 'Is AJP in the server.xml file enabled?', label='Yes')
-    vol_graph.edge('Is the Apache Tomcat version affected?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is AJP in the server.xml file enabled?', 'Vulnerable', label='Yes')
-    vol_graph.edge('Is AJP in the server.xml file enabled?', 'Not Vulnerable', label='No')
-    commons.graph_end(vol_graph)
+    vulnerability_graph = graph_functions.generate_graph(VULNERABILITY)
+    vulnerability_graph.edge('Is it Linux?', 'Is it an Apache Tomcat?', label='Yes')
+    vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is it an Apache Tomcat?', 'Is the Apache Tomcat version affected?', label='Yes')
+    vulnerability_graph.edge('Is it an Apache Tomcat?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is the Apache Tomcat version affected?', 'Is AJP in the server.xml file enabled?', label='Yes')
+    vulnerability_graph.edge('Is the Apache Tomcat version affected?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is AJP in the server.xml file enabled?', 'Vulnerable', label='Yes')
+    vulnerability_graph.edge('Is AJP in the server.xml file enabled?', 'Not Vulnerable', label='No')
+    vulnerability_graph.view()
 
 
 def main(description, graph, debug, container_name):

@@ -1,9 +1,8 @@
 """
-Support for graphviz, version from packaging and other modules which written for avoiding repetitive code.
+Support for version from packaging and other modules written to avoid repetitive code.
 """
-import graphviz
 from packaging import version
-from modules import status, run_command, commons, constants
+from modules import constants, graph_functions, status, run_command
 
 VULNERABILITY = 'CVE-2015-0235'
 DESCRIPTION = f'''Ghost
@@ -79,15 +78,14 @@ def validate(debug, container_name):
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of Ghost."""
-    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    commons.graph_start(VULNERABILITY, vol_graph)
-    vol_graph.edge('Is it Linux?', 'Is there GLIBC?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is there GLIBC?', 'Is the GLIBC version affected?', label='Yes')
-    vol_graph.edge('Is there GLIBC?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is the GLIBC version affected?', 'Vulnerable', label='Yes')
-    vol_graph.edge('Is the GLIBC version affected?', 'Not Vulnerable', label='No')
-    commons.graph_end(vol_graph)
+    vulnerability_graph = graph_functions.generate_graph(VULNERABILITY)
+    vulnerability_graph.edge('Is it Linux?', 'Is there GLIBC?', label='Yes')
+    vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is there GLIBC?', 'Is the GLIBC version affected?', label='Yes')
+    vulnerability_graph.edge('Is there GLIBC?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is the GLIBC version affected?', 'Vulnerable', label='Yes')
+    vulnerability_graph.edge('Is the GLIBC version affected?', 'Not Vulnerable', label='No')
+    vulnerability_graph.view()
 
 
 def main(description, graph, debug, container_name):

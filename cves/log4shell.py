@@ -1,8 +1,7 @@
 """
-Support for graphviz and other modules which written for avoiding repetitive code.
+Support for modules written to avoid repetitive code.
 """
-import graphviz
-from modules import status, process_functions, commons, constants
+from modules import constants, graph_functions, status, process_functions, java_functions
 
 VULNERABILITY = 'Log4Shell'
 DESCRIPTION = f'''your system will be scanned for all Log4Shell related CVEs.
@@ -76,15 +75,15 @@ def validate_processes(pids, debug, container_name):
     for pid in pids:
         jcmd_path = 'jcmd'
         if container_name:
-            jcmd_path = commons.build_jcmd_path(pid, debug, container_name)
+            jcmd_path = java_functions.build_jcmd_path(pid, debug, container_name)
             if jcmd_path == constants.UNSUPPORTED:
                 state[pid] = status.process_not_determined(pid, VULNERABILITY)
                 break
         jcmd_command = f'sudo {jcmd_path} {pid} '
-        utility = commons.available_jcmd_utilities(jcmd_command, debug)
+        utility = java_functions.available_jcmd_utilities(jcmd_command, debug)
         if utility:
             full_jcmd_command = jcmd_command + utility
-            cves = commons.check_loaded_classes(pid, full_jcmd_command, CLASS_CVE, debug)
+            cves = java_functions.check_loaded_classes(pid, full_jcmd_command, CLASS_CVE, debug)
             if cves == constants.UNSUPPORTED:
                 state[pid] = status.process_not_determined(pid, VULNERABILITY)
             elif cves:
@@ -110,15 +109,14 @@ def validate(debug, container_name):
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of Log4Shell."""
-    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    commons.graph_start(VULNERABILITY, vol_graph)
-    vol_graph.edge('Is it Linux?', 'Are there running Java processes?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Are there running Java processes?', 'Are the vulnerable classes loaded?', label='Yes')
-    vol_graph.edge('Are there running Java processes?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Are the vulnerable classes loaded?', 'Vulnerable', label='Yes')
-    vol_graph.edge('Are the vulnerable classes loaded?', 'Not Vulnerable', label='No')
-    commons.graph_end(vol_graph)
+    vulnerability_graph = graph_functions.generate_graph(VULNERABILITY)
+    vulnerability_graph.edge('Is it Linux?', 'Are there running Java processes?', label='Yes')
+    vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Are there running Java processes?', 'Are the vulnerable classes loaded?', label='Yes')
+    vulnerability_graph.edge('Are there running Java processes?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Are the vulnerable classes loaded?', 'Vulnerable', label='Yes')
+    vulnerability_graph.edge('Are the vulnerable classes loaded?', 'Not Vulnerable', label='No')
+    vulnerability_graph.view()
 
 
 def main(description, graph, debug, container_name):

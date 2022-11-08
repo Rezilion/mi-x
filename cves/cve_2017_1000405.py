@@ -1,8 +1,7 @@
 """
-Support for graphviz and other modules which written for avoiding repetitive code.
+Support for modules written to avoid repetitive code.
 """
-import graphviz
-from modules import status, kernel_version, commons, constants
+from modules import constants, graph_functions, status, file_functions, kernel_functions
 
 VULNERABILITY = 'CVE-2017-1000405'
 DESCRIPTION = f'''{VULNERABILITY} - Huge Dirty COW
@@ -24,9 +23,14 @@ Related Links:
 https://medium.com/bindecy/huge-dirty-cow-cve-2017-1000405-110eca132de0
 https://threatpost.com/flaw-found-in-dirty-cow-patch/129064/
 '''
-MAX_KERNEL_VERSION = '4.15.0'
-MIN_KERNEL_VERSION = '2.6.37'
-REMEDIATION = f'Upgrade kernel version to {MAX_KERNEL_VERSION} or higher.'
+MIN_KERNEL_VERSION = '0'
+FIXED_KERNEL_VERSIONS = {'Debian unstable': '6.0.7-1', 'Debian 12': '6.0.5-1', 'Debian 11': '5.10.140-1',
+                         'Debian 10': '4.19.249-2', 'Debian 9': '4.9.65-1', 'Debian 8': '3.16.51-1',
+                         'Ubuntu 17.10': '4.13.0-19.22', 'Ubuntu 17.04': '4.10.0-42.46',
+                         'Ubuntu 16.04': '4.4.0-103.126', 'Ubuntu 14.04': '3.13.0-137.186'}
+FIXED_AWS_KERNEL_VERSIONS = {'Ubuntu 16.04': '4.4.0-1043.52', 'Ubuntu 14.04': '4.4.0-1005.5'}
+REMEDIATION = f'Upgrade kernel version to {FIXED_KERNEL_VERSIONS} or if running on an EC2 instance update kernel ' \
+              f'version to: {FIXED_AWS_KERNEL_VERSIONS} or higher.'
 MITIGATION_1 = 'Disable zero page.\nUse the following command to prevent the flaw from being exercised in this method:\n' \
                'echo 0 > /sys/kernel/mm/transparent_hugepage/use_zero_page'
 MITIGATION_2 = 'Disable huge pages\nUse the following command to prevent the flaw from being exercised in this method:\n' \
@@ -37,7 +41,7 @@ def huge_page(debug, container_name):
     """This function performs the check for zero pages."""
     affected = False
     huge_page_path = '/sys/kernel/mm/transparent_hugepage/enabled'
-    huge_page_content = commons.file_content(huge_page_path, debug, container_name)
+    huge_page_content = file_functions.get_file_content(huge_page_path, debug, container_name)
     if not huge_page_content:
         return huge_page_content
     print(constants.FULL_QUESTION_MESSAGE.format('Does your system use huge pages mechanism?'))
@@ -64,7 +68,7 @@ def zero_page(debug, container_name):
     """This function perform the check for zero pages."""
     affected = False
     zero_page_path = '/sys/kernel/mm/transparent_hugepage/use_zero_page'
-    zero_page_content = commons.file_content(zero_page_path, debug, container_name)
+    zero_page_content = file_functions.get_file_content(zero_page_path, debug, container_name)
     if not zero_page_content:
         return affected
     print(constants.FULL_QUESTION_MESSAGE.format('Does your system use zero pages mechanism?'))
@@ -86,7 +90,7 @@ def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2017-1000405."""
     state = {}
     if not container_name:
-        kernel_version_output = kernel_version.check_kernel(MIN_KERNEL_VERSION, MAX_KERNEL_VERSION, debug)
+        kernel_version_output = kernel_functions.check_kernel_version(FIXED_KERNEL_VERSIONS, FIXED_AWS_KERNEL_VERSIONS, debug, container_name)
         if kernel_version_output == constants.UNSUPPORTED:
             state[VULNERABILITY] = status.not_determined(VULNERABILITY)
         elif kernel_version_output:
@@ -116,19 +120,18 @@ def validate(debug, container_name):
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of CVE-2017-1000405."""
-    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    commons.graph_start(VULNERABILITY, vol_graph)
-    vol_graph.edge('Is it Linux?', 'Does your system has a Huge Zero Pages mechanism?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Does your system has a Huge Zero Pages mechanism?', 'Is Huge Zero Pages enabled?', label='Yes')
-    vol_graph.edge('Does your system has a Huge Zero Pages mechanism?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is Huge Zero Pages enabled?', 'Does your system has a Huge Pages mechanism?', label='Yes')
-    vol_graph.edge('Is Huge Zero Pages enabled?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Does your system has a Huge Pages mechanism?', 'Is Huge Pages enabled?', label='Yes')
-    vol_graph.edge('Does your system has a Huge Pages mechanism?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is Huge Pages enabled?', 'Vulnerable', label='Yes')
-    vol_graph.edge('Is Huge Pages enabled?', 'Not Vulnerable', label='No')
-    commons.graph_end(vol_graph)
+    vulnerability_graph = graph_functions.generate_graph(VULNERABILITY)
+    vulnerability_graph.edge('Is it Linux?', 'Does your system has a Huge Zero Pages mechanism?', label='Yes')
+    vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Does your system has a Huge Zero Pages mechanism?', 'Is Huge Zero Pages enabled?', label='Yes')
+    vulnerability_graph.edge('Does your system has a Huge Zero Pages mechanism?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is Huge Zero Pages enabled?', 'Does your system has a Huge Pages mechanism?', label='Yes')
+    vulnerability_graph.edge('Is Huge Zero Pages enabled?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Does your system has a Huge Pages mechanism?', 'Is Huge Pages enabled?', label='Yes')
+    vulnerability_graph.edge('Does your system has a Huge Pages mechanism?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is Huge Pages enabled?', 'Vulnerable', label='Yes')
+    vulnerability_graph.edge('Is Huge Pages enabled?', 'Not Vulnerable', label='No')
+    vulnerability_graph.view()
 
 
 def main(description, graph, debug, container_name):

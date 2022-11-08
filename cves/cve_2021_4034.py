@@ -1,9 +1,8 @@
 """
-Support for graphviz, version from packaging and other modules which written for avoiding repetitive code.
+Support for version from packaging and other modules written to avoid repetitive code.
 """
-import graphviz
 from packaging import version
-from modules import status, run_command, commons, os_release, constants, receive_package
+from modules import constants, graph_functions, status, run_command, os_release, version_functions, receive_package
 
 VULNERABILITY = 'CVE-2021-4034'
 DESCRIPTION = f'''{VULNERABILITY} - PwnKit
@@ -157,7 +156,7 @@ def policykit_affected_rpm(host_information, package_name, debug, container_name
                                                         f'higher than the patched version which is: {fixed_version}'))
     elif version.parse(host_version) == version.parse(fixed_version):
         patched_version = polkit_fixed_version[constants.FIRST]
-        return commons.compare_versions(patched_version, host_release, package_name)
+        return version_functions.compare_versions(patched_version, host_release, package_name)
     else:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: {host_version}, is '
@@ -173,7 +172,7 @@ def policykit_affected_apt(host_information, package_name, debug, container_name
     if not host_version:
         return False
     polkit_fixed_version = FIXED_APT[host_information]
-    return commons.compare_versions(polkit_fixed_version, host_version, package_name)
+    return version_functions.compare_versions(polkit_fixed_version, host_version, package_name)
 
 
 def check_policykit(host_information, debug, container_name):
@@ -249,20 +248,19 @@ def validate(debug, container_name):
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of PwnKit."""
-    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    commons.graph_start(VULNERABILITY, vol_graph)
-    vol_graph.edge('Is it Linux?', 'Is there an affected PolicyKit package installed?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is there an affected PolicyKit package installed?', 'Does pkexec have execute permissions?',
+    vulnerability_graph = graph_functions.generate_graph(VULNERABILITY)
+    vulnerability_graph.edge('Is it Linux?', 'Is there an affected PolicyKit package installed?', label='Yes')
+    vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is there an affected PolicyKit package installed?', 'Does pkexec have execute permissions?',
                    label='Yes')
-    vol_graph.edge('Is there an affected PolicyKit package installed?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Does pkexec have execute permissions?', 'Does pkexec have suid bit?', label='Yes')
-    vol_graph.edge('Does pkexec have execute permissions?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Does pkexec have suid bit?', 'Is pkexec binary owner root?', label='Yes')
-    vol_graph.edge('Does pkexec have suid bit?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is pkexec binary owner root?', 'Vulnerable', label='Yes')
-    vol_graph.edge('Is pkexec binary owner root?', 'Not Vulnerable', label='No')
-    commons.graph_end(vol_graph)
+    vulnerability_graph.edge('Is there an affected PolicyKit package installed?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Does pkexec have execute permissions?', 'Does pkexec have suid bit?', label='Yes')
+    vulnerability_graph.edge('Does pkexec have execute permissions?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Does pkexec have suid bit?', 'Is pkexec binary owner root?', label='Yes')
+    vulnerability_graph.edge('Does pkexec have suid bit?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is pkexec binary owner root?', 'Vulnerable', label='Yes')
+    vulnerability_graph.edge('Is pkexec binary owner root?', 'Not Vulnerable', label='No')
+    vulnerability_graph.view()
 
 
 def main(description, graph, debug, container_name):

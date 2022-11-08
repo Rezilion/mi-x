@@ -1,9 +1,7 @@
 """
-Support for semver, graphviz and other modules which written for avoiding repetitive code.
+Support for modules written to avoid repetitive code.
 """
-import graphviz
-from packaging import version
-from modules import status, kernel_version, commons, constants
+from modules import constants, graph_functions, status, version_functions, kernel_functions
 
 VULNERABILITY = 'CVE-2022-0847'
 DESCRIPTION = f'''{VULNERABILITY} - Dirty Pipe
@@ -22,39 +20,19 @@ https://www.rezilion.com/blog/dirty-pipe-what-you-need-to-know/
 https://dirtypipe.cm4all.com/
 https://blog.malwarebytes.com/exploits-and-vulnerabilities/2022/03/linux-dirty-pipe-vulnerability-gives-unprivileged-users-root-access/
 '''
-FIRST_AFFECTED_VERSION = '5.8.0'
-PATCHED_VERSIONS = ['5.10.102', '5.15.25', '5.16.11']
-FIXED_VERSION = '5.17.0-rc6'
-REMEDIATION = 'Upgrade kernel versions to 5.10.102, 5.15.25, 5.16.11, 5.17.0-rc6 or higher.'
+FIXED_KERNEL_VERSIONS = {'Debian unstable': '6.0.7-1', 'Debian 12': '6.0.5-1', 'Debian 11': '5.10.140-1',
+                         'Debian 10': '4.19.249-2', 'Ubuntu 21.10': '5.13.0-35.40'}
+FIXED_AWS_KERNEL_VERSIONS = {'Ubuntu 21.10': '5.13.0-1017.19'}
+REMEDIATION = f'Upgrade kernel versions to:{FIXED_KERNEL_VERSIONS} or if running on an EC2 instance update kernel ' \
+              f'version to: {FIXED_AWS_KERNEL_VERSIONS} or higher'
 MITIGATION = ''
-
-
-def check_kernel_version(debug):
-    """This function checks if the kernel version is affected by CVE-2022-0847."""
-    affected = False
-    host_kernel_version = kernel_version.get_kernel_version(debug)
-    if not host_kernel_version:
-        print(constants.FULL_QUESTION_MESSAGE.format('Is kernel version affected?'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format('Unsupported kernel version value'))
-        return constants.UNSUPPORTED
-    valid_kernel_version = commons.valid_kernel_version(host_kernel_version)
-    if version.parse(valid_kernel_version) >= version.parse(FIXED_VERSION) or \
-            version.parse(valid_kernel_version) < version.parse(FIRST_AFFECTED_VERSION):
-        print(constants.FULL_QUESTION_MESSAGE.format('Is kernel version affected?'))
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your kernel version which is: {valid_kernel_version}, is not'
-                                                        f'in the affected kernel versions range which is: '
-                                                        f'{FIRST_AFFECTED_VERSION} to {FIXED_VERSION}'))
-    else:
-        return commons.check_patched_version('Kernel', valid_kernel_version, PATCHED_VERSIONS)
-    return affected
 
 
 def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2022-0847."""
     state = {}
     if not container_name:
-        affected = check_kernel_version(debug)
+        affected = kernel_functions.check_kernel_version(FIXED_KERNEL_VERSIONS, FIXED_AWS_KERNEL_VERSIONS, debug, container_name)
         if affected == constants.UNSUPPORTED:
             state[VULNERABILITY] = status.not_determined(VULNERABILITY)
         elif affected:
@@ -70,13 +48,12 @@ def validate(debug, container_name):
 
 def validation_flow_chart():
     """This function creates a graph that shows the vulnerability validation process of CVE-2022-0847."""
-    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    commons.graph_start(VULNERABILITY, vol_graph)
-    vol_graph.edge('Is it Linux?', 'Is the kernel version affected?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is the kernel version affected?', 'Vulnerable', label='Yes')
-    vol_graph.edge('Is the kernel version affected?', 'Not Vulnerable', label='No')
-    commons.graph_end(vol_graph)
+    vulnerability_graph = graph_functions.generate_graph(VULNERABILITY)
+    vulnerability_graph.edge('Is it Linux?', 'Is the kernel version affected?', label='Yes')
+    vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is the kernel version affected?', 'Vulnerable', label='Yes')
+    vulnerability_graph.edge('Is the kernel version affected?', 'Not Vulnerable', label='No')
+    vulnerability_graph.view()
 
 
 def main(description, graph, debug, container_name):

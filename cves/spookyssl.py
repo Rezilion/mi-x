@@ -1,11 +1,9 @@
 """
-Support for graphviz, re, version, os from packaging and other modules which written for avoiding repetitive code.
+Support for re, version from packaging and other modules written to avoid repetitive code.
 """
-import graphviz
 import re
 from packaging import version
-import os
-from modules import status, commons, constants, os_release, receive_package, process_functions, run_command
+from modules import constants, graph_functions, status, run_command, file_functions, os_release, receive_package, process_functions
 
 VULNERABILITY = 'Spooky SSL'
 DESCRIPTION = f'''{VULNERABILITY} - CVE-2022-3786, CVE-2022-3602
@@ -39,7 +37,7 @@ AFFECTED_VERSION_START_NUMBER = '3'
 FIXED_VERSION = '3.0.7'
 FIXED_UBUNTU_VERSIONS = {'Ubuntu 22.04': '3.0.2-0ubuntu1.7', 'Ubuntu 22.10': '3.0.5-2ubuntu2'}
 OPENSSL = 'openssl'
-REGEX_STRINGS = ['openssl-3.0.[1-6]', 'openssl_3.0.[1-6]', 'openssl 3.0.[1-6]']
+REGEX_STRINGS = ['openssl-3\.0\.[1-6]', 'openssl_3\.0\.[1-6]', 'openssl 3\.0\.[1-6]']
 REMEDIATION = 'Upgrade openssl version to 3.0.7 or higher, if Ubuntu 22.04 upgrade to 3.0.2-0ubuntu1.7, if Ubuntu ' \
                 '22.10 upgrade to 3.0.5-2ubuntu2'
 MITIGATION = 'If your servers are running the affected OpenSSL version, make sure they are segmented. It will avoid ' \
@@ -49,7 +47,7 @@ MITIGATION = 'If your servers are running the affected OpenSSL version, make sur
 def check_affected_file(so_file, debug):
     """This function checks if the received file uses an affected OpenSSL version."""
     openssl_version = ''
-    if os.path.isfile(so_file):
+    if file_functions.check_file_existence(so_file, debug, container_name=''):
         strings_command = f'strings {so_file}'
         strings_content = run_command.command_output(strings_command, debug, container_name='')
         strings_content = strings_content.stdout
@@ -78,7 +76,7 @@ def check_so_files(so_files, pid, debug):
                 so_files_and_openssl_versions[so_file] = openssl_version
     if so_files_and_openssl_versions:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} running process list of so files and affected'
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} running process list of so files and affected '
                                                         f'OpenSSL versions:'))
         for so_path in so_files_and_openssl_versions:
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'{so_path} - '
@@ -94,9 +92,9 @@ def check_executable_file(pid, debug, container_name):
         openssl_version = check_affected_file(executable_file, debug)
         if openssl_version:
             print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} running process executable file is using an '
-                                                            f'affected OpenSSL version:\n{executable_file} - '
-                                                            f'{openssl_version}'))
+            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} running process executable file which is: '
+                                                            f'{executable_file} is using an affected OpenSSL version:\n'
+                                                            f'{executable_file} - {openssl_version}'))
     return openssl_version
 
 
@@ -212,18 +210,17 @@ def validate(debug, container_name):
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of SpookySSL."""
-    vol_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    commons.graph_start(VULNERABILITY, vol_graph)
-    vol_graph.edge('Is it Linux?', 'Is there OpenSSL?', label='Yes')
-    vol_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is it Linux?', 'Are there running processes that use an affected OpenSSL version?',  label='Yes')
-    vol_graph.edge('Is there OpenSSL?', 'Is the OpenSSL version affected?', label='Yes')
-    vol_graph.edge('Is there OpenSSL?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Is the OpenSSL version affected?', 'Vulnerable', label='Yes')
-    vol_graph.edge('Is the OpenSSL version affected?', 'Not Vulnerable', label='No')
-    vol_graph.edge('Are there running processes that use an affected OpenSSL version?', 'Vulnerable', label='Yes')
-    vol_graph.edge('Are there running processes that use an affected OpenSSL version?', 'Not Vulnerable', label='No')
-    commons.graph_end(vol_graph)
+    vulnerability_graph = graph_functions.generate_graph(VULNERABILITY)
+    vulnerability_graph.edge('Is it Linux?', 'Is there OpenSSL?', label='Yes')
+    vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is it Linux?', 'Are there running processes that use an affected OpenSSL version?',  label='Yes')
+    vulnerability_graph.edge('Is there OpenSSL?', 'Is the OpenSSL version affected?', label='Yes')
+    vulnerability_graph.edge('Is there OpenSSL?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is the OpenSSL version affected?', 'Vulnerable', label='Yes')
+    vulnerability_graph.edge('Is the OpenSSL version affected?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Are there running processes that use an affected OpenSSL version?', 'Vulnerable', label='Yes')
+    vulnerability_graph.edge('Are there running processes that use an affected OpenSSL version?', 'Not Vulnerable', label='No')
+    vulnerability_graph.view()
 
 
 def main(description, graph, debug, container_name):

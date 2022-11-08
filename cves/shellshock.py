@@ -1,8 +1,7 @@
 """
-Support for subprocess, semver, graphviz and other modules written to avoid repetitive code.
+Support for subprocess, semver and other modules written to avoid repetitive code.
 """
 import subprocess
-import graphviz
 from packaging import version
 from modules import constants, graph_functions, status, run_command
 
@@ -237,51 +236,11 @@ def validate(debug, container_name):
 
 def validation_flow_chart():
     """This function creates graph that shows the vulnerability validation process of shellshock."""
-    vulnerability_graph = graphviz.Digraph('G', filename=VULNERABILITY, format='png')
-    vulnerability_graph.attr(label=f'{VULNERABILITY}\n\n', labelloc='t')
-    vulnerability_graph.attr('node', shape='box', style='filled', color='red')
-    vulnerability_graph.node('Vulnerable to CVE-2014-6271')
-    vulnerability_graph.attr('node', shape='box', style='filled', color='red')
-    vulnerability_graph.node('Vulnerable to CVE-2014-6277 and CVE-2014-6278')
-    vulnerability_graph.attr('node', shape='box', style='filled', color='red')
-    vulnerability_graph.node('Vulnerable to CVE-2014-7169')
-    vulnerability_graph.attr('node', shape='box', style='filled', color='red')
-    vulnerability_graph.node('Vulnerable to CVE-2014-7186')
-    vulnerability_graph.attr('node', shape='box', style='filled', color='red')
-    vulnerability_graph.node('Vulnerable to CVE-2014-7187')
-    vulnerability_graph.attr('node', shape='box', style='filled', color='green')
-    vulnerability_graph.node('Not Vulnerable to CVE-2014-6271')
-    vulnerability_graph.attr('node', shape='box', style='filled', color='green')
-    vulnerability_graph.node('Not Vulnerable to CVE-2014-6277 and CVE-2014-6278')
-    vulnerability_graph.attr('node', shape='box', style='filled', color='green')
-    vulnerability_graph.node('Not Vulnerable to CVE-2014-7169')
-    vulnerability_graph.attr('node', shape='box', style='filled', color='green')
-    vulnerability_graph.node('Not Vulnerable to CVE-2014-7186')
-    vulnerability_graph.attr('node', shape='box', style='filled', color='green')
-    vulnerability_graph.node('Not Vulnerable to CVE-2014-7187')
-    vulnerability_graph.attr('node', shape='box', style='filled', color='green')
-    vulnerability_graph.node('Not Vulnerable to shellshock vulnerabilities')
-    vulnerability_graph.attr('node', shape='box', color='lightgrey')
-    vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable to shellshock vulnerabilities', label='No')
-    vulnerability_graph.edge('Is it Linux?', 'Is bash version affected?', label='Yes')
-    vulnerability_graph.edge('Is bash version affected?', 'Not Vulnerable to shellshock vulnerabilities', label='No')
-    vulnerability_graph.edge('Is bash version affected?', 'Is Vulnerable to CVE-2014-6271', label='Yes')
-    vulnerability_graph.edge('Is Vulnerable to CVE-2014-6271', 'Vulnerable to CVE-2014-6271', label='Yes')
-    vulnerability_graph.edge('Is Vulnerable to CVE-2014-6271', 'Not Vulnerable to CVE-2014-6271', label='No')
-    vulnerability_graph.edge('Is bash version affected?', 'Is Vulnerable to CVE-2014-6277 or CVE-2014-6278', label='Yes')
-    vulnerability_graph.edge('Is Vulnerable to CVE-2014-6277 or CVE-2014-6278', 'Vulnerable to CVE-2014-6277 and CVE-2014-6278',
-                   label='Yes')
-    vulnerability_graph.edge('Is Vulnerable to CVE-2014-6277 or CVE-2014-6278', 'Not Vulnerable to CVE-2014-6277 and '
-                                                                      'CVE-2014-6278', label='No')
-    vulnerability_graph.edge('Is bash version affected?', 'Is Vulnerable to CVE-2014-7169', label='Yes')
-    vulnerability_graph.edge('Is Vulnerable to CVE-2014-7169', 'Vulnerable to CVE-2014-7169', label='Yes')
-    vulnerability_graph.edge('Is Vulnerable to CVE-2014-7169', 'Not Vulnerable to CVE-2014-7169', label='No')
-    vulnerability_graph.edge('Is bash version affected?', 'Is Vulnerable to CVE-2014-7186', label='Yes')
-    vulnerability_graph.edge('Is Vulnerable to CVE-2014-7186', 'Vulnerable to CVE-2014-7186', label='Yes')
-    vulnerability_graph.edge('Is Vulnerable to CVE-2014-7186', 'Not Vulnerable to CVE-2014-7186', label='No')
-    vulnerability_graph.edge('Is bash version affected?', 'Is Vulnerable to CVE-2014-7187', label='Yes')
-    vulnerability_graph.edge('Is Vulnerable to CVE-2014-7187', 'Vulnerable to CVE-2014-7187', label='Yes')
-    vulnerability_graph.edge('Is Vulnerable to CVE-2014-7187', 'Not Vulnerable to CVE-2014-7187', label='No')
+    vulnerability_graph = graph_functions.generate_graph(VULNERABILITY)
+    vulnerability_graph.edge('Is it Linux?', 'Is bash affected by one of the CVEs?', label='Yes')
+    vulnerability_graph.edge('Is it Linux?', 'Not Vulnerable', label='No')
+    vulnerability_graph.edge('Is bash affected by one of the CVEs?', 'Vulnerable', label='Yes')
+    vulnerability_graph.edge('Is bash affected by one of the CVEs?', 'Not Vulnerable', label='No')
     vulnerability_graph.view()
 
 

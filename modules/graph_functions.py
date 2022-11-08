@@ -5,7 +5,7 @@ import graphviz
 from modules import constants
 
 
-def graph_start(vulnerability):
+def generate_graph(vulnerability):
     """Graphviz start function."""
     vulnerability_graph = graphviz.Digraph('G', filename=vulnerability, format='png')
     vulnerability_graph.attr(label=f'{vulnerability}\n\n', labelloc='t')
@@ -15,8 +15,3 @@ def graph_start(vulnerability):
     vulnerability_graph.node(constants.GRAPH_NOT_VULNERABLE)
     vulnerability_graph.attr('node', shape='box', color='lightgrey')
     return vulnerability_graph
-
-
-def graph_end(vol_graph):
-    """Graphviz end function."""
-    vol_graph.view()

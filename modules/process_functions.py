@@ -113,8 +113,9 @@ def running_processes(debug, container_name):
         print(constants.FULL_QUESTION_MESSAGE.format(f'Are there running processes on the host?'))
         if host_pids:
             print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
+            host_pids_string = ", ".join(host_pids)
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'The following PIDs are running processes: '
-                                                            f'{host_pids}'))
+                                                            f'{host_pids_string}'))
             return host_pids
         print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'There are no running processes'))

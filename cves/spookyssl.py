@@ -74,12 +74,9 @@ def add_to_dictionary(dictionary, key, value):
     """This function add a key to dictionary and if already exists, adds the value if not exists."""
     if 'list' in str(type(value)):
         if key in dictionary:
-            print(f'key - {key}')
-            print(f'key value - {dictionary[key]}')
             if value not in dictionary[key]:
                 dictionary[key] += value
         else:
-            print(f'value - {value}')
             dictionary[key] = value
     elif 'str' in str(type(value)):
         if key in dictionary:
@@ -90,27 +87,8 @@ def add_to_dictionary(dictionary, key, value):
     return dictionary
 
 
-def print_message(files_and_pids, files_and_openssl_version, debug):
+def print_message(dynamically_files_and_pids, statically_files_and_pids, files_and_openssl_version, files_and_dependencies):
     """This function prints the output message of the affected files."""
-    dynamically_files_and_pids = {}
-    statically_files_and_pids = {}
-    files_and_dependencies = {}
-    for file in files_and_pids:
-        type_and_dependencies = check_type_of_files(file, files_and_openssl_version, debug)
-        if type_and_dependencies:
-            if type_and_dependencies[0] == STATIC:
-                pids = files_and_pids[file]
-                statically_files_and_pids = add_to_dictionary(statically_files_and_pids, file, pids)
-            else:
-                process_dependencies = type_and_dependencies[1]
-                for dependency in process_dependencies:
-                    for file_path in files_and_pids:
-                        if dependency in file_path:
-                            files_and_dependencies = add_to_dictionary(files_and_dependencies, file, dependency)
-                            pids = files_and_pids[file_path]
-                            statically_files_and_pids = add_to_dictionary(statically_files_and_pids, file_path, pids)
-                            pids = files_and_pids[file]
-                            dynamically_files_and_pids = add_to_dictionary(dynamically_files_and_pids, file, pids)
     if dynamically_files_and_pids or statically_files_and_pids:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         if statically_files_and_pids:
@@ -130,6 +108,30 @@ def print_message(files_and_pids, files_and_openssl_version, debug):
                                                                 f'{pids}'))
     else:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
+
+
+def create_message(files_and_pids, files_and_openssl_version, debug):
+    """This function creates the statically and dynamically output message of the affected files."""
+    dynamically_files_and_pids = {}
+    statically_files_and_pids = {}
+    files_and_dependencies = {}
+    for file in files_and_pids:
+        type_and_dependencies = check_type_of_files(file, files_and_openssl_version, debug)
+        if type_and_dependencies:
+            if type_and_dependencies[constants.START] == STATIC:
+                pids = files_and_pids[file]
+                statically_files_and_pids = add_to_dictionary(statically_files_and_pids, file, pids)
+            else:
+                process_dependencies = type_and_dependencies[constants.FIRST]
+                for dependency in process_dependencies:
+                    for file_path in files_and_pids:
+                        if dependency in file_path:
+                            files_and_dependencies = add_to_dictionary(files_and_dependencies, file, file_path)
+                            pids = files_and_pids[file_path]
+                            statically_files_and_pids = add_to_dictionary(statically_files_and_pids, file_path, pids)
+                            pids = files_and_pids[file]
+                            dynamically_files_and_pids = add_to_dictionary(dynamically_files_and_pids, file, pids)
+    print_message(dynamically_files_and_pids, statically_files_and_pids, files_and_openssl_version, files_and_dependencies)
 
 
 def check_openssl_in_files(so_file, debug):
@@ -178,7 +180,7 @@ def validate_processes_vector_two(state, pids, vulnerability, debug, container_n
                         files_and_pids[so_file] = [pid]
                         files_and_openssl_version[so_file] = openssl_version
     if files_and_pids:
-        print_message(files_and_pids, files_and_openssl_version, debug)
+        create_message(files_and_pids, files_and_openssl_version, debug)
         state = status.vulnerable(vulnerability)
     return state
 

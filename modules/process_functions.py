@@ -61,7 +61,8 @@ def find_relevant_pids(pids, container_pids_list, debug, container_name):
     print(constants.FULL_QUESTION_MESSAGE.format(f'Is there a match between container pids to host pids?'))
     if relevant_pids:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The following pids: {relevant_pids} have a match with '
+        pids_string = ", ".join(relevant_pids)
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The following pids: {pids_string} have a match with '
                                                         f'container pids'))
         return relevant_pids
     print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))

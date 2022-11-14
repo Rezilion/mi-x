@@ -47,6 +47,91 @@ MITIGATION = 'If your servers are running the affected OpenSSL version, make sur
              'propagation to the entire network'
 
 
+def check_type_of_files(so_file, files_and_openssl_version, debug):
+    """This function checks if the affected file loads an affected file or has the OpenSSL code in it."""
+    list_dynamic_dependencies_command = f'ldd {so_file}'
+    list_dynamic_dependencies_pipe = run_command.command_output(list_dynamic_dependencies_command, debug, container_name='')
+    list_dynamic_dependencies = list_dynamic_dependencies_pipe.stdout
+    type_and_dependencies = []
+    if list_dynamic_dependencies:
+        file_type = STATIC
+        dependency_path_and_openssl_version = {}
+        for line in list_dynamic_dependencies.split('\n'):
+            for affected_dependency in AFFECTED_DEPENDENCIES:
+                if affected_dependency in line:
+                    file_type = DYNAMIC
+                    dependency_path = line.split(' ')[2]
+                    if dependency_path in files_and_openssl_version:
+                        dependency_openssl_version = files_and_openssl_version[files_and_openssl_version]
+                    else:
+                        dependency_openssl_version = check_openssl_in_files(dependency_path, debug)
+                    dependency_path_and_openssl_version[dependency_path] = dependency_openssl_version
+        type_and_dependencies = [file_type, dependency_path_and_openssl_version]
+    return type_and_dependencies
+
+
+def add_to_dictionary(dictionary, key, value):
+    """This function add a key to dictionary and if already exists, adds the value if not exists."""
+    if 'list' in str(type(value)):
+        if key in dictionary:
+            print(f'key - {key}')
+            print(f'key value - {dictionary[key]}')
+            if value not in dictionary[key]:
+                dictionary[key] += value
+        else:
+            print(f'value - {value}')
+            dictionary[key] = value
+    elif 'str' in str(type(value)):
+        if key in dictionary:
+            if value not in dictionary[key]:
+                dictionary[key].append(value)
+        else:
+            dictionary[key] = [value]
+    return dictionary
+
+
+def print_message(files_and_pids, files_and_openssl_version, debug):
+    """This function prints the output message of the affected files."""
+    dynamically_files_and_pids = {}
+    statically_files_and_pids = {}
+    files_and_dependencies = {}
+    for file in files_and_pids:
+        type_and_dependencies = check_type_of_files(file, files_and_openssl_version, debug)
+        if type_and_dependencies:
+            if type_and_dependencies[0] == STATIC:
+                pids = files_and_pids[file]
+                statically_files_and_pids = add_to_dictionary(statically_files_and_pids, file, pids)
+            else:
+                process_dependencies = type_and_dependencies[1]
+                for dependency in process_dependencies:
+                    for file_path in files_and_pids:
+                        if dependency in file_path:
+                            files_and_dependencies = add_to_dictionary(files_and_dependencies, file, dependency)
+                            pids = files_and_pids[file_path]
+                            statically_files_and_pids = add_to_dictionary(statically_files_and_pids, file_path, pids)
+                            pids = files_and_pids[file]
+                            dynamically_files_and_pids = add_to_dictionary(dynamically_files_and_pids, file, pids)
+    if dynamically_files_and_pids or statically_files_and_pids:
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
+        if statically_files_and_pids:
+            for file in statically_files_and_pids:
+                openssl_version = files_and_openssl_version[file]
+                pids = ", ".join(list(set(statically_files_and_pids[file])))
+                print(constants.FULL_EXPLANATION_MESSAGE.format(f'Statically linked file: {file}\nOpenSSL version: '
+                                                                f'{openssl_version}\nUsed in the following processes: '
+                                                                f'{pids}'))
+        if dynamically_files_and_pids:
+            for file in dynamically_files_and_pids:
+                pids = ", ".join(list(set(dynamically_files_and_pids[file])))
+                dependencies = ", ".join(list(set(files_and_dependencies[file])))
+                print(constants.FULL_EXPLANATION_MESSAGE.format(f'Dynamically linked file: {file}\nUse the following '
+                                                                f'dependency that uses an affected OpenSSL version: '
+                                                                f'{dependencies}\nUsed in the following processes: '
+                                                                f'{pids}'))
+    else:
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
+
+
 def check_openssl_in_files(so_file, debug):
     """This function checks if the received file uses an affected OpenSSL version."""
     openssl_version = ''
@@ -68,93 +153,33 @@ def check_openssl_in_files(so_file, debug):
     return openssl_version
 
 
-def check_type_of_files(so_file, debug):
-    """This function checks if the affected file loads an affected file or has the OpenSSL code in it."""
-    openssl_and_type = []
-    openssl_version = check_openssl_in_files(so_file, debug)
-    if openssl_version:
-        list_dynamic_dependencies_command = f'ldd {so_file}'
-        list_dynamic_dependencies_pipe = run_command.command_output(list_dynamic_dependencies_command, debug, container_name='')
-        openssl_and_type.append(openssl_version)
-        list_dynamic_dependencies = list_dynamic_dependencies_pipe.stdout
-        if list_dynamic_dependencies:
-            type = ''
-            dependency_path_and_openssl_version = {}
-            for line in list_dynamic_dependencies.split('\n'):
-                for affected_dependency in AFFECTED_DEPENDENCIES:
-                    if affected_dependency in line:
-                        type = DYNAMIC
-                        dependency_path = line.split(' ')[2]
-                        dependency_openssl_version = check_openssl_in_files(dependency_path, debug)
-                        dependency_path_and_openssl_version[dependency_path] = dependency_openssl_version
-            if not type:
-                type = STATIC
-            openssl_and_type.append(type)
-            openssl_and_type.append(dependency_path_and_openssl_version)
-    return openssl_and_type
-
-
-def print_file_type_message(openssl_and_type, file):
-    """This function prints the details of the file types and the affected OpenSSL version they are using."""
-    openssl_version = openssl_and_type[constants.START]
-    if len(openssl_and_type) == 3:
-        type = openssl_and_type[constants.FIRST]
-        affected_loaded_dependencies = openssl_and_type[constants.END]
-        if type == DYNAMIC:
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {file} file is loading the following dependencies:'))
-            for affected_loaded_dependency in affected_loaded_dependencies:
-                print(constants.FULL_EXPLANATION_MESSAGE.format(f'{affected_loaded_dependency} dependency which is using'
-                                                                f' the {affected_loaded_dependencies[affected_loaded_dependency]}'
-                                                                f' OpenSSL version'))
-        else:
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'An affected OpenSSL code of version {openssl_version} '
-                                                            f'was {STATIC} compiled into the file: {file}'))
-    else:
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'{file} - {openssl_version}'))
-
-
-def check_so_files(so_files, pid, debug):
-    """This function loops over all loaded so files of the running process and checks if they are using an affected
-    OpenSSL version."""
-    so_files_and_openssl_versions = {}
-    for so_file in so_files:
-        if so_file not in so_files_and_openssl_versions:
-            openssl_version_and_type = check_type_of_files(so_file, debug)
-            if openssl_version_and_type:
-                so_files_and_openssl_versions[so_file] = openssl_version_and_type
-    if so_files_and_openssl_versions:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} running process list of so files that use an '
-                                                        f'affected OpenSSL versions:'))
-        for so_path in so_files_and_openssl_versions:
-            print_file_type_message(so_files_and_openssl_versions[so_path], so_path)
-    return so_files_and_openssl_versions
-
-
-def check_executable_file(pid, debug, container_name):
-    """This function check if the executable file of the process is using an affected OpenSSL version."""
-    executable_file = process_functions.get_process_executable(pid, debug, container_name)
-    openssl_version = ''
-    if executable_file:
-        openssl_and_type = check_type_of_files(executable_file, debug)
-        if openssl_and_type:
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} running process executable file is using an '
-                                                            f'affected OpenSSL version:'))
-            print_file_type_message(openssl_and_type, executable_file)
-    return openssl_version
-
-
 def validate_processes_vector_two(state, pids, vulnerability, debug, container_name):
     """This function checks if the process uses an affected OpenSSL version."""
+    files_and_pids = {}
+    files_and_openssl_version = {}
     for pid in pids:
-        openssl_version = check_executable_file(pid, debug, container_name)
-        so_files_and_openssl_versions = {}
+        executable_file = process_functions.get_process_executable(pid, debug, container_name)
+        if executable_file:
+            if executable_file in files_and_pids:
+                files_and_pids[executable_file].append(pid)
+            else:
+                openssl_version = check_openssl_in_files(executable_file, debug)
+                if openssl_version:
+                    files_and_pids[executable_file] = [pid]
+                    files_and_openssl_version[executable_file] = openssl_version
         so_files = process_functions.get_loaded_so_files_of_a_process(pid, debug, container_name)
         if so_files:
-            so_files_and_openssl_versions = check_so_files(so_files, pid, debug)
-        if openssl_version or so_files_and_openssl_versions:
-            state[pid] = status.process_vulnerable(pid, vulnerability)
+            for so_file in so_files:
+                if so_file in files_and_pids:
+                    files_and_pids[so_file].append(pid)
+                else:
+                    openssl_version = check_openssl_in_files(so_file, debug)
+                    if openssl_version:
+                        files_and_pids[so_file] = [pid]
+                        files_and_openssl_version[so_file] = openssl_version
+    if files_and_pids:
+        print_message(files_and_pids, files_and_openssl_version, debug)
+        state = status.vulnerable(vulnerability)
     return state
 
 

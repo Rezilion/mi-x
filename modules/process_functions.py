@@ -7,6 +7,15 @@ from modules import constants, run_command, file_functions, docker_commands
 SO = '.so'
 
 
+def get_file_dependencies(file, debug):
+    """This function returns the files dependencies."""
+    list_dynamic_dependencies_command = f'ldd {file}'
+    list_dynamic_dependencies_pipe = run_command.command_output(list_dynamic_dependencies_command, debug,
+                                                                container_name='')
+    list_dynamic_dependencies = list_dynamic_dependencies_pipe.stdout
+    return list_dynamic_dependencies
+
+
 def get_container_full_path(path, debug, container_name):
     """This function returns the full path of a file in a container."""
     merge_dir = docker_commands.get_merge_dir(debug, container_name)

@@ -17,9 +17,10 @@ def get_package_version_windows(package_name, debug, container_name):
     package_output = run_command.command_output(get_package_command, debug, container_name).stdout
     if package_output:
         for package in package_output.split('\n'):
-            if package_name in package:
+            if package_name in package.lower():
                 package_version = re.search(r'\d*\.\d*\.\d*', package)
-                return package_version
+                if package_version:
+                    return package_version.group()
     return package_output
 
 

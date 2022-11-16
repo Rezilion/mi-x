@@ -249,8 +249,8 @@ def check_openssl_affected(openssl_version, debug, container_name):
         affected = compare_versions(openssl_version, fixed_openssl_version)
     else:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected OpenSSL versions are lower than 3.0.7\nYour OpenSSL '
-                                                        f'version which is: {openssl_version} is not affected'))
+        #print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected OpenSSL versions are lower than 3.0.7\nYour OpenSSL '
+        #                                                f'version which is: {openssl_version} is not affected'))
     return affected
 
 

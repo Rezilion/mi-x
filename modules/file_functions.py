@@ -5,6 +5,16 @@ import os
 from modules import constants, run_command
 
 
+def get_file_strings(file, debug):
+    """This function returns the file's strings."""
+    strings_content = ''
+    if check_file_existence(file, debug, container_name=''):
+        strings_command = f'strings {file}'
+        strings_content = run_command.command_output(strings_command, debug, container_name='')
+        strings_content = strings_content.stdout
+    return strings_content
+
+
 def check_file_existence(file_path, debug, container_name):
     """This function checks if the file is exist in the system."""
     exist = False

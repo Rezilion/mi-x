@@ -1,5 +1,5 @@
 """
-This file stores all of the repetitive constant variables.
+This file stores all the repetitive constant variables.
 """
 # Colors.
 VULNERABLE = '\u001b[48;5;1m'
@@ -55,7 +55,7 @@ NOT_INSTALLED_MESSAGE = '{} is not installed on your system\nYou can install it 
 DOCKER_EXEC_COMMAND = 'sudo docker exec -it {} /bin/{} -c "{}"'
 DOCKER_INSPECT_COMMAND = 'sudo docker inspect {}'
 
-# Linux distribution divided by types.
+# Linux's distribution divided by types.
 APT_DISTRIBUTIONS = ['Ubuntu', 'Debian']
 RPM_DISTRIBUTIONS = ['Red', 'Centos', 'Fedora', 'SUSE', 'SLES', 'Amazon']
 
@@ -97,5 +97,7 @@ LINUX_VULNERABILITIES = ['cve_2014_0160', 'cve_2015_0235', 'cve_2016_5195', 'cve
                        'cve_2017_5754', 'cve_2017_1000405', 'cve_2020_1938', 'cve_2021_3177', 'cve_2021_4034',
                        'cve_2021_4154', 'cve_2021_41773', 'cve_2022_0847', 'cve_2022_22965', 'cve_2022_25636',
                        'log4shell', 'shellshock', 'nimbuspwn', 'spookyssl']
+
+WINDOWS_VULNERABILITIES = ['spookyssl']
 
 SUPPORTED_ALPINE_VULNERABILITIES = ['cve_2022_22965', 'log4shell']

@@ -3,7 +3,7 @@ Support for re, version from packaging and other modules written to avoid repeti
 """
 import re
 from packaging import version
-from modules import constants, graph_functions, status, run_command, file_functions, os_release, receive_package, process_functions
+from modules import constants, graph_functions, status, file_functions, os_release_functions, receive_package, process_functions
 
 VULNERABILITY = 'Spooky SSL'
 DESCRIPTION = f'''{VULNERABILITY} - CVE-2022-3786, CVE-2022-3602
@@ -240,7 +240,7 @@ def check_openssl_affected(openssl_version, debug, container_name):
     print(constants.FULL_QUESTION_MESSAGE.format('Is the OpenSSL version affected?'))
     if openssl_version.startswith(AFFECTED_VERSION_START_NUMBER):
         information_fields = ['Distribution', 'Version']
-        host_information = os_release.get_field(information_fields, debug, container_name)
+        host_information = os_release_functions.get_field(information_fields, debug, container_name)
         if host_information in FIXED_UBUNTU_VERSIONS:
             fixed_openssl_version = FIXED_UBUNTU_VERSIONS[host_information]
         else:
@@ -256,18 +256,18 @@ def check_openssl_affected(openssl_version, debug, container_name):
 def get_openssl_version(debug, container_name):
     """This function returns the OpenSSL version if exists."""
     information_fields = ['Distribution']
-    distribution = os_release.get_field(information_fields, debug, container_name)
+    distribution = os_release_functions.get_field(information_fields, debug, container_name)
     package_name = 'openssl'
     openssl_version = ''
     if distribution in constants.APT_DISTRIBUTIONS:
         openssl_version = receive_package.package_version_apt(distribution, package_name, debug, container_name)
     if distribution in constants.RPM_DISTRIBUTIONS:
-        openssl_version =  receive_package.package_version_rpm(distribution, package_name, debug, container_name)
+        openssl_version = receive_package.package_version_rpm(distribution, package_name, debug, container_name)
     return openssl_version
 
 
 def vector_one(state, debug, container_name):
-    """This function performs the "vector one" of checking exploitability which is checking if the affected OpenSSL
+    """This function performs the "vector one" of checking exploit ability which is checking if the affected OpenSSL
     version installed using the package manager."""
     vulnerability = f'{VULNERABILITY} (the package manager check)'
     openssl_version = get_openssl_version(debug, container_name)

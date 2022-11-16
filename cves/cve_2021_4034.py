@@ -2,7 +2,7 @@
 Support for version from packaging and other modules written to avoid repetitive code.
 """
 from packaging import version
-from modules import constants, graph_functions, status, run_command, os_release_functions, version_functions, receive_package
+from modules import constants, graph_functions, status_functions, run_command, os_release_functions, version_functions, receive_package
 
 VULNERABILITY = 'CVE-2021-4034'
 DESCRIPTION = f'''{VULNERABILITY} - PwnKit
@@ -225,24 +225,24 @@ def validate(debug, container_name):
     state = {}
     host_information = distribution_version_affected(debug, container_name)
     if host_information == constants.UNSUPPORTED:
-        state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
     elif host_information:
         policykit_installed = check_policykit(host_information, debug, container_name)
         if policykit_installed == constants.UNSUPPORTED:
-            state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
         elif policykit_installed:
             pkexec_info = get_pkexec_path(debug, container_name)
             if pkexec_info == constants.UNSUPPORTED:
-                state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+                state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
             elif pkexec_info:
-                state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
-                status.remediation_mitigation(REMEDIATION, MITIGATION)
+                state[VULNERABILITY] = status_functions.vulnerable(VULNERABILITY)
+                status_functions.remediation_mitigation(REMEDIATION, MITIGATION)
             else:
-                state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+                state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
         else:
-            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     else:
-        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     return state
 
 

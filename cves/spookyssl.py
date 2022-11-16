@@ -3,7 +3,7 @@ Support for re, version from packaging and other modules written to avoid repeti
 """
 import re
 from packaging import version
-from modules import constants, graph_functions, status, file_functions, os_release_functions, receive_package, process_functions
+from modules import constants, graph_functions, status_functions, file_functions, os_release_functions, receive_package, process_functions
 
 VULNERABILITY = 'Spooky SSL'
 DESCRIPTION = f'''{VULNERABILITY} - CVE-2022-3786, CVE-2022-3602
@@ -191,7 +191,7 @@ def validate_processes_vector_two(state, pids, vulnerability, debug, container_n
                         files_and_openssl_version[so_file] = openssl_version
     if files_and_pids:
         create_message(files_and_pids, files_and_openssl_version, debug)
-        state = status.vulnerable(vulnerability)
+        state = status_functions.vulnerable(vulnerability)
     return state
 
 
@@ -205,15 +205,15 @@ def vector_two(state, debug, container_name):
                                                      'version?'))
         process_state = validate_processes_vector_two(state, pids, vulnerability, debug, container_name)
         if len(process_state) > 1:
-            status.remediation_mitigation(REMEDIATION, MITIGATION)
+            status_functions.remediation_mitigation(REMEDIATION, MITIGATION)
             state[vulnerability] = process_state
         else:
             print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'There are no running processes loading so files that have'
                                                             f' an affected OpenSSL version'))
-            state[vulnerability] = status.not_vulnerable(vulnerability)
+            state[vulnerability] = status_functions.not_vulnerable(vulnerability)
     else:
-        state[vulnerability] = status.not_vulnerable(vulnerability)
+        state[vulnerability] = status_functions.not_vulnerable(vulnerability)
     return state
 
 
@@ -272,15 +272,15 @@ def vector_one(state, debug, container_name):
     vulnerability = f'{VULNERABILITY} (the package manager check)'
     openssl_version = get_openssl_version(debug, container_name)
     if openssl_version == constants.UNSUPPORTED:
-        state[vulnerability] = status.not_determined(vulnerability)
+        state[vulnerability] = status_functions.not_determined(vulnerability)
     elif openssl_version:
         if check_openssl_affected(openssl_version, debug, container_name):
-            state[vulnerability] = status.vulnerable(vulnerability)
-            status.remediation_mitigation(REMEDIATION, MITIGATION)
+            state[vulnerability] = status_functions.vulnerable(vulnerability)
+            status_functions.remediation_mitigation(REMEDIATION, MITIGATION)
         else:
-            state[vulnerability] = status.not_vulnerable(vulnerability)
+            state[vulnerability] = status_functions.not_vulnerable(vulnerability)
     else:
-        state[vulnerability] = status.not_vulnerable(vulnerability)
+        state[vulnerability] = status_functions.not_vulnerable(vulnerability)
     return state
 
 

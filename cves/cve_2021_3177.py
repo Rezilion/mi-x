@@ -1,7 +1,7 @@
 """
 Support for modules written to avoid repetitive code.
 """
-from modules import constants, graph_functions, status, run_command, file_functions, process_functions, version_functions
+from modules import constants, graph_functions, status_functions, run_command, file_functions, process_functions, version_functions
 
 VULNERABILITY = 'CVE-2021-3711'
 DESCRIPTION = f'''{VULNERABILITY}
@@ -78,24 +78,24 @@ def validate_processes(pids, debug, container_name):
     for pid in pids:
         python_version = get_python_version(pid, debug, container_name)
         if python_version == constants.UNSUPPORTED:
-            state[pid] = status.process_not_determined(pid, VULNERABILITY)
+            state[pid] = status_functions.process_not_determined(pid, VULNERABILITY)
         elif python_version:
             if version_functions.check_patched_version('Python', python_version, PATCHED_VERSIONS):
                 ctypes_file_name = find_ctypes_file_name(pid, debug, container_name)
                 if ctypes_file_name == constants.UNSUPPORTED:
-                    state[pid] = status.process_not_determined(pid, VULNERABILITY)
+                    state[pid] = status_functions.process_not_determined(pid, VULNERABILITY)
                 elif ctypes_file_name:
                     if check_ctypes_loaded(pid, ctypes_file_name, debug):
-                        state[pid] = status.process_vulnerable(pid, VULNERABILITY)
-                        status.remediation_mitigation(REMEDIATION, MITIGATION)
+                        state[pid] = status_functions.process_vulnerable(pid, VULNERABILITY)
+                        status_functions.remediation_mitigation(REMEDIATION, MITIGATION)
                     else:
-                        state[pid] = status.process_not_vulnerable(pid, VULNERABILITY)
+                        state[pid] = status_functions.process_not_vulnerable(pid, VULNERABILITY)
                 else:
-                    state[pid] = status.process_not_vulnerable(pid, VULNERABILITY)
+                    state[pid] = status_functions.process_not_vulnerable(pid, VULNERABILITY)
             else:
-                state[pid] = status.process_not_vulnerable(pid, VULNERABILITY)
+                state[pid] = status_functions.process_not_vulnerable(pid, VULNERABILITY)
         else:
-            state[pid] = status.process_not_vulnerable(pid, VULNERABILITY)
+            state[pid] = status_functions.process_not_vulnerable(pid, VULNERABILITY)
     return state
 
 

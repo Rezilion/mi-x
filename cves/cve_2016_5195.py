@@ -2,7 +2,7 @@
 Support for importlib and other modules written to avoid repetitive code.
 """
 import importlib
-from modules import constants, graph_functions, status, run_command, kernel_functions, os_release_functions
+from modules import constants, graph_functions, status_functions, run_command, kernel_functions, os_release_functions
 
 VULNERABILITY = 'CVE-2016-5195'
 NEXT_VULNERABILITY = 'cve_2017_1000405'
@@ -88,18 +88,18 @@ def validate_red_hat(fixed_release, debug, container_name):
         print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
         kpatch = check_kpatch(debug, container_name)
         if kpatch == constants.UNSUPPORTED:
-            state[VULNERABILITY] = status.not_determined(VULNERABILITY)
-            status.remediation_mitigation(REMEDIATION_1, MITIGATION)
+            state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
+            status_functions.remediation_mitigation(REMEDIATION_1, MITIGATION)
         elif kpatch:
             print(constants.FULL_EXPLANATION_MESSAGE.format('Your kernel release has kpatch'))
-            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
         else:
             print(constants.FULL_EXPLANATION_MESSAGE.format('You do not have relevant kpatch'))
-            state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
-            status.remediation_mitigation(REMEDIATION_2, MITIGATION)
+            state[VULNERABILITY] = status_functions.vulnerable(VULNERABILITY)
+            status_functions.remediation_mitigation(REMEDIATION_2, MITIGATION)
     else:
         print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('No'))
-        state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.vulnerable(VULNERABILITY)
     return state
 
 
@@ -109,24 +109,24 @@ def validate(debug, container_name):
     if not container_name:
         fixed_release = os_release_functions.check_release(FIXED, debug, container_name)
         if fixed_release == constants.UNSUPPORTED:
-            state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
         elif fixed_release:
             max_kernel_version = FIXED[fixed_release]
             check_kernel_version = kernel_functions.check_kernel(MIN_KERNEL_VERSION, max_kernel_version, debug)
             if check_kernel_version == constants.UNSUPPORTED:
-                state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+                state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
             elif check_kernel_version:
                 print(constants.FULL_EXPLANATION_MESSAGE.format('The os release you are running on is potentially '
                                                                 'affected'))
                 state = validate_red_hat(fixed_release, debug, container_name)
             else:
                 print(constants.FULL_EXPLANATION_MESSAGE.format('Your kernel version is already patched'))
-                state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+                state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
         else:
-            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     else:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Containers are not affected by kernel vulnerabilities'))
-        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     return state
 
 

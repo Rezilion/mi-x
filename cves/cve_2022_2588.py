@@ -1,7 +1,7 @@
 """
 Support for modules written to avoid repetitive code.
 """
-from modules import constants, graph_functions, status, kernel_functions
+from modules import constants, graph_functions, status_functions, kernel_functions
 
 VULNERABILITY = 'CVE-2022-2588'
 DESCRIPTION = '''Dirty Cred
@@ -40,15 +40,15 @@ def validate(debug, container_name):
     if not container_name:
         kernel_version_output = kernel_functions.check_kernel_version(MIN_KERNEL_VERSION, FIXED_KERNEL_VERSIONS, FIXED_AWS_KERNEL_VERSIONS, debug, container_name)
         if kernel_version_output == constants.UNSUPPORTED:
-            state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
         elif kernel_version_output:
-            state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
-            status.remediation_mitigation(REMEDIATION, MITIGATION)
+            state[VULNERABILITY] = status_functions.vulnerable(VULNERABILITY)
+            status_functions.remediation_mitigation(REMEDIATION, MITIGATION)
         else:
-            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     else:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Containers are not affected by kernel vulnerabilities'))
-        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     return state
 
 

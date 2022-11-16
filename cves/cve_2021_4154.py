@@ -1,7 +1,7 @@
 """
 Support for modules written to avoid repetitive code.
 """
-from modules import constants, graph_functions, status, run_command, file_functions, os_release_functions, kernel_functions
+from modules import constants, graph_functions, status_functions, run_command, file_functions, os_release_functions, kernel_functions
 
 VULNERABILITY = 'CVE-2021-4154'
 DESCRIPTION = '''Dirty Cred
@@ -102,22 +102,22 @@ def validate(debug, container_name):
     if not container_name:
         fixed_distribution = check_distribution_functional(debug, container_name)
         if fixed_distribution == constants.UNSUPPORTED:
-            state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
         elif not fixed_distribution:
-            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
         else:
             patch = find_patch(debug, container_name)
             if patch == constants.UNSUPPORTED:
-                state[VULNERABILITY] = status.not_determined(VULNERABILITY)
-                status.remediation_mitigation(REMEDIATION, MITIGATION)
+                state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
+                status_functions.remediation_mitigation(REMEDIATION, MITIGATION)
             elif patch:
-                state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+                state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
             else:
-                state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
-                status.remediation_mitigation(REMEDIATION, MITIGATION)
+                state[VULNERABILITY] = status_functions.vulnerable(VULNERABILITY)
+                status_functions.remediation_mitigation(REMEDIATION, MITIGATION)
     else:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Containers are not affected by kernel vulnerabilities'))
-        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     return state
 
 

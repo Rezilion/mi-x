@@ -2,7 +2,7 @@
 Support for version from packaging and other modules written to avoid repetitive code.
 """
 from packaging import version
-from modules import constants, graph_functions, status, run_command, process_functions, java_functions
+from modules import constants, graph_functions, status_functions, run_command, process_functions, java_functions
 
 VULNERABILITY = 'CVE-2022-22965'
 DESCRIPTION = f'''{VULNERABILITY} - Spring4Shell
@@ -61,15 +61,15 @@ def validate_processes(pids, debug, container_name):
         if container_name:
             jcmd_path = java_functions.build_jcmd_path(pid, debug, container_name)
             if jcmd_path == constants.UNSUPPORTED:
-                state[pid] = status.process_not_determined(pid, VULNERABILITY)
+                state[pid] = status_functions.process_not_determined(pid, VULNERABILITY)
                 break
         jcmd_command = f'sudo {jcmd_path} {pid} {VM_VERSION}'
         version_affected = check_java_version(pid, jcmd_command, debug)
         if version_affected == constants.UNSUPPORTED:
-            state[pid] = status.process_not_determined(pid, VULNERABILITY)
+            state[pid] = status_functions.process_not_determined(pid, VULNERABILITY)
             break
         if not version_affected:
-            state[pid] = status.process_not_vulnerable(pid, VULNERABILITY)
+            state[pid] = status_functions.process_not_vulnerable(pid, VULNERABILITY)
             break
         jcmd_command = f'sudo {jcmd_path} {pid} '
         utility = java_functions.available_jcmd_utilities(jcmd_command, debug)
@@ -77,16 +77,16 @@ def validate_processes(pids, debug, container_name):
             full_jcmd_command = jcmd_command + utility
             webmvc_webflux = java_functions.check_loaded_classes(pid, full_jcmd_command, CLASSES, debug)
             if webmvc_webflux == constants.UNSUPPORTED:
-                state[pid] = status.process_not_determined(pid, VULNERABILITY)
+                state[pid] = status_functions.process_not_determined(pid, VULNERABILITY)
             elif webmvc_webflux:
                 print(constants.FULL_EXPLANATION_MESSAGE.format(f'The {pid} process use the {webmvc_webflux} '
                                                                 f'dependency'))
-                state[pid] = status.process_vulnerable(pid, VULNERABILITY)
-                status.remediation_mitigation(REMEDIATION, MITIGATION)
+                state[pid] = status_functions.process_vulnerable(pid, VULNERABILITY)
+                status_functions.remediation_mitigation(REMEDIATION, MITIGATION)
             else:
-                state[pid] = status.process_not_vulnerable(pid, VULNERABILITY)
+                state[pid] = status_functions.process_not_vulnerable(pid, VULNERABILITY)
         else:
-            state[pid] = status.process_not_determined(pid, VULNERABILITY)
+            state[pid] = status_functions.process_not_determined(pid, VULNERABILITY)
     return state
 
 
@@ -97,7 +97,7 @@ def validate(debug, container_name):
     if pids:
         state[VULNERABILITY] = validate_processes(pids, debug, container_name)
     else:
-        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     return state
 
 

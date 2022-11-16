@@ -2,7 +2,7 @@
 Support for version from packaging and other modules written to avoid repetitive code.
 """
 from packaging import version
-from modules import constants, graph_functions, status, os_release_functions, receive_package
+from modules import constants, graph_functions, status_functions, os_release_functions, receive_package
 
 VULNERABILITY = 'CVE-2014-0160'
 DESCRIPTION = f'''Heartbleed
@@ -73,15 +73,15 @@ def validate(debug, container_name):
     state = {}
     openssl_version = get_openssl_version(debug, container_name)
     if openssl_version == constants.UNSUPPORTED:
-        state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
     elif openssl_version:
         if check_openssl_version(openssl_version):
-            state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
-            status.remediation_mitigation(REMEDIATION, MITIGATION)
+            state[VULNERABILITY] = status_functions.vulnerable(VULNERABILITY)
+            status_functions.remediation_mitigation(REMEDIATION, MITIGATION)
         else:
-            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     else:
-        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     return state
 
 

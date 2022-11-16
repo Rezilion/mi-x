@@ -1,7 +1,7 @@
 """
 Support for modules written to avoid repetitive code.
 """
-from modules import constants, graph_functions, status, file_functions, os_release_functions
+from modules import constants, graph_functions, status_functions, file_functions, os_release_functions
 
 
 VULNERABILITY = 'CVE-2017-5715'
@@ -79,23 +79,23 @@ def validate_mitigations(debug, container_name):
     state = {}
     ibrs = check_mitigations_components('ibrs', debug, container_name)
     if ibrs == constants.UNSUPPORTED:
-        state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
     elif ibrs:
         ibpb = check_mitigations_components('ibpb', debug, container_name)
         if ibpb == constants.UNSUPPORTED:
-            state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
         elif ibpb:
             spectre_v2_mitigation = check_cmdline_disabled('spectre_v2', debug, container_name)
             if spectre_v2_mitigation == constants.UNSUPPORTED:
-                state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+                state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
             elif spectre_v2_mitigation:
-                state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+                state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
             else:
-                state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
+                state[VULNERABILITY] = status_functions.vulnerable(VULNERABILITY)
         else:
-            state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.vulnerable(VULNERABILITY)
     else:
-        state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.vulnerable(VULNERABILITY)
     return state
 
 
@@ -185,11 +185,11 @@ def validate(debug, container_name):
         if spectre == constants.UNSUPPORTED:
             state = validate_mitigations(debug, container_name)
         elif spectre:
-            state = status.not_vulnerable(VULNERABILITY)
+            state = status_functions.not_vulnerable(VULNERABILITY)
         else:
-            state = status.vulnerable(VULNERABILITY)
+            state = status_functions.vulnerable(VULNERABILITY)
     else:
-        state = status.vulnerable(VULNERABILITY)
+        state = status_functions.vulnerable(VULNERABILITY)
     return state
 
 

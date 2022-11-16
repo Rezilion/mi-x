@@ -2,7 +2,7 @@
 Support for version from packaging and other modules written to avoid repetitive code.
 """
 from packaging import version
-from modules import constants, graph_functions, status, os_release_functions, receive_package
+from modules import constants, graph_functions, status_functions, os_release_functions, receive_package
 
 VULNERABILITY = 'NIMBUSPWN'
 DESCRIPTION = f'''{VULNERABILITY} - CVE-2022-29799, CVE-2022-29800
@@ -134,12 +134,12 @@ def validate(debug, container_name):
     if host_information:
         vulnerability = check_networkd_version(host_information, debug, container_name)
         if vulnerability:
-            state[VULNERABILITY] = status.vulnerable(vulnerability)
-            status.remediation_mitigation(REMEDIATION, MITIGATION)
+            state[VULNERABILITY] = status_functions.vulnerable(vulnerability)
+            status_functions.remediation_mitigation(REMEDIATION, MITIGATION)
         else:
-            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     else:
-        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     return state
 
 

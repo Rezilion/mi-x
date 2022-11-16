@@ -4,7 +4,7 @@ Support for csv, json, os and other modules written to avoid repetitive code.
 import json
 import csv
 import os
-from modules import constants, file_functions
+from modules import constants
 
 JSON ='json'
 CSV = 'csv'
@@ -43,7 +43,7 @@ def open_file(container_name, report_format):
     else:
         file_name = HOST
     path = f'output/{file_name}.{report_format}'
-    if not file_functions.check_file_existence(path, debug, container_name=''):
+    if not os.path.isfile(path):
         file = open(path, 'w+')
         if report_format == CSV:
             start_of_csv_file(file)

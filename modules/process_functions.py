@@ -7,6 +7,15 @@ from modules import constants, run_command, file_functions, docker_commands
 SO = '.so'
 
 
+def get_file_dependencies(file, debug):
+    """This function returns the files dependencies."""
+    list_dynamic_dependencies_command = f'ldd {file}'
+    list_dynamic_dependencies_pipe = run_command.command_output(list_dynamic_dependencies_command, debug,
+                                                                container_name='')
+    list_dynamic_dependencies = list_dynamic_dependencies_pipe.stdout
+    return list_dynamic_dependencies
+
+
 def get_container_full_path(path, debug, container_name):
     """This function returns the full path of a file in a container."""
     merge_dir = docker_commands.get_merge_dir(debug, container_name)
@@ -61,7 +70,8 @@ def find_relevant_pids(pids, container_pids_list, debug, container_name):
     print(constants.FULL_QUESTION_MESSAGE.format(f'Is there a match between container pids to host pids?'))
     if relevant_pids:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The following pids: {relevant_pids} have a match with '
+        pids_string = ", ".join(relevant_pids)
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The following pids: {pids_string} have a match with '
                                                         f'container pids'))
         return relevant_pids
     print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
@@ -108,16 +118,7 @@ def running_processes(debug, container_name):
         pids = find_pids_from_status_file(host_pids, debug, container_name)
         container_pids = list_of_running_processes(debug, container_name)
         return find_relevant_pids(pids, container_pids, debug, container_name)
-    else:
-        print(constants.FULL_QUESTION_MESSAGE.format(f'Are there running processes on the host?'))
-        if host_pids:
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-            print(constants.FULL_EXPLANATION_MESSAGE.format(f'The following PIDs are running processes: '
-                                                            f'{host_pids}'))
-            return host_pids
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'There are no running processes'))
-        return host_pids
+    return host_pids
 
 
 def aggregate_pids_to_list(pids, other_pids):

@@ -1,7 +1,7 @@
 """
 Support for modules written to avoid repetitive code.
 """
-from modules import constants, run_command, os_release
+from modules import constants, run_command, os_release_functions
 
 BASIC_COLOR = '\033[00m'
 EXPLANATION = '\033[90m'
@@ -13,7 +13,7 @@ QUESTION = '\033[94m'
 def is_supported_distribution(debug, container_name):
     """This function checks if the os distribution is supported."""
     information_fields = ['Distribution']
-    host_information = os_release.get_field(information_fields, debug, container_name)
+    host_information = os_release_functions.get_field(information_fields, debug, container_name)
     print(constants.FULL_QUESTION_MESSAGE.format('Is the os distributions one of Ubuntu, Debian, Red, Centos, Fedora, '
                                                  'SUSE, SLES, Amazon supported distributions?'))
     if not host_information:
@@ -34,7 +34,7 @@ def is_supported_distribution(debug, container_name):
 
 
 def is_linux(debug, container_name):
-    """This function checks if the operation system is Linux."""
+    """This function checks if the operating system is Linux."""
     os_type = 'uname -s'
     print(constants.FULL_QUESTION_MESSAGE.format('Is it Linux?'))
     pipe_os_type = run_command.command_output(os_type, debug, container_name)

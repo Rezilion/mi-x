@@ -1,7 +1,7 @@
 """
 Support for modules written to avoid repetitive code.
 """
-from modules import constants, graph_functions, status, os_release, kernel_functions
+from modules import constants, graph_functions, status, kernel_functions
 
 VULNERABILITY = 'CVE-2022-2588'
 DESCRIPTION = '''Dirty Cred
@@ -29,7 +29,8 @@ FIXED_KERNEL_VERSIONS = {'Debian unstable': '6.0.7-1', 'Debian 12': '6.0.5-1', '
 FIXED_AWS_KERNEL_VERSIONS = {'Ubuntu 14.04': '4.4.0-1111.117', 'Ubuntu 16.04': '4.4.0-1147.162',
                              'Ubuntu 18.04': '4.15.0-1139.150', 'Ubuntu 20.04': '5.4.0-1083.90',
                              'Ubuntu 22.04': '5.15.0-1017.21', 'Ubuntu 22.10': '5.19.0-1006.6'}
-REMEDIATION = f'Upgrade kernel versions to:\n{FIXED}'
+REMEDIATION = f'Upgrade kernel version to {FIXED_KERNEL_VERSIONS} or if running on an EC2 instance update kernel ' \
+              f'version to: {FIXED_AWS_KERNEL_VERSIONS} or higher.'
 MITIGATION = ''
 
 
@@ -37,9 +38,9 @@ def validate(debug, container_name):
     """This function validates if the host is vulnerable to Heartbleed vulnerabilities."""
     state = {}
     if not container_name:
-        kernel_version_output = kernel_functions.check_kernel_version(FIXED_KERNEL_VERSIONS, FIXED_AWS_KERNEL_VERSIONS, debug, container_name)
+        kernel_version_output = kernel_functions.check_kernel_version(MIN_KERNEL_VERSION, FIXED_KERNEL_VERSIONS, FIXED_AWS_KERNEL_VERSIONS, debug, container_name)
         if kernel_version_output == constants.UNSUPPORTED:
-            state[VULNERABILITY] = status.not_determind(VULNERABILITY)
+            state[VULNERABILITY] = status.not_determined(VULNERABILITY)
         elif kernel_version_output:
             state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
             status.remediation_mitigation(REMEDIATION, MITIGATION)

@@ -20,6 +20,7 @@ https://www.rezilion.com/blog/dirty-pipe-what-you-need-to-know/
 https://dirtypipe.cm4all.com/
 https://blog.malwarebytes.com/exploits-and-vulnerabilities/2022/03/linux-dirty-pipe-vulnerability-gives-unprivileged-users-root-access/
 '''
+MIN_KERNEL_VERSION = '0'
 FIXED_KERNEL_VERSIONS = {'Debian unstable': '6.0.7-1', 'Debian 12': '6.0.5-1', 'Debian 11': '5.10.140-1',
                          'Debian 10': '4.19.249-2', 'Ubuntu 21.10': '5.13.0-35.40'}
 FIXED_AWS_KERNEL_VERSIONS = {'Ubuntu 21.10': '5.13.0-1017.19'}
@@ -32,7 +33,7 @@ def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2022-0847."""
     state = {}
     if not container_name:
-        affected = kernel_functions.check_kernel_version(FIXED_KERNEL_VERSIONS, FIXED_AWS_KERNEL_VERSIONS, debug, container_name)
+        affected = kernel_functions.check_kernel_version(MIN_KERNEL_VERSION, FIXED_KERNEL_VERSIONS, FIXED_AWS_KERNEL_VERSIONS, debug, container_name)
         if affected == constants.UNSUPPORTED:
             state[VULNERABILITY] = status.not_determined(VULNERABILITY)
         elif affected:

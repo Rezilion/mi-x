@@ -2,7 +2,7 @@
 Support for version from packaging and other modules written to avoid repetitive code.
 """
 from packaging import version
-from modules import constants, graph_functions, status, os_release, receive_package
+from modules import constants, graph_functions, status, os_release_functions, receive_package
 
 VULNERABILITY = 'CVE-2014-0160'
 DESCRIPTION = f'''Heartbleed
@@ -59,7 +59,7 @@ def check_openssl_version(openssl_version):
 def get_openssl_version(debug, container_name):
     """This function returns the openssl version if exists."""
     information_fields = ['Distribution']
-    distribution = os_release.get_field(information_fields, debug, container_name)
+    distribution = os_release_functions.get_field(information_fields, debug, container_name)
     package_name = 'openssl'
     if distribution in constants.APT_DISTRIBUTIONS:
         return receive_package.package_version_apt(distribution, package_name, debug, container_name)

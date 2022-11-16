@@ -1,7 +1,7 @@
 """
 Support for modules written to avoid repetitive code.
 """
-from modules import constants, graph_functions, status, file_functions, os_release
+from modules import constants, graph_functions, status, file_functions, os_release_functions
 
 
 VULNERABILITY = 'CVE-2017-5715'
@@ -151,7 +151,7 @@ def check_cpuinfo(spectre_path, debug, container_name):
 def check_edge_case(debug, container_name):
     """This function checks an edge case for spectre variant 2."""
     edge_case = False
-    version = os_release.get_field(['Distribution', 'Version'], debug, container_name)
+    version = os_release_functions.get_field(['Distribution', 'Version'], debug, container_name)
     print(constants.FULL_QUESTION_MESSAGE.format('Does the system meet the conditions of the edge case?'))
     if 'Red 5' in version or 'Red 6' in version:
         spectre_path = '/sys/devices/system/cpu/vulnerabilities/spectre_v2'

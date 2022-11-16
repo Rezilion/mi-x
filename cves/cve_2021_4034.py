@@ -2,7 +2,7 @@
 Support for version from packaging and other modules written to avoid repetitive code.
 """
 from packaging import version
-from modules import constants, graph_functions, status, run_command, os_release, version_functions, receive_package
+from modules import constants, graph_functions, status, run_command, os_release_functions, version_functions, receive_package
 
 VULNERABILITY = 'CVE-2021-4034'
 DESCRIPTION = f'''{VULNERABILITY} - PwnKit
@@ -192,7 +192,7 @@ def check_policykit(host_information, debug, container_name):
 def distribution_version_affected(debug, container_name):
     """This function checks if the host distribution and version are affected."""
     information_fields = ['Distribution', 'Version']
-    host_information = os_release.get_field(information_fields, debug, container_name)
+    host_information = os_release_functions.get_field(information_fields, debug, container_name)
     host_distribution = host_information.split(' ')[constants.START]
     print(constants.FULL_QUESTION_MESSAGE.format('Is os release affected?'))
     if host_information == constants.UNSUPPORTED:

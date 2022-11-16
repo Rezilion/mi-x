@@ -2,7 +2,7 @@
 Support for importlib and other modules written to avoid repetitive code.
 """
 import importlib
-from modules import constants, graph_functions, status, run_command, kernel_functions, os_release
+from modules import constants, graph_functions, status, run_command, kernel_functions, os_release_functions
 
 VULNERABILITY = 'CVE-2016-5195'
 NEXT_VULNERABILITY = 'cve_2017_1000405'
@@ -107,7 +107,7 @@ def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2016-5195."""
     state = {}
     if not container_name:
-        fixed_release = os_release.check_release(FIXED, debug, container_name)
+        fixed_release = os_release_functions.check_release(FIXED, debug, container_name)
         if fixed_release == constants.UNSUPPORTED:
             state[VULNERABILITY] = status.not_determined(VULNERABILITY)
         elif fixed_release:

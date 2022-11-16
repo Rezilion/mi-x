@@ -2,7 +2,7 @@
 Support for version from packaging and other modules written to avoid repetitive code.
 """
 from packaging import version
-from modules import constants, graph_functions, status, os_release, receive_package
+from modules import constants, graph_functions, status, os_release_functions, receive_package
 
 VULNERABILITY = 'NIMBUSPWN'
 DESCRIPTION = f'''{VULNERABILITY} - CVE-2022-29799, CVE-2022-29800
@@ -102,7 +102,7 @@ def check_networkd_version(host_information, debug, container_name):
 def distribution_version_affected(debug, container_name):
     """This function checks if the host distribution and version are affected."""
     information_fields = ['Distribution', 'Version']
-    host_information = os_release.get_field(information_fields, debug, container_name)
+    host_information = os_release_functions.get_field(information_fields, debug, container_name)
     print(constants.FULL_QUESTION_MESSAGE.format('Is os release affected?'))
     if host_information == constants.UNSUPPORTED:
         return constants.UNSUPPORTED

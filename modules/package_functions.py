@@ -10,7 +10,7 @@ ERROR_MESSAGE = 'Unable to locate package'
 NONE = 'none'
 
 
-def package(distribution, package_name, debug, container_name):
+def get_package(distribution, package_name, debug, container_name):
     """This function get distribution and package name and returns the package information if exists."""
     if distribution in constants.APT_DISTRIBUTIONS:
         package_info_command = f'apt-cache policy {package_name}'
@@ -27,7 +27,7 @@ def package(distribution, package_name, debug, container_name):
 def package_version_rpm(distribution, package_name, debug, container_name):
     """This function returns the policy version and release for distributions with rpm package manager."""
     print(constants.FULL_QUESTION_MESSAGE.format(f'Is there an affected {package_name} package installed?'))
-    package_info = package(distribution, package_name, debug, container_name)
+    package_info = get_package(distribution, package_name, debug, container_name)
     if not package_info:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'{package_name} is not installed on the host'))
@@ -54,7 +54,7 @@ def package_version_rpm(distribution, package_name, debug, container_name):
 def package_version_apt(distribution, package_name, debug, container_name):
     """This function returns the policy installed version for distributions with apt package manager."""
     print(constants.FULL_QUESTION_MESSAGE.format(f'Is there an affected {package_name} package installed?'))
-    policy_info = package(distribution, package_name, debug, container_name)
+    policy_info = get_package(distribution, package_name, debug, container_name)
     if not policy_info:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'{package_name} is not installed on the host'))

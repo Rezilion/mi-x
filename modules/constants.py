@@ -24,6 +24,12 @@ START = 0
 FIRST = 1
 END = -1
 
+# Windows commands
+COMMAND = {}
+CMD_START = 'cmd.exe /c '
+CMD = f'{CMD_START} {COMMAND}'
+POWERSHELL = f'{CMD_START} powershell {COMMAND}'
+
 # Messages.
 NOT_SUPPORTED_MESSAGE = 'For now, we do not support {} mode scanning for this vulnerability'
 VULNERABLE_MESSAGE = 'Your system is vulnerable to {}'

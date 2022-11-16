@@ -258,22 +258,22 @@ def get_openssl_version(debug, container_name):
     """This function returns the OpenSSL version if exists."""
     information_fields = ['Distribution']
     distribution = os_release_functions.get_field(information_fields, debug, container_name)
-    package_name = 'openssl'
     openssl_version = ''
     if distribution in constants.APT_DISTRIBUTIONS:
-        openssl_version = package_functions.package_version_apt(distribution, package_name, debug, container_name)
+        openssl_version = package_functions.package_version_apt(distribution, OPENSSL, debug, container_name)
     if distribution in constants.RPM_DISTRIBUTIONS:
-        openssl_version = package_functions.package_version_rpm(distribution, package_name, debug, container_name)
+        openssl_version = package_functions.package_version_rpm(distribution, OPENSSL, debug, container_name)
     return openssl_version
 
 
-def vector_one(state, debug, container_name, running_os_type):
+def vector_one(state, running_os_type, debug, container_name):
     """This function performs the "vector one" of checking exploit ability which is checking if the affected OpenSSL
     version installed using the package manager."""
     vulnerability = f'{VULNERABILITY} (the package manager check)'
-    openssl_version = ''
     if running_os_type == LINUX:
         openssl_version = get_openssl_version(debug, container_name)
+    else:
+        openssl_version = package_functions.get_package_version_windows(OPENSSL, debug, container_name)
     if openssl_version == constants.UNSUPPORTED:
         state[vulnerability] = status_functions.not_determined(vulnerability)
     elif openssl_version:
@@ -311,11 +311,11 @@ def validation_flow_chart():
     vulnerability_graph.view()
 
 
-def main(description, graph, debug, container_name, running_os_type):
+def main(description, graph, running_os_type, debug, container_name):
     """This is the main function."""
     if description:
         print(f'\n{DESCRIPTION}')
-    state = validate(debug, container_name, running_os_type)
+    state = validate(running_os_type, debug, container_name)
     if graph:
         validation_flow_chart()
     return state

@@ -1,6 +1,7 @@
 """
 Support for modules written to avoid repetitive code.
 """
+import re
 from modules import constants, run_command
 
 PACKAGE_VERSION_FIELD = 'Version'
@@ -8,6 +9,18 @@ PACKAGE_RELEASE_FIELD = 'Release'
 PACKAGE_INSTALLED_FIELD = 'Installed'
 ERROR_MESSAGE = 'Unable to locate package'
 NONE = 'none'
+
+
+def get_package_version_windows(package_name, debug, container_name):
+    """This function returns the package version if exists."""
+    get_package_command = constants.POWERSHELL.format('Get-Package')
+    package_output = run_command.command_output(get_package_command, debug, container_name).stdout
+    if package_output:
+        for package in package_output.split('\n'):
+            if package_name in package:
+                package_version = re.search(r'\d*\.\d*\.\d*', package)
+                return package_version
+    return package_output
 
 
 def get_package(distribution, package_name, debug, container_name):

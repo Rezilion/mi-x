@@ -33,6 +33,7 @@ Vector two - checks if the running processes are using an affected OpenSSL versi
 Related Links:
 https://www.rezilion.com/blog/clearing-the-fog-over-the-new-openssl-vulnerabilities/
 '''
+LINUX = 'linux'
 AFFECTED_VERSION_START_NUMBER = '3'
 FIXED_VERSION = '3.0.7'
 FIXED_UBUNTU_VERSIONS = {'Ubuntu 22.04': '3.0.2-0ubuntu1.7', 'Ubuntu 22.10': '3.0.5-2ubuntu2'}
@@ -266,11 +267,13 @@ def get_openssl_version(debug, container_name):
     return openssl_version
 
 
-def vector_one(state, debug, container_name):
+def vector_one(state, debug, container_name, running_os_type):
     """This function performs the "vector one" of checking exploit ability which is checking if the affected OpenSSL
     version installed using the package manager."""
     vulnerability = f'{VULNERABILITY} (the package manager check)'
-    openssl_version = get_openssl_version(debug, container_name)
+    openssl_version = ''
+    if running_os_type == LINUX:
+        openssl_version = get_openssl_version(debug, container_name)
     if openssl_version == constants.UNSUPPORTED:
         state[vulnerability] = status_functions.not_determined(vulnerability)
     elif openssl_version:
@@ -284,11 +287,12 @@ def vector_one(state, debug, container_name):
     return state
 
 
-def validate(debug, container_name):
+def validate(debug, container_name, running_os_type):
     """This function validates if the host is vulnerable to SpookySSL vulnerabilities."""
     state = {}
-    state = vector_one(state, debug, container_name)
-    state = vector_two(state, debug, container_name)
+    state = vector_one(state, debug, container_name, running_os_type)
+    if running_os_type == LINUX:
+        state = vector_two(state, debug, container_name)
     return state
 
 
@@ -307,11 +311,11 @@ def validation_flow_chart():
     vulnerability_graph.view()
 
 
-def main(description, graph, debug, container_name):
+def main(description, graph, debug, container_name, running_os_type):
     """This is the main function."""
     if description:
         print(f'\n{DESCRIPTION}')
-    state = validate(debug, container_name)
+    state = validate(debug, container_name, running_os_type)
     if graph:
         validation_flow_chart()
     return state

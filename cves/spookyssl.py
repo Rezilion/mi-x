@@ -65,34 +65,21 @@ def check_type_of_files(so_file, files_and_openssl_version, affected_files, debu
     type_and_dependencies = []
     list_dynamic_dependencies = process_functions.get_file_dependencies(so_file, debug)
     if list_dynamic_dependencies:
-        if 'str' in str(type(affected_files)):
-            dependency = check_if_dependency_exists(list_dynamic_dependencies, affected_files,
-                                                    files_and_openssl_version, debug)
+        for affected_file in affected_files:
+            dependency = check_if_dependency_exists(list_dynamic_dependencies, affected_file, files_and_openssl_version,
+                                                    debug)
             if dependency:
-                type_and_dependencies = dependency
-        elif 'list' in str(type(affected_files)):
-            for affected_file in affected_files:
-                dependency = check_if_dependency_exists(list_dynamic_dependencies, affected_file,
-                                                        files_and_openssl_version, debug)
-                if dependency:
-                    type_and_dependencies.append(dependency)
+                type_and_dependencies.append(dependency)
     return type_and_dependencies
 
 
 def add_to_dictionary(dictionary, key, value):
     """This function add a key to dictionary and if already exists, adds the value if not exists."""
-    if 'list' in str(type(value)):
-        if key in dictionary:
-            if value not in dictionary[key]:
-                dictionary[key] += value
-        else:
-            dictionary[key] = value
-    elif 'str' in str(type(value)):
-        if key in dictionary:
-            if value not in dictionary[key]:
-                dictionary[key].append(value)
-        else:
-            dictionary[key] = [value]
+    if key in dictionary:
+        if value not in dictionary[key]:
+            dictionary[key] += value
+    else:
+        dictionary[key] = value
     return dictionary
 
 
@@ -140,21 +127,25 @@ def create_message(files_and_pids, files_and_openssl_version, debug):
     potentially_affected_files_and_pids = {}
     files_and_dependencies = {}
     for file in files_and_pids:
-        dependencies = check_type_of_files(file, files_and_openssl_version, LIBCRYPTO, debug)
+        affected_files = [LIBCRYPTO]
+        dependencies = check_type_of_files(file, files_and_openssl_version, affected_files, debug)
         if dependencies:
             for dependency in dependencies:
-                for file_path in files_and_pids:
-                    if dependency in file_path:
-                        files_and_dependencies = add_to_dictionary(files_and_dependencies, file, file_path)
-                        pids = files_and_pids[file_path]
-                        potentially_affected_files_and_pids = add_to_dictionary(potentially_affected_files_and_pids,
-                                                                                file_path, pids)
-                        pids = files_and_pids[file]
-                        dynamically_files_and_pids = add_to_dictionary(dynamically_files_and_pids, file, pids)
+                for dependency_path in dependency:
+                    for file_path in files_and_pids:
+                        if dependency_path in file_path:
+                            file_path_list = [file_path]
+                            files_and_dependencies = add_to_dictionary(files_and_dependencies, file, file_path_list)
+                            pids = files_and_pids[file_path]
+                            potentially_affected_files_and_pids = add_to_dictionary(potentially_affected_files_and_pids,
+                                                                                    file_path, pids)
+                            pids = files_and_pids[file]
+                            dynamically_files_and_pids = add_to_dictionary(dynamically_files_and_pids, file, pids)
         else:
             pids = files_and_pids[file]
             potentially_affected_files_and_pids = add_to_dictionary(potentially_affected_files_and_pids, file, pids)
-    print_message(dynamically_files_and_pids, potentially_affected_files_and_pids, files_and_openssl_version, files_and_dependencies, debug)
+    print_message(dynamically_files_and_pids, potentially_affected_files_and_pids, files_and_openssl_version,
+                  files_and_dependencies, debug)
 
 
 def check_openssl_in_files(so_file, debug):
@@ -169,8 +160,7 @@ def check_openssl_in_files(so_file, debug):
                     openssl_regex = re.search(regex_string, line.lower())
                     if openssl_regex:
                         openssl_version = openssl_regex.group()
-                        separator_char = openssl_version[7]
-                        openssl_version = openssl_version.split(separator_char)[constants.END]
+                        openssl_version = openssl_version.split(OPENSSL)[constants.END][constants.FIRST:]
                         return openssl_version
     return openssl_version
 

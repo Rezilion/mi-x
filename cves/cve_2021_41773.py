@@ -1,7 +1,7 @@
 """
 Support for modules written to avoid repetitive code.
 """
-from modules import constants, graph_functions, status, file_functions, apache as apache_functions
+from modules import constants, graph_functions, status, file_functions, apache_functions as apache_functions
 
 FIRST_CVE_ID = 'CVE-2021-41773'
 SECOND_CVE_ID = 'CVE-2021-42013'

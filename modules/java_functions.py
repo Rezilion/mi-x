@@ -3,7 +3,7 @@ Support for os, re and other modules written to avoid repetitive code.
 """
 import re
 import os
-from modules import constants, run_command, file_functions, docker_commands
+from modules import constants, run_command, file_functions, docker_functions
 
 VM_CLASS_HIERARCHY = 'VM.class_hierarchy'
 GC_CLASS_HISTOGRAM = 'GC.class_histogram'
@@ -41,7 +41,7 @@ def build_jcmd_path(pid, debug, container_name):
 
 def get_jcmd(pid, debug, container_name):
     """This function returns the full path of the jcmd application in a container."""
-    merged_dir_path = docker_commands.get_merge_dir(debug, container_name)
+    merged_dir_path = docker_functions.get_merge_dir(debug, container_name)
     if merged_dir_path == constants.UNSUPPORTED:
         return constants.UNSUPPORTED
     proc_path = f'/proc/{pid}/exe'

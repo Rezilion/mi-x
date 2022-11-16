@@ -118,18 +118,18 @@ def print_message(dynamically_files_and_pids, potentially_affected_files_and_pid
             for file in dynamically_files_and_pids:
                 pids_string = ", ".join(list(set(dynamically_files_and_pids[file])))
                 dependencies_string = ", ".join(list(set(files_and_dependencies[file])))
-                print(constants.FULL_EXPLANATION_MESSAGE.format(f'This file {file} was dynamically compiled with an '
-                                                                f'affected file {dependencies_string} which use an '
-                                                                f'affected OpenSSL version\nThe following processes are'
-                                                                f' loading this file: {pids_string}'))
+                print(constants.FULL_EXPLANATION_MESSAGE.format(f'This file {file} dynamically loads the file: '
+                                                                f'{dependencies_string} which is affected by the '
+                                                                f'SpookySSL vulnerabilities.\nThe following processes '
+                                                                f'are loading this file: {pids_string}'))
         if affected_files:
             for file in affected_files:
                 openssl_version = files_and_openssl_version[file]
                 pids_string = ", ".join(list(set(affected_files[file])))
-                print(constants.FULL_EXPLANATION_MESSAGE.format(f'This file {file} contains an affected OpenSSL version'
-                                                                f' in its code, the OpenSSL version is: '
-                                                                f'{openssl_version}\nThe following processes are '
-                                                                f'loading this file: {pids_string}'))
+                print(constants.FULL_EXPLANATION_MESSAGE.format(f'This file {file} contains code associated with '
+                                                                f'OpenSSL version: {openssl_version}, affected by the '
+                                                                f'SpookySSL vulnerabilities\nThe following processes '
+                                                                f'are loading this file: {pids_string}'))
     else:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
 

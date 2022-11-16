@@ -3,7 +3,7 @@ Support for re, version from packaging and other modules written to avoid repeti
 """
 import re
 from packaging import version
-from modules import constants, graph_functions, status_functions, file_functions, os_release_functions, receive_package, process_functions
+from modules import constants, graph_functions, status_functions, file_functions, os_release_functions, package_functions, process_functions
 
 VULNERABILITY = 'Spooky SSL'
 DESCRIPTION = f'''{VULNERABILITY} - CVE-2022-3786, CVE-2022-3602
@@ -261,9 +261,9 @@ def get_openssl_version(debug, container_name):
     package_name = 'openssl'
     openssl_version = ''
     if distribution in constants.APT_DISTRIBUTIONS:
-        openssl_version = receive_package.package_version_apt(distribution, package_name, debug, container_name)
+        openssl_version = package_functions.package_version_apt(distribution, package_name, debug, container_name)
     if distribution in constants.RPM_DISTRIBUTIONS:
-        openssl_version = receive_package.package_version_rpm(distribution, package_name, debug, container_name)
+        openssl_version = package_functions.package_version_rpm(distribution, package_name, debug, container_name)
     return openssl_version
 
 

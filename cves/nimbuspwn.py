@@ -2,7 +2,7 @@
 Support for version from packaging and other modules written to avoid repetitive code.
 """
 from packaging import version
-from modules import constants, graph_functions, status_functions, os_release_functions, receive_package
+from modules import constants, graph_functions, status_functions, os_release_functions, package_functions
 
 VULNERABILITY = 'NIMBUSPWN'
 DESCRIPTION = f'''{VULNERABILITY} - CVE-2022-29799, CVE-2022-29800
@@ -78,7 +78,7 @@ def check_networkd_version(host_information, debug, container_name):
     vulnerability = ''
     distribution = host_information.split(' ')[constants.START]
     package_name = 'networkd-dispatcher'
-    host_network_version = receive_package.package_version_apt(distribution, package_name, debug, container_name)
+    host_network_version = package_functions.package_version_apt(distribution, package_name, debug, container_name)
     if host_network_version:
         print(constants.FULL_QUESTION_MESSAGE.format('Is networkd-dispatcher policy version affected?'))
         affected_versions = AFFECTED_CVE_2

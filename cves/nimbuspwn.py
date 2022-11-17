@@ -2,7 +2,7 @@
 Support for version from packaging and other modules written to avoid repetitive code.
 """
 from packaging import version
-from modules import constants, graph_functions, status, os_release, receive_package
+from modules import constants, graph_functions, status_functions, os_release_functions, package_functions
 
 VULNERABILITY = 'NIMBUSPWN'
 DESCRIPTION = f'''{VULNERABILITY} - CVE-2022-29799, CVE-2022-29800
@@ -78,7 +78,7 @@ def check_networkd_version(host_information, debug, container_name):
     vulnerability = ''
     distribution = host_information.split(' ')[constants.START]
     package_name = 'networkd-dispatcher'
-    host_network_version = receive_package.package_version_apt(distribution, package_name, debug, container_name)
+    host_network_version = package_functions.package_version_apt(distribution, package_name, debug, container_name)
     if host_network_version:
         print(constants.FULL_QUESTION_MESSAGE.format('Is networkd-dispatcher policy version affected?'))
         affected_versions = AFFECTED_CVE_2
@@ -102,7 +102,7 @@ def check_networkd_version(host_information, debug, container_name):
 def distribution_version_affected(debug, container_name):
     """This function checks if the host distribution and version are affected."""
     information_fields = ['Distribution', 'Version']
-    host_information = os_release.get_field(information_fields, debug, container_name)
+    host_information = os_release_functions.get_field(information_fields, debug, container_name)
     print(constants.FULL_QUESTION_MESSAGE.format('Is os release affected?'))
     if host_information == constants.UNSUPPORTED:
         return constants.UNSUPPORTED
@@ -134,12 +134,12 @@ def validate(debug, container_name):
     if host_information:
         vulnerability = check_networkd_version(host_information, debug, container_name)
         if vulnerability:
-            state[VULNERABILITY] = status.vulnerable(vulnerability)
-            status.remediation_mitigation(REMEDIATION, MITIGATION)
+            state[VULNERABILITY] = status_functions.vulnerable(vulnerability)
+            status_functions.remediation_mitigation(REMEDIATION, MITIGATION)
         else:
-            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     else:
-        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     return state
 
 

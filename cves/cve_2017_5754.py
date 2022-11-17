@@ -1,7 +1,7 @@
 """
 Support for modules written to avoid repetitive code.
 """
-from modules import constants, graph_functions, status, file_functions
+from modules import constants, graph_functions, status_functions, file_functions
 
 VULNERABILITY = 'CVE-2017-5754'
 DESCRIPTION = f'''{VULNERABILITY} - Meltdown
@@ -60,17 +60,17 @@ def validate(debug, container_name):
     state = {}
     vendor = check_vendor(debug, container_name)
     if vendor == constants.UNSUPPORTED:
-        state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
     elif vendor:
         meltdown = meltdown_file(debug, container_name)
         if meltdown == constants.UNSUPPORTED:
-            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
         elif meltdown:
-            state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.vulnerable(VULNERABILITY)
         else:
-            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     else:
-        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     return state
 
 

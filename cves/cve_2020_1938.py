@@ -1,7 +1,7 @@
 """
 Support for modules written to avoid repetitive code.
 """
-from modules import constants, graph_functions, status, run_command, file_functions, version_functions
+from modules import constants, graph_functions, status_functions, run_command, file_functions, version_functions
 
 VULNERABILITY = 'CVE-2020-1938'
 DESCRIPTION = f'''{VULNERABILITY} - GhostCat
@@ -114,22 +114,22 @@ def validate(debug, container_name):
     state = {}
     printenv = printenv_content(debug, container_name)
     if printenv == constants.UNSUPPORTED:
-        state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
     elif printenv:
         if tomcat_version(printenv):
             mitigation = check_mitigation(printenv, debug, container_name)
             if mitigation == constants.UNSUPPORTED:
-                state[VULNERABILITY] = status.not_determined(VULNERABILITY)
-                status.remediation_mitigation(REMEDIATION, MITIGATION)
+                state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
+                status_functions.remediation_mitigation(REMEDIATION, MITIGATION)
             elif mitigation:
-                state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+                state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
             else:
-                state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
-                status.remediation_mitigation(REMEDIATION, MITIGATION)
+                state[VULNERABILITY] = status_functions.vulnerable(VULNERABILITY)
+                status_functions.remediation_mitigation(REMEDIATION, MITIGATION)
         else:
-            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     else:
-        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     return state
 
 

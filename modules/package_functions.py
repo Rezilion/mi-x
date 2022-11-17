@@ -1,6 +1,7 @@
 """
 Support for modules written to avoid repetitive code.
 """
+import re
 from modules import constants, run_command
 
 PACKAGE_VERSION_FIELD = 'Version'
@@ -10,7 +11,20 @@ ERROR_MESSAGE = 'Unable to locate package'
 NONE = 'none'
 
 
-def package(distribution, package_name, debug, container_name):
+def get_package_version_windows(package_name, debug, container_name):
+    """This function returns the package version if exists."""
+    get_package_command = constants.POWERSHELL.format('Get-Package')
+    package_output = run_command.command_output(get_package_command, debug, container_name).stdout
+    if package_output:
+        for package in package_output.split('\n'):
+            if package_name in package.lower():
+                package_version = re.search(r'\d*\.\d*\.\d*', package)
+                if package_version:
+                    return package_version.group()
+    return package_output
+
+
+def get_package(distribution, package_name, debug, container_name):
     """This function get distribution and package name and returns the package information if exists."""
     if distribution in constants.APT_DISTRIBUTIONS:
         package_info_command = f'apt-cache policy {package_name}'
@@ -27,7 +41,7 @@ def package(distribution, package_name, debug, container_name):
 def package_version_rpm(distribution, package_name, debug, container_name):
     """This function returns the policy version and release for distributions with rpm package manager."""
     print(constants.FULL_QUESTION_MESSAGE.format(f'Is there an affected {package_name} package installed?'))
-    package_info = package(distribution, package_name, debug, container_name)
+    package_info = get_package(distribution, package_name, debug, container_name)
     if not package_info:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'{package_name} is not installed on the host'))
@@ -54,13 +68,13 @@ def package_version_rpm(distribution, package_name, debug, container_name):
 def package_version_apt(distribution, package_name, debug, container_name):
     """This function returns the policy installed version for distributions with apt package manager."""
     print(constants.FULL_QUESTION_MESSAGE.format(f'Is there an affected {package_name} package installed?'))
-    policy_info = package(distribution, package_name, debug, container_name)
-    if not policy_info:
+    package_info = get_package(distribution, package_name, debug, container_name)
+    if not package_info:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'{package_name} is not installed on the host'))
-        return ''
+        return package_info
     package_version = ''
-    for field in policy_info.split('\n'):
+    for field in package_info.split('\n'):
         if PACKAGE_INSTALLED_FIELD in field:
             package_version = field.split(': ')[constants.FIRST]
             break

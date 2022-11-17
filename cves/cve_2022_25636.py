@@ -1,7 +1,7 @@
 """
 Support for modules written to avoid repetitive code.
 """
-from modules import constants, graph_functions, status, run_command, file_functions, kernel_functions
+from modules import constants, graph_functions, status_functions, run_command, file_functions, kernel_functions
 
 VULNERABILITY = 'CVE-2022-25636'
 DESCRIPTION = f'''{VULNERABILITY}
@@ -18,6 +18,7 @@ Related Links:
 https://nickgregory.me/linux/security/2022/03/12/cve-2022-25636/
 https://support.f5.com/csp/article/K13559191
 '''
+MIN_KERNEL_VERSION = '0'
 FIXED_KERNEL_VERSIONS = {'Debian unstable': '6.0.7-1', 'Debian 12': '6.0.5-1', 'Debian 11': '5.10.140-1',
                          'Debian 10': '4.19.249-2', 'Ubuntu 21.10': '5.13.0-35.40', 'Ubuntu 20.04': '5.4.0-104.118'}
 FIXED_AWS_KERNEL_VERSIONS = {'Ubuntu 21.10': '5.4.0-1068.72', 'Ubuntu 20.04': '5.13.0-1017.19'}
@@ -61,28 +62,28 @@ def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2022-25636."""
     state = {}
     if not container_name:
-        affected_kernel_version = kernel_functions.check_kernel_version(FIXED_KERNEL_VERSIONS, FIXED_AWS_KERNEL_VERSIONS, debug, container_name)
+        affected_kernel_version = kernel_functions.check_kernel_version(MIN_KERNEL_VERSION, FIXED_KERNEL_VERSIONS, FIXED_AWS_KERNEL_VERSIONS, debug, container_name)
         if affected_kernel_version == constants.UNSUPPORTED:
-            state[VULNERABILITY] = status.not_determind(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
         elif affected_kernel_version:
             nf_tables_path = f'/usr/lib/modules/{affected_kernel_version}/kernel/net/netfilter/nf_tables.ko'
             nf_tables_file = file_functions.check_file_existence(nf_tables_path, debug, container_name)
             if nf_tables_file:
                 affected = nf_tables_affected(nf_tables_path, debug, container_name)
                 if affected == constants.UNSUPPORTED:
-                    state[VULNERABILITY] = status.not_determind(VULNERABILITY)
+                    state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
                 elif affected:
-                    state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
-                    status.remediation_mitigation(REMEDIATION, MITIGATION)
+                    state[VULNERABILITY] = status_functions.vulnerable(VULNERABILITY)
+                    status_functions.remediation_mitigation(REMEDIATION, MITIGATION)
                 else:
-                    state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+                    state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
             else:
-                state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+                state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
         else:
-            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     else:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Containers are not affected by kernel vulnerabilities'))
-        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     return state
 
 

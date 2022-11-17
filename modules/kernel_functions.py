@@ -3,7 +3,7 @@ Support for re, version from packaging and other modules written to avoid repeti
 """
 import re
 from packaging import version
-from modules import constants, run_command, file_functions, os_release
+from modules import constants, run_command, file_functions, os_release_functions
 
 AWS_SIGNATURE = 'ec2'
 
@@ -73,15 +73,15 @@ def is_aws(debug):
     return False
 
 
-def check_kernel_version(fixed_kernel_versions, fixed_aws_kernel_versions, debug, container_name):
+def check_kernel_version(min_kernel_version, fixed_kernel_versions, fixed_aws_kernel_versions, debug, container_name):
     """This function returns if the kernel version is affected."""
     affected_releases = fixed_kernel_versions
     if is_aws(debug):
         affected_releases = fixed_aws_kernel_versions
-    host_os_release = os_release.check_release(affected_releases, debug, container_name)
+    host_os_release = os_release_functions.check_release(affected_releases, debug, container_name)
     if host_os_release == constants.UNSUPPORTED or not host_os_release:
         return host_os_release
     if host_os_release in affected_releases:
         fixed_kernel_version = affected_releases[host_os_release]
-        return check_kernel(MIN_KERNEL_VERSION, fixed_kernel_version, debug)
+        return check_kernel(min_kernel_version, fixed_kernel_version, debug)
     return ''

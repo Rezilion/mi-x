@@ -2,7 +2,7 @@
 Support for version from packaging and other modules written to avoid repetitive code.
 """
 from packaging import version
-from modules import constants, graph_functions, status, run_command, os_release, version_functions, receive_package
+from modules import constants, graph_functions, status_functions, run_command, os_release_functions, version_functions, package_functions
 
 VULNERABILITY = 'CVE-2021-4034'
 DESCRIPTION = f'''{VULNERABILITY} - PwnKit
@@ -140,7 +140,7 @@ def policykit_affected_rpm(host_information, package_name, debug, container_name
     """This function checks if the Policy Kit package is affected."""
     affected = False
     distribution = host_information.split(' ')[constants.START]
-    host_info = receive_package.package_version_rpm(distribution, package_name, debug, container_name)
+    host_info = package_functions.package_version_rpm(distribution, package_name, debug, container_name)
     if not host_info:
         return False
     host_version = host_info[constants.START]
@@ -168,7 +168,7 @@ def policykit_affected_rpm(host_information, package_name, debug, container_name
 def policykit_affected_apt(host_information, package_name, debug, container_name):
     """# This function checks if the Policy Kit package is affected."""
     distribution = host_information.split(' ')[constants.START]
-    host_version = receive_package.package_version_apt(distribution, package_name, debug, container_name)
+    host_version = package_functions.package_version_apt(distribution, package_name, debug, container_name)
     if not host_version:
         return False
     polkit_fixed_version = FIXED_APT[host_information]
@@ -192,7 +192,7 @@ def check_policykit(host_information, debug, container_name):
 def distribution_version_affected(debug, container_name):
     """This function checks if the host distribution and version are affected."""
     information_fields = ['Distribution', 'Version']
-    host_information = os_release.get_field(information_fields, debug, container_name)
+    host_information = os_release_functions.get_field(information_fields, debug, container_name)
     host_distribution = host_information.split(' ')[constants.START]
     print(constants.FULL_QUESTION_MESSAGE.format('Is os release affected?'))
     if host_information == constants.UNSUPPORTED:
@@ -225,24 +225,24 @@ def validate(debug, container_name):
     state = {}
     host_information = distribution_version_affected(debug, container_name)
     if host_information == constants.UNSUPPORTED:
-        state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
     elif host_information:
         policykit_installed = check_policykit(host_information, debug, container_name)
         if policykit_installed == constants.UNSUPPORTED:
-            state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
         elif policykit_installed:
             pkexec_info = get_pkexec_path(debug, container_name)
             if pkexec_info == constants.UNSUPPORTED:
-                state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+                state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
             elif pkexec_info:
-                state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
-                status.remediation_mitigation(REMEDIATION, MITIGATION)
+                state[VULNERABILITY] = status_functions.vulnerable(VULNERABILITY)
+                status_functions.remediation_mitigation(REMEDIATION, MITIGATION)
             else:
-                state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+                state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
         else:
-            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     else:
-        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     return state
 
 

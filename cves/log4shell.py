@@ -1,7 +1,7 @@
 """
 Support for modules written to avoid repetitive code.
 """
-from modules import constants, graph_functions, status, process_functions, java_functions
+from modules import constants, graph_functions, status_functions, process_functions, java_functions
 
 VULNERABILITY = 'Log4Shell'
 DESCRIPTION = f'''your system will be scanned for all Log4Shell related CVEs.
@@ -77,7 +77,7 @@ def validate_processes(pids, debug, container_name):
         if container_name:
             jcmd_path = java_functions.build_jcmd_path(pid, debug, container_name)
             if jcmd_path == constants.UNSUPPORTED:
-                state[pid] = status.process_not_determined(pid, VULNERABILITY)
+                state[pid] = status_functions.process_not_determined(pid, VULNERABILITY)
                 break
         jcmd_command = f'sudo {jcmd_path} {pid} '
         utility = java_functions.available_jcmd_utilities(jcmd_command, debug)
@@ -85,14 +85,14 @@ def validate_processes(pids, debug, container_name):
             full_jcmd_command = jcmd_command + utility
             cves = java_functions.check_loaded_classes(pid, full_jcmd_command, CLASS_CVE, debug)
             if cves == constants.UNSUPPORTED:
-                state[pid] = status.process_not_determined(pid, VULNERABILITY)
+                state[pid] = status_functions.process_not_determined(pid, VULNERABILITY)
             elif cves:
-                state[pid] = status.process_vulnerable(pid, VULNERABILITY)
-                status.remediation_mitigation(REMEDIATION, MITIGATION)
+                state[pid] = status_functions.process_vulnerable(pid, VULNERABILITY)
+                status_functions.remediation_mitigation(REMEDIATION, MITIGATION)
             else:
-                state[pid] = status.process_not_vulnerable(pid, VULNERABILITY)
+                state[pid] = status_functions.process_not_vulnerable(pid, VULNERABILITY)
         else:
-            state[pid] = status.process_not_determined(pid, VULNERABILITY)
+            state[pid] = status_functions.process_not_determined(pid, VULNERABILITY)
     return state
 
 
@@ -103,7 +103,7 @@ def validate(debug, container_name):
     if pids:
         state[VULNERABILITY] = validate_processes(pids, debug, container_name)
     else:
-        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     return state
 
 

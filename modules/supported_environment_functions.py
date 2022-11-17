@@ -128,7 +128,7 @@ def check_supported_environment(debug, container_name, vulnerability_identifier)
             supported_distribution = is_supported_distribution(debug, container_name)
         if supported_distribution == constants.UNSUPPORTED or not supported_distribution:
             print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('No'))
-            print(constants.FULL_EXPLANATION_MESSAGE.format('Your os distribution is unsupported'))
+            print(constants.FULL_EXPLANATION_MESSAGE.format('Your OS distribution is unsupported'))
         else:
             print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
             print(constants.FULL_EXPLANATION_MESSAGE.format('Your environment is supported'))

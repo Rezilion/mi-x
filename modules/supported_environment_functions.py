@@ -126,13 +126,20 @@ def check_supported_environment(debug, container_name, vulnerability_identifier)
         if supported_distribution == constants.UNSUPPORTED or not supported_distribution:
             print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('No'))
             print(constants.FULL_EXPLANATION_MESSAGE.format('Your OS distribution is unsupported'))
+            return ''
         else:
             print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
             print(constants.FULL_EXPLANATION_MESSAGE.format('Your environment is supported'))
     elif running_os_type == constants.WINDOWS:
-        print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format('Your environment is supported'))
+        if vulnerability_identifier in constants.WINDOWS_VULNERABILITIES:
+            print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
+            print(constants.FULL_EXPLANATION_MESSAGE.format('Your environment is supported'))
+        else:
+            print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('No'))
+            print(constants.FULL_EXPLANATION_MESSAGE.format('Your OS distribution is unsupported'))
+            return ''
     else:
         print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format('Your OS distribution is unsupported'))
+        return ''
     return running_os_type

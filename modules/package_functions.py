@@ -72,7 +72,7 @@ def package_version_apt(distribution, package_name, debug, container_name):
     if not package_info:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'{package_name} is not installed on the host'))
-        return ''
+        return package_info
     package_version = ''
     for field in package_info.split('\n'):
         if PACKAGE_INSTALLED_FIELD in field:

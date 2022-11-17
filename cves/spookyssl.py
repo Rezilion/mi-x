@@ -84,25 +84,6 @@ def add_to_dictionary(dictionary, key, value):
     return dictionary
 
 
-def return_file_dependencies(dependencies):
-    """This function checks if there are duplicates dependencies that one of them has docker path and removes the one's
-     with the docker path"""
-    dependencies = list(set(dependencies))
-    duplicate_dependencies = dependencies
-    final_dependencies = []
-    for dependency in dependencies:
-        for deplicate_dependency in duplicate_dependencies:
-            if not dependency == deplicate_dependency:
-                if dependency in deplicate_dependency and 'docker' in deplicate_dependency:
-                    final_dependencies.append(dependency)
-                elif deplicate_dependency in dependency and 'docker' in dependency:
-                    final_dependencies.append(deplicate_dependency)
-    if final_dependencies:
-        dependencies = final_dependencies
-    dependencies_string = ", ".join(dependencies)
-    return dependencies_string
-
-
 def print_message(dynamically_files_and_pids, potentially_affected_files_and_pids, files_and_openssl_version, files_and_dependencies, debug):
     """This function prints the output message of the affected files."""
     if dynamically_files_and_pids or potentially_affected_files_and_pids:
@@ -124,7 +105,7 @@ def print_message(dynamically_files_and_pids, potentially_affected_files_and_pid
         if dynamically_files_and_pids:
             for file in dynamically_files_and_pids:
                 pids_string = ", ".join(list(set(dynamically_files_and_pids[file])))
-                dependencies_string = return_file_dependencies(files_and_dependencies[file])
+                dependencies_string = ", ".join(list(set(files_and_dependencies[file])))
                 print(constants.FULL_EXPLANATION_MESSAGE.format(f'This file {file} dynamically loads the file: '
                                                                 f'{dependencies_string} which is affected by the '
                                                                 f'SpookySSL vulnerabilities.\nThe following processes '

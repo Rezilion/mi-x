@@ -84,6 +84,23 @@ def add_to_dictionary(dictionary, key, value):
     return dictionary
 
 
+def return_file_dependencies(dependencies):
+    """This function checks if there are duplicates dependencies that one of them has docker path and removes the one's
+     with the docker path"""
+    dependencies = list(set(dependencies))
+    duplicate_dependencies = dependencies
+    final_dependencies = []
+    for dependency in dependencies:
+        for deplicate_dependency in duplicate_dependencies:
+            if not dependency == deplicate_dependency:
+                if dependency in duplicate_dependencies and 'docker' in duplicate_dependencies:
+                    final_dependencies.append(dependency)
+    if final_dependencies:
+        dependencies = final_dependencies
+    dependencies_string = ", ".join(dependencies)
+    return dependencies_string
+
+
 def print_message(dynamically_files_and_pids, potentially_affected_files_and_pids, files_and_openssl_version, files_and_dependencies, debug):
     """This function prints the output message of the affected files."""
     if dynamically_files_and_pids or potentially_affected_files_and_pids:
@@ -113,7 +130,7 @@ def print_message(dynamically_files_and_pids, potentially_affected_files_and_pid
         if affected_files:
             for file in affected_files:
                 openssl_version = files_and_openssl_version[file]
-                pids_string = ", ".join(list(set(affected_files[file])))
+                pids_string = return_file_dependencies(affected_files[file])
                 print(constants.FULL_EXPLANATION_MESSAGE.format(f'This file {file} contains code associated with '
                                                                 f'OpenSSL version: {openssl_version}, affected by the '
                                                                 f'SpookySSL vulnerabilities\nThe following processes '

@@ -124,7 +124,7 @@ def print_message(dynamically_files_and_pids, potentially_affected_files_and_pid
         if dynamically_files_and_pids:
             for file in dynamically_files_and_pids:
                 pids_string = ", ".join(list(set(dynamically_files_and_pids[file])))
-                dependencies_string = ", ".join(list(set(files_and_dependencies[file])))
+                dependencies_string = return_file_dependencies(files_and_dependencies[file])
                 print(constants.FULL_EXPLANATION_MESSAGE.format(f'This file {file} dynamically loads the file: '
                                                                 f'{dependencies_string} which is affected by the '
                                                                 f'SpookySSL vulnerabilities.\nThe following processes '
@@ -132,7 +132,7 @@ def print_message(dynamically_files_and_pids, potentially_affected_files_and_pid
         if affected_files:
             for file in affected_files:
                 openssl_version = files_and_openssl_version[file]
-                pids_string = return_file_dependencies(affected_files[file])
+                pids_string = ", ".join(list(set(affected_files[file])))
                 print(constants.FULL_EXPLANATION_MESSAGE.format(f'This file {file} contains code associated with '
                                                                 f'OpenSSL version: {openssl_version}, affected by the '
                                                                 f'SpookySSL vulnerabilities\nThe following processes '

@@ -249,8 +249,8 @@ def check_openssl_affected(openssl_version, debug, container_name):
         affected = compare_versions(openssl_version, fixed_openssl_version)
     else:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-        #print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected OpenSSL versions are lower than 3.0.7\nYour OpenSSL '
-        #                                                f'version which is: {openssl_version} is not affected'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected OpenSSL versions are lower than 3.0.7\nYour OpenSSL '
+                                                        f'version which is: {openssl_version} is not affected'))
     return affected
 
 
@@ -287,10 +287,10 @@ def vector_one(state, running_os_type, debug, container_name):
     return state
 
 
-def validate(debug, container_name, running_os_type):
+def validate(running_os_type, debug, container_name):
     """This function validates if the host is vulnerable to SpookySSL vulnerabilities."""
     state = {}
-    state = vector_one(state, debug, container_name, running_os_type)
+    state = vector_one(state, running_os_type, debug, container_name)
     if running_os_type == LINUX:
         state = vector_two(state, debug, container_name)
     return state

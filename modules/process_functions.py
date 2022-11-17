@@ -2,7 +2,7 @@
 Support for re and modules written to avoid repetitive code.
 """
 import re
-from modules import constants, run_command, file_functions, docker_commands
+from modules import constants, run_command, file_functions, docker_functions
 
 SO = '.so'
 
@@ -18,7 +18,7 @@ def get_file_dependencies(file, debug):
 
 def get_container_full_path(path, debug, container_name):
     """This function returns the full path of a file in a container."""
-    merge_dir = docker_commands.get_merge_dir(debug, container_name)
+    merge_dir = docker_functions.get_merge_dir(debug, container_name)
     path = f'{merge_dir}{path}'
     return path
 

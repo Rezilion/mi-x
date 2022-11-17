@@ -1,7 +1,7 @@
 """
 Support for modules written to avoid repetitive code.
 """
-from modules import constants, graph_functions, status, version_functions, kernel_functions
+from modules import constants, graph_functions, status_functions, version_functions, kernel_functions
 
 VULNERABILITY = 'CVE-2022-0847'
 DESCRIPTION = f'''{VULNERABILITY} - Dirty Pipe
@@ -20,6 +20,7 @@ https://www.rezilion.com/blog/dirty-pipe-what-you-need-to-know/
 https://dirtypipe.cm4all.com/
 https://blog.malwarebytes.com/exploits-and-vulnerabilities/2022/03/linux-dirty-pipe-vulnerability-gives-unprivileged-users-root-access/
 '''
+MIN_KERNEL_VERSION = '0'
 FIXED_KERNEL_VERSIONS = {'Debian unstable': '6.0.7-1', 'Debian 12': '6.0.5-1', 'Debian 11': '5.10.140-1',
                          'Debian 10': '4.19.249-2', 'Ubuntu 21.10': '5.13.0-35.40'}
 FIXED_AWS_KERNEL_VERSIONS = {'Ubuntu 21.10': '5.13.0-1017.19'}
@@ -32,17 +33,17 @@ def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2022-0847."""
     state = {}
     if not container_name:
-        affected = kernel_functions.check_kernel_version(FIXED_KERNEL_VERSIONS, FIXED_AWS_KERNEL_VERSIONS, debug, container_name)
+        affected = kernel_functions.check_kernel_version(MIN_KERNEL_VERSION, FIXED_KERNEL_VERSIONS, FIXED_AWS_KERNEL_VERSIONS, debug, container_name)
         if affected == constants.UNSUPPORTED:
-            state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
         elif affected:
-            state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
-            status.remediation_mitigation(REMEDIATION, MITIGATION)
+            state[VULNERABILITY] = status_functions.vulnerable(VULNERABILITY)
+            status_functions.remediation_mitigation(REMEDIATION, MITIGATION)
         else:
-            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     else:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Containers are not affected by kernel vulnerabilities'))
-        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     return state
 
 

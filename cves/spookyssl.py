@@ -3,7 +3,7 @@ Support for re, version from packaging and other modules written to avoid repeti
 """
 import re
 from packaging import version
-from modules import constants, graph_functions, status, run_command, file_functions, os_release, receive_package, process_functions
+from modules import constants, graph_functions, status_functions, file_functions, os_release_functions, package_functions, process_functions
 
 VULNERABILITY = 'Spooky SSL'
 DESCRIPTION = f'''{VULNERABILITY} - CVE-2022-3786, CVE-2022-3602
@@ -33,6 +33,7 @@ Vector two - checks if the running processes are using an affected OpenSSL versi
 Related Links:
 https://www.rezilion.com/blog/clearing-the-fog-over-the-new-openssl-vulnerabilities/
 '''
+LINUX = 'linux'
 AFFECTED_VERSION_START_NUMBER = '3'
 FIXED_VERSION = '3.0.7'
 FIXED_UBUNTU_VERSIONS = {'Ubuntu 22.04': '3.0.2-0ubuntu1.7', 'Ubuntu 22.10': '3.0.5-2ubuntu2'}
@@ -191,7 +192,7 @@ def validate_processes_vector_two(state, pids, vulnerability, debug, container_n
                         files_and_openssl_version[so_file] = openssl_version
     if files_and_pids:
         create_message(files_and_pids, files_and_openssl_version, debug)
-        state = status.vulnerable(vulnerability)
+        state = status_functions.vulnerable(vulnerability)
     return state
 
 
@@ -205,15 +206,15 @@ def vector_two(state, debug, container_name):
                                                      'version?'))
         process_state = validate_processes_vector_two(state, pids, vulnerability, debug, container_name)
         if len(process_state) > 1:
-            status.remediation_mitigation(REMEDIATION, MITIGATION)
+            status_functions.remediation_mitigation(REMEDIATION, MITIGATION)
             state[vulnerability] = process_state
         else:
             print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
             print(constants.FULL_EXPLANATION_MESSAGE.format(f'There are no running processes loading so files that have'
                                                             f' an affected OpenSSL version'))
-            state[vulnerability] = status.not_vulnerable(vulnerability)
+            state[vulnerability] = status_functions.not_vulnerable(vulnerability)
     else:
-        state[vulnerability] = status.not_vulnerable(vulnerability)
+        state[vulnerability] = status_functions.not_vulnerable(vulnerability)
     return state
 
 
@@ -240,7 +241,7 @@ def check_openssl_affected(openssl_version, debug, container_name):
     print(constants.FULL_QUESTION_MESSAGE.format('Is the OpenSSL version affected?'))
     if openssl_version.startswith(AFFECTED_VERSION_START_NUMBER):
         information_fields = ['Distribution', 'Version']
-        host_information = os_release.get_field(information_fields, debug, container_name)
+        host_information = os_release_functions.get_field(information_fields, debug, container_name)
         if host_information in FIXED_UBUNTU_VERSIONS:
             fixed_openssl_version = FIXED_UBUNTU_VERSIONS[host_information]
         else:
@@ -256,39 +257,42 @@ def check_openssl_affected(openssl_version, debug, container_name):
 def get_openssl_version(debug, container_name):
     """This function returns the OpenSSL version if exists."""
     information_fields = ['Distribution']
-    distribution = os_release.get_field(information_fields, debug, container_name)
-    package_name = 'openssl'
+    distribution = os_release_functions.get_field(information_fields, debug, container_name)
     openssl_version = ''
     if distribution in constants.APT_DISTRIBUTIONS:
-        openssl_version = receive_package.package_version_apt(distribution, package_name, debug, container_name)
+        openssl_version = package_functions.package_version_apt(distribution, OPENSSL, debug, container_name)
     if distribution in constants.RPM_DISTRIBUTIONS:
-        openssl_version =  receive_package.package_version_rpm(distribution, package_name, debug, container_name)
+        openssl_version = package_functions.package_version_rpm(distribution, OPENSSL, debug, container_name)
     return openssl_version
 
 
-def vector_one(state, debug, container_name):
-    """This function performs the "vector one" of checking exploitability which is checking if the affected OpenSSL
+def vector_one(state, running_os_type, debug, container_name):
+    """This function performs the "vector one" of checking exploit ability which is checking if the affected OpenSSL
     version installed using the package manager."""
     vulnerability = f'{VULNERABILITY} (the package manager check)'
-    openssl_version = get_openssl_version(debug, container_name)
+    if running_os_type == LINUX:
+        openssl_version = get_openssl_version(debug, container_name)
+    else:
+        openssl_version = package_functions.get_package_version_windows(OPENSSL, debug, container_name)
     if openssl_version == constants.UNSUPPORTED:
-        state[vulnerability] = status.not_determined(vulnerability)
+        state[vulnerability] = status_functions.not_determined(vulnerability)
     elif openssl_version:
         if check_openssl_affected(openssl_version, debug, container_name):
-            state[vulnerability] = status.vulnerable(vulnerability)
-            status.remediation_mitigation(REMEDIATION, MITIGATION)
+            state[vulnerability] = status_functions.vulnerable(vulnerability)
+            status_functions.remediation_mitigation(REMEDIATION, MITIGATION)
         else:
-            state[vulnerability] = status.not_vulnerable(vulnerability)
+            state[vulnerability] = status_functions.not_vulnerable(vulnerability)
     else:
-        state[vulnerability] = status.not_vulnerable(vulnerability)
+        state[vulnerability] = status_functions.not_vulnerable(vulnerability)
     return state
 
 
-def validate(debug, container_name):
+def validate(running_os_type, debug, container_name):
     """This function validates if the host is vulnerable to SpookySSL vulnerabilities."""
     state = {}
-    state = vector_one(state, debug, container_name)
-    state = vector_two(state, debug, container_name)
+    state = vector_one(state, running_os_type, debug, container_name)
+    if running_os_type == LINUX:
+        state = vector_two(state, debug, container_name)
     return state
 
 
@@ -307,11 +311,11 @@ def validation_flow_chart():
     vulnerability_graph.view()
 
 
-def main(description, graph, debug, container_name):
+def main(description, graph, running_os_type, debug, container_name):
     """This is the main function."""
     if description:
         print(f'\n{DESCRIPTION}')
-    state = validate(debug, container_name)
+    state = validate(running_os_type, debug, container_name)
     if graph:
         validation_flow_chart()
     return state

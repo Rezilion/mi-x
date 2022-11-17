@@ -1,7 +1,7 @@
 """
 Support for modules written to avoid repetitive code.
 """
-from modules import constants, graph_functions, status, run_command, file_functions, os_release, kernel_functions
+from modules import constants, graph_functions, status_functions, run_command, file_functions, os_release_functions, kernel_functions
 
 VULNERABILITY = 'CVE-2021-4154'
 DESCRIPTION = '''Dirty Cred
@@ -23,6 +23,7 @@ Related Links:
 https://www.rezilion.com/blog/dirty-cred-what-you-need-to-know/
 https://i.blackhat.com/USA-22/Thursday/US-22-Lin-Cautious-A-New-Exploitation-Method.pdf
 '''
+MIN_KERNEL_VERSION = '0'
 PATCH_VARIABLE = 'CONFIG_CRED_ISOLATION=y'
 FIXED_KERNEL_VERSIONS = {'Debian unstable': '6.0.7-1', 'Debian 12': '6.0.5-1', 'Debian 11': '5.10.140-1',
                          'Debian 10': '4.19.249-2', 'Ubuntu 20.04': '5.4.0-88.99'}
@@ -38,7 +39,7 @@ MITIGATION = ''
 
 def find_patch(debug, container_name):
     """This function checks if there is a patch installed."""
-    full_kernel_version = kernel_version.get_kernel_version(debug)
+    full_kernel_version = kernel_functions.get_kernel_version(debug)
     if not full_kernel_version:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Error finding kernel version'))
         return constants.UNSUPPORTED
@@ -81,7 +82,7 @@ def check_red_hat_patch(debug, container_name):
 def check_distribution_functional(debug, container_name):
     """This function performs the vulnerability checks according to the host's os release."""
     information_fields = ['Distribution', 'Version']
-    host_information = os_release.get_field(information_fields, debug, container_name)
+    host_information = os_release_functions.get_field(information_fields, debug, container_name)
     return_value = ''
     print(constants.FULL_QUESTION_MESSAGE.format('Is distribution supported?'))
     if 'Red' in host_information:
@@ -89,7 +90,7 @@ def check_distribution_functional(debug, container_name):
         return_value = check_red_hat_patch(debug, container_name)
     elif 'Ubuntu' in host_information or 'Debian' in host_information:
         print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
-        return_value = kernel_functions.check_kernel_version(FIXED_KERNEL_VERSIONS, FIXED_AWS_KERNEL_VERSIONS, debug, container_name)
+        return_value = kernel_functions.check_kernel_version(MIN_KERNEL_VERSION, FIXED_KERNEL_VERSIONS, FIXED_AWS_KERNEL_VERSIONS, debug, container_name)
     else:
         print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('No'))
     return return_value
@@ -101,22 +102,22 @@ def validate(debug, container_name):
     if not container_name:
         fixed_distribution = check_distribution_functional(debug, container_name)
         if fixed_distribution == constants.UNSUPPORTED:
-            state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
         elif not fixed_distribution:
-            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
         else:
             patch = find_patch(debug, container_name)
             if patch == constants.UNSUPPORTED:
-                state[VULNERABILITY] = status.not_determined(VULNERABILITY)
-                status.remediation_mitigation(REMEDIATION, MITIGATION)
+                state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
+                status_functions.remediation_mitigation(REMEDIATION, MITIGATION)
             elif patch:
-                state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+                state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
             else:
-                state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
-                status.remediation_mitigation(REMEDIATION, MITIGATION)
+                state[VULNERABILITY] = status_functions.vulnerable(VULNERABILITY)
+                status_functions.remediation_mitigation(REMEDIATION, MITIGATION)
     else:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Containers are not affected by kernel vulnerabilities'))
-        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     return state
 
 

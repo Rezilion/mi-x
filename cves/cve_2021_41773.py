@@ -1,7 +1,7 @@
 """
 Support for modules written to avoid repetitive code.
 """
-from modules import constants, graph_functions, status, file_functions, apache as apache_functions
+from modules import constants, graph_functions, status_functions, file_functions, apache_functions as apache_functions
 
 FIRST_CVE_ID = 'CVE-2021-41773'
 SECOND_CVE_ID = 'CVE-2021-42013'
@@ -125,25 +125,25 @@ def validate(debug, container_name):
     if apache_output:
         affected_version = check_apache_version(apache_output)
         if affected_version == constants.UNSUPPORTED:
-            state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
         elif affected_version:
             permissions = apache_configuration_file(debug, container_name)
             if permissions == constants.UNSUPPORTED:
-                state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+                state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
             elif permissions:
                 modules = apache_functions.loaded_modules('cgi_module', debug, container_name)
                 if modules == constants.UNSUPPORTED or not modules:
-                    state[VULNERABILITY] = status.vulnerable(f'{VULNERABILITY} - Path Traversal attack')
-                    status.remediation_mitigation(REMEDIATION, MITIGATION_1)
+                    state[VULNERABILITY] = status_functions.vulnerable(f'{VULNERABILITY} - Path Traversal attack')
+                    status_functions.remediation_mitigation(REMEDIATION, MITIGATION_1)
                 else:
-                    state[VULNERABILITY] = status.vulnerable(f'{VULNERABILITY} - Path Traversal and Remote Code Execution attacks')
-                    status.remediation_mitigation(REMEDIATION, MITIGATION_2)
+                    state[VULNERABILITY] = status_functions.vulnerable(f'{VULNERABILITY} - Path Traversal and Remote Code Execution attacks')
+                    status_functions.remediation_mitigation(REMEDIATION, MITIGATION_2)
             else:
-                state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+                state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
         else:
-            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     else:
-        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     return state
 
 

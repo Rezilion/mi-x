@@ -2,7 +2,7 @@
 Support for version from packaging and other modules written to avoid repetitive code.
 """
 from packaging import version
-from modules import constants, graph_functions, status, run_command
+from modules import constants, graph_functions, status_functions, run_command
 
 VULNERABILITY = 'CVE-2015-0235'
 DESCRIPTION = f'''Ghost
@@ -64,15 +64,15 @@ def validate(debug, container_name):
     state = {}
     glibc_value = glibc_exist(debug, container_name)
     if glibc_value == constants.UNSUPPORTED:
-        state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
     elif glibc_value:
         if glibc_version(glibc_value):
-            state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
-            status.remediation_mitigation(REMEDIATION, MITIGATION)
+            state[VULNERABILITY] = status_functions.vulnerable(VULNERABILITY)
+            status_functions.remediation_mitigation(REMEDIATION, MITIGATION)
         else:
-            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     else:
-        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     return state
 
 

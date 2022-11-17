@@ -1,7 +1,7 @@
 """
 Support for modules written to avoid repetitive code.
 """
-from modules import constants, graph_functions, status, file_functions, kernel_functions
+from modules import constants, graph_functions, status_functions, file_functions, kernel_functions
 
 VULNERABILITY = 'CVE-2017-1000405'
 DESCRIPTION = f'''{VULNERABILITY} - Huge Dirty COW
@@ -90,31 +90,31 @@ def validate(debug, container_name):
     """This function validates if the host is vulnerable to CVE-2017-1000405."""
     state = {}
     if not container_name:
-        kernel_version_output = kernel_functions.check_kernel_version(FIXED_KERNEL_VERSIONS, FIXED_AWS_KERNEL_VERSIONS, debug, container_name)
+        kernel_version_output = kernel_functions.check_kernel_version(MIN_KERNEL_VERSION, FIXED_KERNEL_VERSIONS, FIXED_AWS_KERNEL_VERSIONS, debug, container_name)
         if kernel_version_output == constants.UNSUPPORTED:
-            state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
         elif kernel_version_output:
             affected = zero_page(debug, container_name)
             if affected == constants.UNSUPPORTED:
-                state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+                state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
             elif affected:
-                state[f'{VULNERABILITY} - zero pages'] = status.vulnerable(f'{VULNERABILITY} zero pages manipulation')
-                status.remediation_mitigation(REMEDIATION, MITIGATION_1)
+                state[f'{VULNERABILITY} - zero pages'] = status_functions.vulnerable(f'{VULNERABILITY} zero pages manipulation')
+                status_functions.remediation_mitigation(REMEDIATION, MITIGATION_1)
             else:
-                state[f'{VULNERABILITY} - zero pages'] = status.not_vulnerable(f'zero pages manipulation in {VULNERABILITY}')
+                state[f'{VULNERABILITY} - zero pages'] = status_functions.not_vulnerable(f'zero pages manipulation in {VULNERABILITY}')
             affected = huge_page(debug, container_name)
             if affected == constants.UNSUPPORTED:
-                state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+                state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
             elif affected:
-                state[f'{VULNERABILITY} - huge pages'] = status.vulnerable(f'{VULNERABILITY} huge pages manipulation')
-                status.remediation_mitigation(REMEDIATION, MITIGATION_2)
+                state[f'{VULNERABILITY} - huge pages'] = status_functions.vulnerable(f'{VULNERABILITY} huge pages manipulation')
+                status_functions.remediation_mitigation(REMEDIATION, MITIGATION_2)
             else:
-                state[f'{VULNERABILITY} - huge pages'] = status.not_vulnerable(f'huge pages manipulation in {VULNERABILITY}')
+                state[f'{VULNERABILITY} - huge pages'] = status_functions.not_vulnerable(f'huge pages manipulation in {VULNERABILITY}')
         else:
-            state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+            state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     else:
         print(constants.FULL_EXPLANATION_MESSAGE.format('Containers are not affected by kernel vulnerabilities'))
-        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     return state
 
 

@@ -1,7 +1,7 @@
 """
 Support for modules written to avoid repetitive code.
 """
-from modules import constants, graph_functions, status, file_functions
+from modules import constants, graph_functions, status_functions, file_functions
 
 VULNERABILITY = 'CVE-2017-5753'
 DESCRIPTION = f'''{VULNERABILITY} - Spectre Variant 1
@@ -46,11 +46,11 @@ def validate(debug, container_name):
     state = {}
     spectre = spectre_file(debug, container_name)
     if spectre == constants.UNSUPPORTED:
-        state[VULNERABILITY] = status.not_determined(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
     elif spectre:
-        state[VULNERABILITY] = status.vulnerable(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.vulnerable(VULNERABILITY)
     else:
-        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     return state
 
 

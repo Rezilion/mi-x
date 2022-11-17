@@ -93,8 +93,10 @@ def return_file_dependencies(dependencies):
     for dependency in dependencies:
         for deplicate_dependency in duplicate_dependencies:
             if not dependency == deplicate_dependency:
-                if dependency in duplicate_dependencies and 'docker' in duplicate_dependencies:
+                if dependency in deplicate_dependency and 'docker' in deplicate_dependency:
                     final_dependencies.append(dependency)
+                elif deplicate_dependency in dependency and 'docker' in deplicate_dependency:
+                    final_dependencies.append(deplicate_dependency)
     if final_dependencies:
         dependencies = final_dependencies
     dependencies_string = ", ".join(dependencies)

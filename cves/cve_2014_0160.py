@@ -21,6 +21,7 @@ Related Links:
 https://heartbleed.com/
 https://www.synopsys.com/blogs/software-security/heartbleed-vulnerability-appsec-deep-dive/
 '''
+OPENSSL = 'openssl'
 AFFECTED_VERSIONS_MESSAGE = '1.0.1 up to including 1.0.1f and 1.0.2 up to including 1.0.2beta1'
 AFFECTED_VERSION_START = '1.0.1'
 AFFECTED_VERSION_RANGE = ['a', 'f']
@@ -60,7 +61,7 @@ def get_openssl_version(debug, container_name):
     """This function returns the openssl version if exists."""
     information_fields = ['Distribution']
     distribution = os_release_functions.get_field(information_fields, debug, container_name)
-    package_name = 'openssl'
+    package_name = OPENSSL
     if distribution in constants.APT_DISTRIBUTIONS:
         return package_functions.package_version_apt(distribution, package_name, debug, container_name)
     if distribution in constants.RPM_DISTRIBUTIONS:
@@ -68,10 +69,13 @@ def get_openssl_version(debug, container_name):
     return ''
 
 
-def validate(debug, container_name):
+def validate(running_os_type, debug, container_name):
     """This function validates if the host is vulnerable to Heartbleed vulnerabilities."""
     state = {}
-    openssl_version = get_openssl_version(debug, container_name)
+    if running_os_type == constants.LINUX:
+        openssl_version = get_openssl_version(debug, container_name)
+    else:
+        openssl_version = package_functions.get_package_version_windows(OPENSSL, debug, container_name)
     if openssl_version == constants.UNSUPPORTED:
         state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
     elif openssl_version:
@@ -97,11 +101,11 @@ def validation_flow_chart():
     vulnerability_graph.view()
 
 
-def main(description, graph, debug, container_name):
+def main(description, graph, running_os_type, debug, container_name):
     """This is the main function."""
     if description:
         print(f'\n{DESCRIPTION}')
-    state = validate(debug, container_name)
+    state = validate(running_os_type, debug, container_name)
     if graph:
         validation_flow_chart()
     return state

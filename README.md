@@ -61,13 +61,15 @@ Everyone is free to use 'Am I Exploitable?' under the conditions of the AGPL-3.0
 Modules are code implementations which are used in different CVE files.
 
 
-# Support Distributions
+# Support OS and Distributions
 
 The tool supports the following Linux distributions:
 
 Ubuntu, Debian, Red Hat, Centos, Fedora, SUSE, SLES, Amazon
 
 Partial support for Alpine
+
+Partial support for Windows
 
 
 # Color Legend
@@ -111,7 +113,7 @@ The very latest developments can be obtained via git.
    ```
    git clone https://github.com/Rezilion/mi-x.git
    ```
-3. Execute MI-X menu
+2. Execute MI-X menu
    ```
    cd mi-x && python3 am_i_exploitable.py
    ```
@@ -173,12 +175,6 @@ Specifies whether to see the validation flowchart (False by default).
 
 Help to understand how to run the code
 
-# Supported Systems
-
-'Am I Exploitable?' currently supports Linux.
-
-This tool is tested or confirmed to work with Linux systems.
-
 # Development and Bugs
 
 Found an issue, or have a great idea? Let us know:
@@ -192,7 +188,7 @@ See CONTRIBUTING.md for more information about how to submit them.
 
 # Support
 
-'Am I Exploitable?' is tested on most common Linux operating systems. The documentation (README) and the debugging 
+'Am I Exploitable?' is tested on Windows and most common Linux operating systems. The documentation (README) and the debugging 
 information (set the debug parameter to 'True'), should cover most questions and problems. 
 
 Bugs can be reported via GitHub, or sending an e-mail to the email address above.

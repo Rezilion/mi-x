@@ -24,6 +24,11 @@ START = 0
 FIRST = 1
 END = -1
 
+# Supported OS
+LINUX = 'linux'
+ALPINE = 'alpine'
+WINDOWS = 'windows'
+
 # Windows commands
 COMMAND = {}
 CMD_START = 'cmd.exe /c '
@@ -104,6 +109,6 @@ LINUX_VULNERABILITIES = ['cve_2014_0160', 'cve_2015_0235', 'cve_2016_5195', 'cve
                        'cve_2021_4154', 'cve_2021_41773', 'cve_2022_0847', 'cve_2022_22965', 'cve_2022_25636',
                        'log4shell', 'shellshock', 'nimbuspwn', 'spookyssl']
 
-WINDOWS_VULNERABILITIES = ['spookyssl']
-
 SUPPORTED_ALPINE_VULNERABILITIES = ['cve_2022_22965', 'log4shell']
+
+WINDOWS_VULNERABILITIES = ['cve_2014_0160', 'spookyssl']

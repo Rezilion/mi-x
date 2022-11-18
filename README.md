@@ -61,7 +61,7 @@ Everyone is free to use 'Am I Exploitable?' under the conditions of the AGPL-3.0
 Modules are code implementations which are used in different CVE files.
 
 
-# Support OS and Distributions
+# Supported OSs and Distributions
 
 The tool supports the following Linux distributions:
 

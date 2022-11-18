@@ -33,7 +33,6 @@ Vector two - checks if the running processes are using an affected OpenSSL versi
 Related Links:
 https://www.rezilion.com/blog/clearing-the-fog-over-the-new-openssl-vulnerabilities/
 '''
-LINUX = 'linux'
 AFFECTED_VERSION_START_NUMBER = '3'
 FIXED_VERSION = '3.0.7'
 FIXED_UBUNTU_VERSIONS = {'Ubuntu 22.04': '3.0.2-0ubuntu1.7', 'Ubuntu 22.10': '3.0.5-2ubuntu2'}
@@ -270,7 +269,7 @@ def vector_one(state, running_os_type, debug, container_name):
     """This function performs the "vector one" of checking exploit ability which is checking if the affected OpenSSL
     version installed using the package manager."""
     vulnerability = f'{VULNERABILITY} (the package manager check)'
-    if running_os_type == LINUX:
+    if running_os_type == constants.LINUX:
         openssl_version = get_openssl_version(debug, container_name)
     else:
         openssl_version = package_functions.get_package_version_windows(OPENSSL, debug, container_name)
@@ -291,7 +290,7 @@ def validate(running_os_type, debug, container_name):
     """This function validates if the host is vulnerable to SpookySSL vulnerabilities."""
     state = {}
     state = vector_one(state, running_os_type, debug, container_name)
-    if running_os_type == LINUX:
+    if running_os_type == constants.LINUX:
         state = vector_two(state, debug, container_name)
     return state
 

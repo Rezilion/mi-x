@@ -5,9 +5,6 @@ from modules import constants, run_command, file_functions
 
 NAME_FIELD = 'NAME='
 VERSION_FIELD = 'VERSION_ID='
-ALPINE = 'alpine'
-LINUX = 'linux'
-WINDOWS = 'windows'
 
 
 def file_content_host(file_path, debug, container_name):
@@ -89,7 +86,7 @@ def check_distribution_with_alpine_support(debug, container_name):
     """This function checks if the machine is running on linux and if the os distribution is supported include alpine
     which has partial support."""
     distribution = get_field(['Distribution'], debug, container_name)
-    if distribution.lower() != ALPINE:
+    if distribution.lower() != constants.ALPINE:
         if not is_supported_distribution(debug, container_name):
             return False
         return True
@@ -103,15 +100,15 @@ def check_os(debug, container_name):
     try:
         pipe_os_type = run_command.command_output(check_os_command, debug, container_name)
         os_type_output = pipe_os_type.stdout
-        if LINUX in os_type_output.lower():
-            running_os_type = LINUX
+        if constants.LINUX in os_type_output.lower():
+            running_os_type = constants.LINUX
     except FileNotFoundError:
         check_os_command = 'cmd.exe /c ver'
         try:
             pipe_os_type = run_command.command_output(check_os_command, debug, container_name)
             os_type_output = pipe_os_type.stdout
-            if WINDOWS in os_type_output.lower():
-                running_os_type = WINDOWS
+            if constants.WINDOWS in os_type_output.lower():
+                running_os_type = constants.WINDOWS
         except FileNotFoundError:
             running_os_type = ''
     return running_os_type
@@ -121,7 +118,7 @@ def check_supported_environment(debug, container_name, vulnerability_identifier)
     """This function checks if the machine is running on linux and if the os distribution is supported."""
     print(constants.FULL_QUESTION_MESSAGE.format('\n\nIs the environment supported by MI-X?'))
     running_os_type = check_os(debug, container_name)
-    if running_os_type == LINUX:
+    if running_os_type == constants.LINUX:
         if vulnerability_identifier in constants.SUPPORTED_ALPINE_VULNERABILITIES:
             supported_distribution = check_distribution_with_alpine_support(debug, container_name)
         else:
@@ -129,13 +126,20 @@ def check_supported_environment(debug, container_name, vulnerability_identifier)
         if supported_distribution == constants.UNSUPPORTED or not supported_distribution:
             print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('No'))
             print(constants.FULL_EXPLANATION_MESSAGE.format('Your OS distribution is unsupported'))
+            return ''
         else:
             print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
             print(constants.FULL_EXPLANATION_MESSAGE.format('Your environment is supported'))
-    elif running_os_type == WINDOWS:
-        print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format('Your environment is supported'))
+    elif running_os_type == constants.WINDOWS:
+        if vulnerability_identifier in constants.WINDOWS_VULNERABILITIES:
+            print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Yes'))
+            print(constants.FULL_EXPLANATION_MESSAGE.format('Your environment is supported'))
+        else:
+            print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('No'))
+            print(constants.FULL_EXPLANATION_MESSAGE.format('Your OS distribution is unsupported'))
+            return ''
     else:
         print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format('Your OS distribution is unsupported'))
+        return ''
     return running_os_type

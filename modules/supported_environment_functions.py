@@ -93,7 +93,7 @@ def check_distribution_with_alpine_support(debug, container_name):
     return True
 
 
-def check_os(debug, container_name):
+def get_os(debug, container_name):
     """This function checks if the operating system is Linux."""
     check_os_command = 'uname -s'
     running_os_type = ''
@@ -117,7 +117,7 @@ def check_os(debug, container_name):
 def check_supported_environment(debug, container_name, vulnerability_identifier):
     """This function checks if the machine is running on linux and if the os distribution is supported."""
     print(constants.FULL_QUESTION_MESSAGE.format('\n\nIs the environment supported by MI-X?'))
-    running_os_type = check_os(debug, container_name)
+    running_os_type = get_os(debug, container_name)
     if running_os_type == constants.LINUX:
         if vulnerability_identifier in constants.SUPPORTED_ALPINE_VULNERABILITIES:
             supported_distribution = check_distribution_with_alpine_support(debug, container_name)

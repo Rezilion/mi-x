@@ -14,7 +14,7 @@ def get_merge_dir(debug, container_name):
         return constants.UNSUPPORTED
     for line in docker_inspect.split('\n'):
         if '"MergedDir"' in line:
-            merged_dir_path = line.split(': ')[constants.FIRST][constants.FIRST:-2]
+            merged_dir_path = line.split(': ')[1][1 : -2]
             return merged_dir_path
     print(constants.FULL_EXPLANATION_MESSAGE.format('Unsupported MergeDir value'))
     return constants.UNSUPPORTED

@@ -26,13 +26,13 @@ def get_valid_kernel_version(debug):
     if not full_version:
         return ''
     if full_version.endswith('\n'):
-        full_version = full_version[:constants.END]
+        full_version = full_version[: -1]
     kernel_version = ''
     kernel_version_regex = re.search(r'\d*\.\d*.\d*-\d*.\d*', full_version) 
     if kernel_version_regex:
         kernel_version = kernel_version_regex.group()
         if kernel_version.endswith('-'):
-            kernel_version = kernel_version[:constants.END]
+            kernel_version = kernel_version[: -1]
     return kernel_version
 
 
@@ -50,14 +50,14 @@ def check_kernel(min_kernel_version, max_kernel_version, debug):
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'According to your os release, affected kernel versions are '
                                                         f'between: {min_kernel_version} to {max_kernel_version}\nYour '
                                                         f'kernel version which is: '
-                                                        f'{valid_kernel_version[:constants.END]}, is potentially '
+                                                        f'{valid_kernel_version[: -1]}, is potentially '
                                                         f'affected'))
     else:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'According to your os release, affected kernel versions are '
                                                         f'between: {min_kernel_version} to {max_kernel_version}\nYour '
                                                         f'kernel version which is: '
-                                                        f'{valid_kernel_version[:constants.END]}, is not affected'))
+                                                        f'{valid_kernel_version[: -1]}, is not affected'))
     return affected
 
 

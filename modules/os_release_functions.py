@@ -16,19 +16,19 @@ def get_field(information_fields, debug, container_name):
     if release_information:
         for field in release_information:
             if 'Distribution' in information_fields and field.startswith(NAME_FIELD):
-                distribution = field.split('=')[constants.END][constants.FIRST:constants.END]
-                distribution = distribution.split(' ')[constants.START]
+                distribution = field.split('=')[ -1][1 : -1]
+                distribution = distribution.split(' ')[0]
                 if distribution == 'Debian' and field.endswith('sid"'):
                     return 'Debian unstable'
                 host_information += distribution
             elif 'Version' in information_fields and field.startswith(VERSION_FIELD):
                 if host_information:
                     host_information += ' '
-                host_version = field.split('=')[constants.FIRST]
+                host_version = field.split('=')[1]
                 if host_version.endswith('\n'):
-                    host_version = host_version[:constants.END]
+                    host_version = host_version[: -1]
                 if host_version.startswith('"') and host_version.endswith('"'):
-                    host_version = host_version[constants.FIRST:constants.END]
+                    host_version = host_version[1 : -1]
                 host_information += host_version
     return host_information
 
@@ -46,7 +46,7 @@ def check_release(fixed, debug, container_name):
         return constants.UNSUPPORTED
     if host_information:
         print(constants.FULL_QUESTION_MESSAGE.format('Is os release affected?'))
-        host_distribution = host_information.split(' ')[constants.START]
+        host_distribution = host_information.split(' ')[0]
         if host_distribution not in constants.APT_DISTRIBUTIONS and \
                 host_distribution not in constants.APT_DISTRIBUTIONS:
             print(constants.FULL_NEUTRAL_RESULT_MESSAGE.format('Can not determine'))

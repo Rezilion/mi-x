@@ -76,7 +76,7 @@ def compare_versions(affected_networkd_version, host_network_version):
 def check_networkd_version(host_information, debug, container_name):
     """This function checks if the networkd-dispatcher version is affected."""
     vulnerability = ''
-    distribution = host_information.split(' ')[constants.START]
+    distribution = host_information.split(' ')[0]
     package_name = 'networkd-dispatcher'
     host_network_version = package_functions.package_version_apt(distribution, package_name, debug, container_name)
     if host_network_version:

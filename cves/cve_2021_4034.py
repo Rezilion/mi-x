@@ -131,7 +131,7 @@ def get_pkexec_path(debug, container_name):
         print(constants.FULL_EXPLANATION_MESSAGE.format('The "which" Linux command is not working for pkexec, '
                                                         'unsupported value'))
         return constants.UNSUPPORTED
-    pkexec_path = which_pkexec.split('\n')[constants.START]
+    pkexec_path = which_pkexec.split('\n')[0]
     affected = check_pkexec_using_getfacl(pkexec_path, debug, container_name)
     return affected
 
@@ -139,23 +139,23 @@ def get_pkexec_path(debug, container_name):
 def policykit_affected_rpm(host_information, package_name, debug, container_name):
     """This function checks if the Policy Kit package is affected."""
     affected = False
-    distribution = host_information.split(' ')[constants.START]
+    distribution = host_information.split(' ')[0]
     host_info = package_functions.package_version_rpm(distribution, package_name, debug, container_name)
     if not host_info:
         return False
-    host_version = host_info[constants.START]
-    host_release = host_info[constants.FIRST]
+    host_version = host_info[0]
+    host_release = host_info[1]
     polkit_fixed_version = FIXED_RPM[host_information]
-    fixed_version = polkit_fixed_version[constants.START]
+    fixed_version = polkit_fixed_version[0]
     if host_version.endswith('\n'):
-        host_version = host_version[:constants.END]
+        host_version = host_version[: -1]
     print(constants.FULL_QUESTION_MESSAGE.format(f'Is {package_name} version affected?'))
     if version.parse(host_version) > version.parse(fixed_version):
         print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your {package_name} versions which is: {host_version}, is '
                                                         f'higher than the patched version which is: {fixed_version}'))
     elif version.parse(host_version) == version.parse(fixed_version):
-        patched_version = polkit_fixed_version[constants.FIRST]
+        patched_version = polkit_fixed_version[1]
         return version_functions.compare_versions(patched_version, host_release, package_name)
     else:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
@@ -167,7 +167,7 @@ def policykit_affected_rpm(host_information, package_name, debug, container_name
 
 def policykit_affected_apt(host_information, package_name, debug, container_name):
     """# This function checks if the Policy Kit package is affected."""
-    distribution = host_information.split(' ')[constants.START]
+    distribution = host_information.split(' ')[0]
     host_version = package_functions.package_version_apt(distribution, package_name, debug, container_name)
     if not host_version:
         return False
@@ -177,10 +177,10 @@ def policykit_affected_apt(host_information, package_name, debug, container_name
 
 def check_policykit(host_information, debug, container_name):
     """This function run policy check according to the package manager."""
-    if host_information.split(' ')[constants.START] in constants.APT_DISTRIBUTIONS:
+    if host_information.split(' ')[0] in constants.APT_DISTRIBUTIONS:
         package_name = 'policykit-1'
         return policykit_affected_apt(host_information, package_name, debug, container_name)
-    if host_information.split(' ')[constants.START] in constants.RPM_DISTRIBUTIONS:
+    if host_information.split(' ')[0] in constants.RPM_DISTRIBUTIONS:
         package_name = 'polkit'
         return policykit_affected_rpm(host_information, package_name, debug, container_name)
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'The distribution value is not one of these distributions: '
@@ -193,7 +193,7 @@ def distribution_version_affected(debug, container_name):
     """This function checks if the host distribution and version are affected."""
     information_fields = ['Distribution', 'Version']
     host_information = os_release_functions.get_field(information_fields, debug, container_name)
-    host_distribution = host_information.split(' ')[constants.START]
+    host_distribution = host_information.split(' ')[0]
     print(constants.FULL_QUESTION_MESSAGE.format('Is os release affected?'))
     if host_information == constants.UNSUPPORTED:
         return constants.UNSUPPORTED

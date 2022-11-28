@@ -19,11 +19,6 @@ BASIC_COLOR = '\u001b[0m'
 # Return value.
 UNSUPPORTED = 'Unsupported'
 
-# List indexes.
-START = 0
-FIRST = 1
-END = -1
-
 # Supported OS
 LINUX = 'linux'
 ALPINE = 'alpine'

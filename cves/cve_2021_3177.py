@@ -46,7 +46,7 @@ def find_ctypes_file_name(pid, debug, container_name):
     if not so_path:
         print(constants.FULL_EXPLANATION_MESSAGE.format('There is no python modules path'))
         return constants.UNSUPPORTED
-    so_path = so_path.split('lib-dynload')[constants.START] + 'lib-dynload'
+    so_path = so_path.split('lib-dynload')[0] + 'lib-dynload'
     list_modules_command = f'sudo ls {so_path}'
     pipe_list_modules = run_command.command_output(list_modules_command, debug, container_name='')
     list_modules = pipe_list_modules.stdout
@@ -68,7 +68,7 @@ def get_python_version(pid, debug, container_name):
     version_output = process_functions.process_executable_version(pid, debug, container_name)
     if version_output == constants.UNSUPPORTED:
         return constants.UNSUPPORTED
-    python_version = version_output.split(' ')[constants.END]
+    python_version = version_output.split(' ')[-1]
     return python_version
 
 

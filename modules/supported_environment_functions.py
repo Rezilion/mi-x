@@ -15,13 +15,13 @@ def file_content_host(file_path, debug, container_name):
             with open(file_path, 'r', encoding='utf-8') as file:
                 content = []
                 for line in file.readlines():
-                    content.append(line[:constants.END])
+                    content.append(line[: -1])
         except PermissionError:
             cat_file_command = f'sudo cat {file_path}'
             pipe_cat_file = run_command.command_output(cat_file_command, debug, container_name)
             content = pipe_cat_file.stdout
             if content:
-                content = content.split('\n')[:constants.END]
+                content = content.split('\n')[: -1]
     return content
 
 
@@ -31,7 +31,7 @@ def file_content_container(file_path, debug, container_name):
     pipe_cat_file = run_command.command_output(cat_file_command, debug, container_name)
     content = pipe_cat_file.stdout
     if content:
-        content = content.split('\n')[:constants.END]
+        content = content.split('\n')[: -1]
     return content
 
 
@@ -52,19 +52,19 @@ def get_field(information_fields, debug, container_name):
     if release_information:
         for field in release_information:
             if 'Distribution' in information_fields and field.startswith(NAME_FIELD):
-                distribution = field.split('=')[constants.END][constants.FIRST:constants.END]
-                distribution = distribution.split(' ')[constants.START]
+                distribution = field.split('=')[-1][1 : -1]
+                distribution = distribution.split(' ')[0]
                 if distribution == 'Debian' and field.endswith('sid"'):
                     return 'Debian unstable'
                 host_information += distribution
             elif 'Version' in information_fields and field.startswith(VERSION_FIELD):
                 if host_information:
                     host_information += ' '
-                host_version = field.split('=')[constants.FIRST]
+                host_version = field.split('=')[1]
                 if host_version.endswith('\n'):
-                    host_version = host_version[:constants.END]
+                    host_version = host_version[: -1]
                 if host_version.startswith('"') and host_version.endswith('"'):
-                    host_version = host_version[constants.FIRST:constants.END]
+                    host_version = host_version[1 : -1]
                 host_information += host_version
     return host_information
 

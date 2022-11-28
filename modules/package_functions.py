@@ -50,13 +50,13 @@ def package_version_rpm(distribution, package_name, debug, container_name):
     host_info = []
     for field in package_info.split('\n'):
         if PACKAGE_VERSION_FIELD in field:
-            host_version = field.split(': ')[constants.END]
+            host_version = field.split(': ')[-1]
             if host_version.endswith('\n'):
-                host_info.append(host_version[:constants.END])
+                host_info.append(host_version[: -1])
                 check = True
         if check:
             if PACKAGE_RELEASE_FIELD in field:
-                host_info.append(field.split(': ')[constants.FIRST])
+                host_info.append(field.split(': ')[1])
                 print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
                 print(constants.FULL_EXPLANATION_MESSAGE.format(f'{package_name} is installed on the host'))
                 return host_info
@@ -76,7 +76,7 @@ def package_version_apt(distribution, package_name, debug, container_name):
     package_version = ''
     for field in package_info.split('\n'):
         if PACKAGE_INSTALLED_FIELD in field:
-            package_version = field.split(': ')[constants.FIRST]
+            package_version = field.split(': ')[1]
             break
     if not package_version or ERROR_MESSAGE in package_version or NONE in package_version:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))

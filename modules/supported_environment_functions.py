@@ -114,7 +114,7 @@ def get_os(debug, container_name):
     return running_os_type
 
 
-def check_supported_environment(debug, container_name, vulnerability_identifier):
+def check_supported_environment(vulnerability_identifier, debug, container_name):
     """This function checks if the machine is running on linux and if the os distribution is supported."""
     print(constants.FULL_QUESTION_MESSAGE.format('\n\nIs the environment supported by MI-X?'))
     running_os_type = get_os(debug, container_name)

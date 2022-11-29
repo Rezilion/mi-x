@@ -155,7 +155,7 @@ Scans all running containers on the host (False by default).
 
 ## -n --container_name
 
-Scans specific containers on the host by inserting running containers names seperated by commas only (Not set by default).
+Scans specific containers on the host by inserting running containers names seperated by spaces  (Not set by default).
 - When running in containers mode, the user will need to insert the user’s password for sudo use.
 
 ## -f --format'

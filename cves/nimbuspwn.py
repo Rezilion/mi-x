@@ -116,7 +116,7 @@ def distribution_version_affected(debug, container_name):
                                                         f'Your os release: {host_information}\nThe os release you '
                                                         f'are running on is potentially affected'))
         return host_information
-    if host_information.split(' ')[constants.START] in constants.APT_DISTRIBUTIONS:
+    if host_information.split(' ')[0] in constants.APT_DISTRIBUTIONS:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Your os distribution and version which are: '
                                                         f'{host_information}, are not affected'))

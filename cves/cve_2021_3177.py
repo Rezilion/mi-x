@@ -106,7 +106,7 @@ def validate(debug, container_name):
     if pids:
         state[VULNERABILITY] = validate_processes(pids, debug, container_name)
     else:
-        state[VULNERABILITY] = status.not_vulnerable(VULNERABILITY)
+        state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     return state
 
 

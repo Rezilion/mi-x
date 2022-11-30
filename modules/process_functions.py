@@ -31,7 +31,7 @@ def get_loaded_so_files_of_a_process(pid, debug, container_name):
     if pid_maps_content:
         for line in pid_maps_content:
             if SO in line:
-                so_path = line.split(' ')[constants.END]
+                so_path = line.split(' ')[-1]
                 so_files.append(so_path)
                 if container_name:
                     container_file_path = get_container_full_path(so_path, debug, container_name)
@@ -46,7 +46,7 @@ def check_loaded_so_file_to_process(pid, so_file, debug, container_name):
     so_path = ''
     for line in pid_maps_content:
         if so_file in line:
-            so_path = line.split(' ')[constants.END]
+            so_path = line.split(' ')[-1]
             if container_name:
                 merge_dir = docker_commands.get_merge_dir(debug, container_name)
                 so_path = merge_dir + so_path
@@ -58,8 +58,8 @@ def find_relevant_pids(pids, container_pids_list, debug, container_name):
     """This function returns the container pids that are matched with the host pids."""
     relevant_pids = []
     for field in pids:
-        host_pid = field.split(' ')[constants.START]
-        container_pid = field.split(' ')[constants.END]
+        host_pid = field.split(' ')[0]
+        container_pid = field.split(' ')[-1]
         if container_pid in container_pids_list:
             host_maps_file = f'/proc/{host_pid}/maps'
             container_maps_file = f'/proc/{container_pid}/maps'
@@ -90,7 +90,7 @@ def find_pids_from_status_file(pids, debug, container_name):
                 if line.startswith('NSpid:'):
                     if container_name:
                         if len(line.split('\t')) == 3:
-                            pids_info = pid + ' ' + line.split('\t')[constants.END].split('\n')[constants.START]
+                            pids_info = pid + ' ' + line.split('\t')[-1].split('\n')[0]
                             relevant_pids.append(pids_info)
                     else:
                         if len(line.split('\t')) == 2:
@@ -136,7 +136,7 @@ def aggregate_pids_to_list(pids, other_pids):
 def check_another_format_of_process_type(process_type):
     """This function checks if there are running processes with capital letter of the process and without."""
     if process_type.islower():
-        process_type = process_type[constants.START].upper() + process_type[constants.FIRST:]
+        process_type = process_type[0].upper() + process_type[1 :]
     else:
         process_type = process_type.lower()
     return process_type
@@ -152,7 +152,7 @@ def check_running_processes_by_name(process_type, software, debug, container_nam
         print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'There are no running {process_type} processes'))
         return []
-    pids_list = pids.split('\n')[:constants.END]
+    pids_list = pids.split('\n')[: -1]
     print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'The following PIDs are running {process_type} processes: '
                                                     f'{pids_list}'))
@@ -209,7 +209,7 @@ def pids_consolidation(process_type, debug, container_name):
 def read_output(command, pid, value, debug, container_name):
     """This function returns command results and prints an error if something is wrong."""
     pipe = run_command.command_output(command, debug, container_name)
-    output = pipe.stdout[:constants.END]
+    output = pipe.stdout[: -1]
     if not output:
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Error while reading the {pid} process executable {value}'))
     return output
@@ -219,7 +219,7 @@ def get_process_executable(pid, debug, container_name):
     """This function returns the process's executable."""
     executable_link_command = f'readlink -f /proc/{pid}/exe'
     pipe = run_command.command_output(executable_link_command, debug, container_name='')
-    executable_link = pipe.stdout[:constants.END]
+    executable_link = pipe.stdout[: -1]
     if executable_link:
         if container_name:
             executable_link = get_container_full_path(executable_link, debug, container_name)

@@ -39,8 +39,8 @@ def check_java_version(pid, jcmd_command, debug):
     if not jcmd:
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Unsupported {VM_VERSION} value'))
         return constants.UNSUPPORTED
-    java_version = jcmd.split('\n')[2].split(' ')[constants.END]
-    start_of_version = str(java_version.split('.')[constants.START])
+    java_version = jcmd.split('\n')[2].split(' ')[-1]
+    start_of_version = str(java_version.split('.')[0])
     if version.parse(start_of_version) < version.parse(MIN_AFFECTED_JAVA_VERSION):
         print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'The minimum affected java version is: '

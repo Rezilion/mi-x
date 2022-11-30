@@ -45,15 +45,15 @@ def huge_page(debug, container_name):
     if not huge_page_content:
         return huge_page_content
     print(constants.FULL_QUESTION_MESSAGE.format('Does your system use huge pages mechanism?'))
-    if '[never]' in huge_page_content[constants.START]:
+    if '[never]' in huge_page_content[0]:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format('Your system is not using Huge Pages'))
-    elif '[madvise]' in huge_page_content[constants.START]:
+    elif '[madvise]' in huge_page_content[0]:
         affected = True
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format('Your system is using Huge Pages in "madvise" mode (means that '
                                                         'only applications which need Huge Pages will use it)'))
-    elif '[always]' in huge_page_content[constants.START]:
+    elif '[always]' in huge_page_content[0]:
         affected = True
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format('Your system is using Huge Pages in "always" mode'))
@@ -72,10 +72,10 @@ def zero_page(debug, container_name):
     if not zero_page_content:
         return affected
     print(constants.FULL_QUESTION_MESSAGE.format('Does your system use zero pages mechanism?'))
-    if '0' in zero_page_content[constants.START]:
+    if '0' in zero_page_content[0]:
         print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
         print(constants.FULL_EXPLANATION_MESSAGE.format('Your system is not using Huge Zero Pages'))
-    elif '1' in zero_page_content[constants.START]:
+    elif '1' in zero_page_content[0]:
         affected = True
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format('Your system is using Huge Zero Pages'))

@@ -47,7 +47,7 @@ def get_apache_version(apache_output):
     version = ''
     for field in apache_output.split('\n'):
         if SERVER_VERSION_FIELD in field:
-            version = field.split('/')[constants.FIRST].split(' ')[constants.START]
+            version = field.split('/')[1].split(' ')[0]
     return version
 
 

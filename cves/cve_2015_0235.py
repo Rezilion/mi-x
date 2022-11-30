@@ -53,7 +53,7 @@ def glibc_exist(debug, container_name):
     if 'GLIBC' in glibc_output or 'GNU libc' in glibc_output:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format('GLIBC does exist'))
-        return glibc_output.split('\n')[constants.START].split(' ')[-1]
+        return glibc_output.split('\n')[0].split(' ')[-1]
     print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
     print(constants.FULL_EXPLANATION_MESSAGE.format('GLIBC does not exist'))
     return ''

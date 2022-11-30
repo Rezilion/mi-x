@@ -52,7 +52,7 @@ def get_jcmd(pid, debug, container_name):
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Unsupported "/proc/{pid}/exe" value'))
         return constants.UNSUPPORTED
     if '->' in get_jcmd_path:
-        jcmd_path = merged_dir_path + get_jcmd_path.split(' ')[constants.END].rsplit('jdk', 1)[constants.START] + \
+        jcmd_path = merged_dir_path + get_jcmd_path.split(' ')[-1].rsplit('jdk', 1)[0] + \
                     'jdk/bin'
         if os.path.isdir(jcmd_path):
             jcmd_path = jcmd_path + '/jcmd'

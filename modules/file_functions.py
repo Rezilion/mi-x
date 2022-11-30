@@ -37,18 +37,18 @@ def get_file_content(file_path, debug, container_name):
         pipe_cat_file = run_command.command_output(cat_file_command, debug, container_name)
         content = pipe_cat_file.stdout
         if content:
-            content = content.split('\n')[:constants.END]
+            content = content.split('\n')[: -1]
     else:
         if os.path.isfile(file_path):
             try:
                 with open(file_path, 'r', encoding='utf-8') as file:
                     content = []
                     for line in file.readlines():
-                        content.append(line[:constants.END])
+                        content.append(line[: -1])
             except PermissionError:
                 cat_file_command = f'sudo cat {file_path}'
                 pipe_cat_file = run_command.command_output(cat_file_command, debug, container_name)
                 content = pipe_cat_file.stdout
                 if content:
-                    content = content.split('\n')[:constants.END]
+                    content = content.split('\n')[: -1]
     return content

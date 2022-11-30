@@ -39,8 +39,8 @@ def check_openssl_version(openssl_version):
         affected = True
     elif AFFECTED_VERSION_START in openssl_version:
         before_keyword, keyword, after_keyword = openssl_version.partition(AFFECTED_VERSION_START)
-        if version.parse(AFFECTED_VERSION_RANGE[constants.START]) <= version.parse(after_keyword) <= \
-                version.parse(AFFECTED_VERSION_RANGE[constants.END]):
+        if version.parse(AFFECTED_VERSION_RANGE[0]) <= version.parse(after_keyword) <= \
+                version.parse(AFFECTED_VERSION_RANGE[-1]):
             affected = True
     for affected_version in AFFECTED_VERSIONS:
         if version.parse(affected_version) == version.parse(openssl_version):

@@ -87,7 +87,7 @@ def validate_processes(pids, debug, container_name):
             if cves == constants.UNSUPPORTED:
                 state[pid] = status_functions.process_not_determined(pid, VULNERABILITY)
             elif cves:
-                state[pid] = status_functions.process_vulnerable(pid, VULNERABILITY)
+                state[pid] = status_functions.process_vulnerable(pid, f'{VULNERABILITY} - {cves}')
                 status_functions.remediation_mitigation(REMEDIATION, MITIGATION)
             else:
                 state[pid] = status_functions.process_not_vulnerable(pid, VULNERABILITY)

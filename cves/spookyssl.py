@@ -88,7 +88,7 @@ def print_message(dynamically_files_and_pids, potentially_affected_files_and_pid
     if dynamically_files_and_pids or potentially_affected_files_and_pids:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         affected_files = {}
-        libcrypto_file = [item for item in potentially_affected_files_and_pids if LIBCRYPTO in item][constants.START]
+        libcrypto_file = [item for item in potentially_affected_files_and_pids if LIBCRYPTO in item][0]
         libcrypto_pids = potentially_affected_files_and_pids[libcrypto_file]
         potentially_affected_files = [item for item in potentially_affected_files_and_pids if
                                                LIBCRYPTO not in item]
@@ -160,7 +160,7 @@ def check_openssl_in_files(so_file, debug):
                     openssl_regex = re.search(regex_string, line.lower())
                     if openssl_regex:
                         openssl_version = openssl_regex.group()
-                        openssl_version = openssl_version.split(OPENSSL)[constants.END][constants.FIRST:]
+                        openssl_version = openssl_version.split(OPENSSL)[-1][1 :]
                         return openssl_version
     return openssl_version
 

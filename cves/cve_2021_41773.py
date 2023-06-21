@@ -1,11 +1,11 @@
 """
 Support for modules written to avoid repetitive code.
 """
-from modules import constants, graph_functions, status_functions, file_functions, apache_functions as apache_functions
+from modules import constants, graph_functions, status_functions, file_functions, apache_functions
 
 FIRST_CVE_ID = 'CVE-2021-41773'
 SECOND_CVE_ID = 'CVE-2021-42013'
-VULNERABILITY = 'CVE-2021-41773 or CVE-2021-42013'
+VULNERABILITY = 'CVE-2021-41773 and CVE-2021-42013'
 DESCRIPTION = f'''The initial fix for this vulnerability contained an additional vulnerability, your system will be
 scanned for both CVE-2021-41773 and CVE-2021-42013.
 
@@ -47,19 +47,22 @@ https://blogs.juniper.net/en-us/threat-research/apache-http-server-cve-2021-4201
 NAME_FIELD = 'NAME='
 FIRST_AFFECTED_VERSION = '2.4.49'
 SECOND_AFFECTED_VERSION = '2.4.50'
-REMEDIATION = 'Upgrade Apache version to 2.4.50 or higher.'
-MITIGATION_1 = f'Change the filesystem permissions in the configuration file from "Require all granted" to "Require ' \
-               'all denied"'
-MITIGATION_2 = f'{MITIGATION_1}\nor\nDisable the cgi_module\nOn RedHat, Fedora, CentOS and other rpm based distributions:\n' \
-               'mv /etc/httpd/conf.modules.d/XX-cgi.conf /etc/httpd/conf.modules.d/XX-cgi.conf.disable\nOn Debian, ' \
-               'Ubuntu and other Debian derivatives:\na2dismod cgi'
+REMEDIATION = 'Upgrade Apache version to 2.4.51 or higher.'
+MITIGATION_1 = 'Change the filesystem permissions in the <Directory /> field in the configuration file from ' \
+               '"Require all granted" to "Require all denied"'
+MITIGATION_2 = f'{MITIGATION_1}\nAlso disable the cgi_module\nOn RedHat, Fedora, CentOS and other rpm based ' \
+               f'distributions:\nmv /etc/httpd/conf.modules.d/XX-cgi.conf /etc/httpd/conf.modules.d/XX-cgi.conf.disable' \
+               f'\nOn Debian, Ubuntu and other Debian derivatives:\na2dismod cgi'
 
 
-def filesystem_directory_configuration(configuration_content):
+def filesystem_directory_configuration(debug, container_name):
     """This function checks if the filesystem directory is configured to 'Require all granted' or 'Require all
     denied'"""
-    start = configuration_content.index('<Directory />\n') + 1
-    end = configuration_content.index('</Directory>\n')
+    configuration_content = apache_functions.apache_configuration_file(debug, container_name)
+    if configuration_content == constants.UNSUPPORTED:
+        return constants.UNSUPPORTED
+    start = configuration_content.index('<Directory />') + 1
+    end = configuration_content.index('</Directory>')
     print(constants.FULL_QUESTION_MESSAGE.format('Is the filesystem directory in the configuration file set to "Require'
                                                  ' all granted"?'))
     if not start or not end:
@@ -82,16 +85,6 @@ def filesystem_directory_configuration(configuration_content):
     return constants.UNSUPPORTED
 
 
-def apache_configuration_file(debug, container_name):
-    """This function checks which configuration file path is the correct one for the system."""
-    configuration_files_paths = ['/etc/apache2/apache2.conf', '/etc/httpd/conf/httpd.conf', 'etc/apache2/httpd.conf']
-    for configuration_file_path in configuration_files_paths:
-        configuration_content = file_functions.get_file_content(configuration_file_path, debug, container_name)
-        if configuration_content:
-            return filesystem_directory_configuration(configuration_content)
-    return constants.UNSUPPORTED
-
-
 def check_apache_version(apache_output):
     """This function checks if the Apache HTTP Server version is affected."""
     print(constants.FULL_QUESTION_MESSAGE.format('Is apache version affected?'))
@@ -101,16 +94,15 @@ def check_apache_version(apache_output):
         return constants.UNSUPPORTED
     if FIRST_AFFECTED_VERSION == version:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected apache versions : {FIRST_AFFECTED_VERSION} and'
-                                                        f' {SECOND_AFFECTED_VERSION}\nYour apache version: '
-                                                        f'{version}\nYour apache version is affected'))
-        return 'CVE-2021-41773'
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected apache versions : {FIRST_AFFECTED_VERSION}\nYour '
+                                                        f'apache version: {version}\nYour apache version is affected'))
+        return FIRST_CVE_ID
     if SECOND_AFFECTED_VERSION == version:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected apache versions : {FIRST_AFFECTED_VERSION} and'
                                                         f' {SECOND_AFFECTED_VERSION}\nYour apache version: '
                                                         f'{version}\nYour apache version is affected'))
-        return 'CVE-2021-42013'
+        return SECOND_CVE_ID
     print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'Affected apache versions : {FIRST_AFFECTED_VERSION} and'
                                                     f' {SECOND_AFFECTED_VERSION}\nYour apache version: '
@@ -127,16 +119,20 @@ def validate(debug, container_name):
         if affected_version == constants.UNSUPPORTED:
             state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
         elif affected_version:
-            permissions = apache_configuration_file(debug, container_name)
+            permissions = filesystem_directory_configuration(debug, container_name)
             if permissions == constants.UNSUPPORTED:
                 state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
             elif permissions:
                 modules = apache_functions.loaded_modules('cgi_module', debug, container_name)
+                if affected_version == FIRST_CVE_ID:
+                    vulnerability = VULNERABILITY
+                else:
+                    vulnerability = SECOND_CVE_ID
                 if modules == constants.UNSUPPORTED or not modules:
-                    state[VULNERABILITY] = status_functions.vulnerable(f'{VULNERABILITY} - Path Traversal attack')
+                    state[vulnerability] = status_functions.vulnerable(f'{vulnerability} - Path Traversal attack')
                     status_functions.remediation_mitigation(REMEDIATION, MITIGATION_1)
                 else:
-                    state[VULNERABILITY] = status_functions.vulnerable(f'{VULNERABILITY} - Path Traversal and Remote Code Execution attacks')
+                    state[vulnerability] = status_functions.vulnerable(f'{vulnerability} - Path Traversal and Remote Code Execution attacks')
                     status_functions.remediation_mitigation(REMEDIATION, MITIGATION_2)
             else:
                 state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)

@@ -1,11 +1,12 @@
 """
 Support for modules written to avoid repetitive code.
 """
-from modules import constants, run_command
+from modules import constants, run_command, file_functions
 
 APACHE = 'apache2'
 HTTPD = 'httpd'
 SERVER_VERSION_FIELD = 'Server version:'
+CONFIGURATION_FILE_TYPES = ['/etc/apache2/apache2.conf', '/etc/httpd/conf/httpd.conf', 'etc/apache2/httpd.conf']
 
 
 def check_apache_modules(apache, debug, container_name):
@@ -40,6 +41,27 @@ def loaded_modules(module_name, debug, container_name):
     print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'The "{module_name}" module is not loaded'))
     return False
+
+
+def apache_configuration_file(debug, container_name):
+    """This function finds the configuration file path and returns its content if exists."""
+    for configuration_file_path in CONFIGURATION_FILE_TYPES:
+        configuration_content = file_functions.get_file_content(configuration_file_path, debug, container_name)
+        if configuration_content and not 'No such file or directory' in configuration_content[0]:
+            return configuration_content
+    find_configuration_location_command = f'whereis apache2'
+    pipe_apache_configuration = run_command.command_output(find_configuration_location_command, debug, container_name)
+    apache_configuration_output = pipe_apache_configuration.stdout
+    if not apache_configuration_output or 'not found' in apache_configuration_output:
+        return constants.UNSUPPORTED
+    configuration_file_path = apache_configuration_output.split()[-1]
+    configuration_file_types = ['apache2.conf', 'conf/httpd.conf', 'httpd.conf']
+    for configuration_file_type in configuration_file_types:
+        full_configuration_file_path = f'{configuration_file_path}/{configuration_file_type}'
+        configuration_content = file_functions.get_file_content(full_configuration_file_path, debug, container_name)
+        if configuration_content and not 'No such file or directory' in configuration_content[0]:
+            return configuration_content
+    return constants.UNSUPPORTED
 
 
 def get_apache_version(apache_output):

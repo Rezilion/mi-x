@@ -5,6 +5,7 @@
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 ![pylint](https://user-images.githubusercontent.com/15197376/178207178-872a404a-a3c0-4442-b0ce-94a76e38848a.svg)
 <img alt="blackhat-arsenal" src="https://github.com/toolswatch/badges/blob/master/arsenal/usa/2022.svg"/>
+<img alt="blackhat-arsenal" src="https://github.com/toolswatch/badges/blob/master/arsenal/europe/2022.svg"/>
 
 
 # **Am I Exploitable?**

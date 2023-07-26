@@ -159,12 +159,15 @@ def validate(debug, container_name):
             if vulnerable_configuration == constants.UNSUPPORTED:
                 state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
             elif vulnerable_configuration:
-                modules = apache_functions.loaded_modules('cgi_module', debug, container_name)
+                cgi_module_name = 'LoadModule cgi_module modules/mod_cgi.so'
+                cgid_module_name = 'LoadModule cgid_module modules/mod_cgid.so'
+                cgi_modules = apache_functions.loaded_module(cgi_module_name, debug, container_name)
+                cgid_module = apache_functions.loaded_module(cgid_module_name, debug, container_name)
                 if affected_version == FIRST_CVE_ID:
                     vulnerability = VULNERABILITY
                 else:
                     vulnerability = SECOND_CVE_ID
-                if modules == constants.UNSUPPORTED or not modules:
+                if (cgi_modules == constants.UNSUPPORTED or not cgi_modules) and (cgid_module == constants.UNSUPPORTED or not cgid_module):
                     state[vulnerability] = status_functions.vulnerable(f'{vulnerability} - Path Traversal - Map URLs to Files')
                     status_functions.remediation_mitigation(REMEDIATION, MITIGATION_1)
                 else:

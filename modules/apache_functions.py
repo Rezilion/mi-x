@@ -9,35 +9,20 @@ SERVER_VERSION_FIELD = 'Server version:'
 CONFIGURATION_FILE_TYPES = ['/etc/apache2/apache2.conf', '/etc/httpd/conf/httpd.conf', '/etc/apache2/httpd.conf']
 
 
-def check_apache_modules(apache, debug, container_name):
-    """""This function perform the check for an Apache HTTP modules existence."""
-    loaded_modules_command = f'{apache} -M'
-    pipe_modules = run_command.command_output(loaded_modules_command, debug, container_name)
-    modules = pipe_modules.stdout
-    if not modules:
-        return ''
-    return modules
-
-
-def loaded_modules(module_name, debug, container_name):
-    """This function checks if the cgi_module is loaded."""
-    print(constants.FULL_QUESTION_MESSAGE.format('Does Apache HTTP Server have loaded modules?'))
-    modules = check_apache_modules(APACHE, debug, container_name)
-    if not modules:
-        modules = check_apache_modules(HTTPD, debug, container_name)
-        if not modules:
-            print(constants.FULL_EXPLANATION_MESSAGE.format('Can not determine loaded modules, unsupported value'))
-            return constants.UNSUPPORTED
-    if not 'Loaded Modules:' in modules:
-        print(constants.FULL_EXPLANATION_MESSAGE.format('Can not determine loaded modules, unsupported value'))
+def loaded_module(module_line, debug, container_name):
+    """This function checks if a given module is loaded."""
+    configuration_content = apache_configuration_file(debug, container_name)
+    if configuration_content == constants.UNSUPPORTED:
         return constants.UNSUPPORTED
-    print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-    print(constants.FULL_EXPLANATION_MESSAGE.format('Apache HTTP Server has loaded modules'))
-    print(constants.FULL_QUESTION_MESSAGE.format(f'Is "{module_name}" module loaded?'))
-    if module_name in modules:
-        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The "{module_name}" module is loaded'))
-        return True
+    module_name = module_line.split()[1]
+    print(constants.FULL_QUESTION_MESSAGE.format(f'Does Apache HTTP Server load the {module_name} module?'))
+    for line in configuration_content:
+        if module_line in line:
+            line = line.strip()
+            if not line.startswith('#') and line.startswith(module_line):
+                print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
+                print(constants.FULL_EXPLANATION_MESSAGE.format(f'The "{module_name}" module is loaded'))
+                return True
     print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
     print(constants.FULL_EXPLANATION_MESSAGE.format(f'The "{module_name}" module is not loaded'))
     return False

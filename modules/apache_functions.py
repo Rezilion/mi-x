@@ -15,7 +15,7 @@ def loaded_module(module_line, debug, container_name):
     if configuration_content == constants.UNSUPPORTED:
         return constants.UNSUPPORTED
     module_name = module_line.split()[1]
-    print(constants.FULL_QUESTION_MESSAGE.format(f'Does Apache HTTP Server load the {module_name} module?'))
+    print(constants.FULL_QUESTION_MESSAGE.format(f'Does Apache HTTP Server load the "{module_name}" module?'))
     for line in configuration_content:
         if module_line in line:
             line = line.strip()

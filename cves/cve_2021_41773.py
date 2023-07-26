@@ -47,11 +47,10 @@ NAME_FIELD = 'NAME='
 FIRST_AFFECTED_VERSION = '2.4.49'
 SECOND_AFFECTED_VERSION = '2.4.50'
 REMEDIATION = 'Upgrade Apache version to 2.4.51 or higher.'
-MITIGATION_1 = 'Change the filesystem permissions in the <Directory /> field in the configuration file from ' \
-               '"Require all granted" to "Require all denied"'
-MITIGATION_2 = f'{MITIGATION_1}\nDisable the cgi_module\nOn RedHat, Fedora, CentOS and other rpm based ' \
-               f'distributions:\nmv /etc/httpd/conf.modules.d/XX-cgi.conf /etc/httpd/conf.modules.d/XX-cgi.conf.disable' \
-               f'\nOn Debian, Ubuntu and other Debian derivatives:\na2dismod cgi'
+MITIGATION = 'Change the permissions from "Require all granted" to "Require all denied" in the relevant directories'
+MITIGATION_1 = f'{MITIGATION} and Restart'
+MITIGATION_2 = f'{MITIGATION}\nDisable the cgi_module\nAdd "#" in the cgi_mod and cgid_mod lines in the configuration' \
+               f'file and Restart'
 
 
 def parse_directory_name(directory):

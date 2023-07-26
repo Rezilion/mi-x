@@ -17,15 +17,15 @@ NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2021-41773
 CVSS Score: 9.8
 NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2021-42013
  
-An apache HTTP server vulnerability that can lead to Path Traversal and Remote Code Execution on the apache HTTP server.
-To avoid path traversal attack, the normalization function (only in apache 2.4.49 version) which is responsible for 
-resolving the URL encoded values from the URI, checks the URI values one at a time. 
-Hence, it misses ‘%2e’ and ‘%2f’ characters that represent dot and slash. If an attacker will ask for ‘dot dot slash‘
-in this way ‘.%2e/‘ or ‘%2e%2e%ef‘, and the filesystem directory is set to "Require all granted", he will traverse back 
-in the apache directories. With that, he can go whenever he wants and get access to sensitive files in the 
-apache HTTP server. Moreover, if the ‘mod_cgi’ module is also enabled in the configuration file, 
-the attacker will be able to leverage the path traversal vulnerability and call any binary on the system 
-using HTTP POST requests.
+An apache HTTP server vulnerability that can lead to Path Traversal Map URLs to Files and Remote Code Execution attacks 
+on the apache HTTP server.
+The code in Apache HTTPD version 2.4.49 changed the path normalization implemented and introduced a vulnerability. 
+In order to refrain path traversal vulnerability, the code resolves the URL encoded values from the URI, however, 
+the code fails to properly convert the second encoded value after the first one, allowing the '/.%2e/' segment to 
+bypass the check, and via path traversal, access files and directories in the server's file system through the cgi-bin 
+directory. The vulnerability affects directories that are not explicitly set as an alias but have the ‘require all 
+granted’ permissions. Moreover, if the ‘mod_cgi’ module is also enabled in the configuration file, the attacker will be 
+able to leverage the path traversal vulnerability to execute code remotely.
 
 {SECOND_CVE_ID}
 
@@ -33,12 +33,11 @@ CVSS Score: 9.8
 NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2021-42013
  
 When the fix for {FIRST_CVE_ID} was released in the 2.4.50 version, this vulnerability was discovered.
-The normalization function in 2.4.50 checked for ‘%2e’ and ‘%2f’ strings, however it missed double URL encoding as: 
-%%32%65 - (2 in hex is 32 and e in hex is 65).
-So 2.4.50 apache version also misses the dot dot slash or Path Traversal attack in a case the filesystem directory is 
-set to "Require all granted".
+The normalization function in 2.4.50 checked for the ‘%2e’ HTML URL encoding value, however it missed checking HTML URL 
+encoding values of the HTML URL encoding values (double HTML URL encoding values) for example: '%%32%65' - (2 in hex is  
+32 and e in hex is 65). Attackers can exploit the same vulnerability but using the '.%%32%65' instead of the '.%2e'.
 Same as {FIRST_CVE_ID}, if the ‘mod_cgi’ module is also enabled in the configuration file, the attacker will be able to 
-leverage the path traversal vulnerability and call any binary on the system using HTTP POST requests.
+leverage the path traversal vulnerability to execute code remotely.
 
 Related Links:
 https://blog.qualys.com/vulnerabilities-threat-research/2021/10/27/apache-http-server-path-traversal-remote-code-execution-cve-2021-41773-cve-2021-42013
@@ -50,39 +49,76 @@ SECOND_AFFECTED_VERSION = '2.4.50'
 REMEDIATION = 'Upgrade Apache version to 2.4.51 or higher.'
 MITIGATION_1 = 'Change the filesystem permissions in the <Directory /> field in the configuration file from ' \
                '"Require all granted" to "Require all denied"'
-MITIGATION_2 = f'{MITIGATION_1}\nAlso disable the cgi_module\nOn RedHat, Fedora, CentOS and other rpm based ' \
+MITIGATION_2 = f'{MITIGATION_1}\nDisable the cgi_module\nOn RedHat, Fedora, CentOS and other rpm based ' \
                f'distributions:\nmv /etc/httpd/conf.modules.d/XX-cgi.conf /etc/httpd/conf.modules.d/XX-cgi.conf.disable' \
                f'\nOn Debian, Ubuntu and other Debian derivatives:\na2dismod cgi'
 
 
-def filesystem_directory_configuration(debug, container_name):
-    """This function checks if the filesystem directory is configured to 'Require all granted' or 'Require all
-    denied'"""
+def parse_directory_name(directory):
+    """This function returns the directory after removing unnecessary characters."""
+    if '"' in directory:
+        directory = directory.replace('"', '')
+    if "'" in directory:
+        directory = directory.replace("'", '')
+    if ' ' in directory:
+        directory = directory.replace(' ', '')
+    if directory != '/' and directory.endswith('/'):
+        directory = directory[:-1]
+    return directory
+
+
+def check_vulnerable_configuration(debug, container_name):
+    """This function checks if the vulnerable configuration is set in the configuration file."""
     configuration_content = apache_functions.apache_configuration_file(debug, container_name)
     if configuration_content == constants.UNSUPPORTED:
         return constants.UNSUPPORTED
-    start = configuration_content.index('<Directory />') + 1
-    end = configuration_content.index('</Directory>')
-    print(constants.FULL_QUESTION_MESSAGE.format('Is the filesystem directory in the configuration file set to "Require'
-                                                 ' all granted"?'))
-    if not start or not end:
-        print(constants.FULL_EXPLANATION_MESSAGE.format('Can not determine vulnerability status, no filesystem '
-                                                        'directory configuration value'))
-        return constants.UNSUPPORTED
-    for line in configuration_content[start:end]:
-        if 'Require all granted' in line:
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-            print(constants.FULL_EXPLANATION_MESSAGE.format('Apache configuration file sets the filesystem '
-                                                            'directory to "Require all granted"'))
-            return True
-        if 'Require all denied' in line:
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-            print(constants.FULL_EXPLANATION_MESSAGE.format('Apache configuration file sets the filesystem '
-                                                            'directory to "Require all denied"'))
-            return False
-    print(constants.FULL_EXPLANATION_MESSAGE.format('Can not determine vulnerability status, no filesystem '
-                                                    'directory configuration value'))
-    return constants.UNSUPPORTED
+    cgi_bin_directory = None
+    directory_name = None
+    alias_module_section = False
+    directory_section = False
+    directories = []
+    cgi_bin_required_all_granted = False
+    print(constants.FULL_QUESTION_MESSAGE.format('Does the configuration have the vulnerable configuration set?\n1. '
+                                                 'The cgi-bin directory must be set as an alias module.\n2. The cgi-bin '
+                                                 'directory must be set to "Require all granted".\n3. At least another '
+                                                 'directory must be set to "Require all granted")'))
+    for line in configuration_content:
+        if line.startswith('<IfModule alias_module>'):
+            alias_module_section = True
+        elif line.startswith('</IfModule>'):
+            alias_module_section = False
+        if alias_module_section and 'ScriptAlias /cgi-bin/' in line:
+            cgi_bin_directory = line.split('ScriptAlias /cgi-bin/')[1]
+            if 'cgi-bin' in cgi_bin_directory:
+                cgi_bin_directory = parse_directory_name(cgi_bin_directory)
+        if line.startswith('<Directory'):
+            directory_section = True
+            directory_name = line.split('<Directory')[1].split('>')[0]
+            directory_name = parse_directory_name(directory_name)
+        if directory_section and 'Require all granted' in line:
+            if cgi_bin_directory and directory_name == cgi_bin_directory:
+                cgi_bin_required_all_granted = True
+            else:
+                directories.append(directory_name)
+        if line.startswith('</Directory>'):
+            directory_section = False
+    if cgi_bin_required_all_granted and directories:
+        directories_str = ', '.join(directories)
+        print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'The vulnerable configuration is set in the configuration file'
+                                                        f'\nThe following directories have "Require all granted" '
+                                                        f'permissions: {directories_str}'))
+        return True
+    elif not cgi_bin_directory:
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format('The cgi-bin is not configured as an alias module'))
+    elif not cgi_bin_required_all_granted:
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format('The cgi-bin permission is not set to "Require all granted"'))
+    elif not directories:
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format('No directories with "Require all granted" permissions'))
+    return False
 
 
 def check_apache_version(apache_output):
@@ -119,20 +155,20 @@ def validate(debug, container_name):
         if affected_version == constants.UNSUPPORTED:
             state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
         elif affected_version:
-            permissions = filesystem_directory_configuration(debug, container_name)
-            if permissions == constants.UNSUPPORTED:
+            vulnerable_configuration = check_vulnerable_configuration(debug, container_name)
+            if vulnerable_configuration == constants.UNSUPPORTED:
                 state[VULNERABILITY] = status_functions.not_determined(VULNERABILITY)
-            elif permissions:
+            elif vulnerable_configuration:
                 modules = apache_functions.loaded_modules('cgi_module', debug, container_name)
                 if affected_version == FIRST_CVE_ID:
                     vulnerability = VULNERABILITY
                 else:
                     vulnerability = SECOND_CVE_ID
                 if modules == constants.UNSUPPORTED or not modules:
-                    state[vulnerability] = status_functions.vulnerable(f'{vulnerability} - Path Traversal attack')
+                    state[vulnerability] = status_functions.vulnerable(f'{vulnerability} - Path Traversal - Map URLs to Files')
                     status_functions.remediation_mitigation(REMEDIATION, MITIGATION_1)
                 else:
-                    state[vulnerability] = status_functions.vulnerable(f'{vulnerability} - Path Traversal and Remote Code Execution attacks')
+                    state[vulnerability] = status_functions.vulnerable(f'{vulnerability} - Path Traversal - Remote Code Execution')
                     status_functions.remediation_mitigation(REMEDIATION, MITIGATION_2)
             else:
                 state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)

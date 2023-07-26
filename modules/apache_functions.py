@@ -6,7 +6,7 @@ from modules import constants, run_command, file_functions
 APACHE = 'apache2'
 HTTPD = 'httpd'
 SERVER_VERSION_FIELD = 'Server version:'
-CONFIGURATION_FILE_TYPES = ['/etc/apache2/apache2.conf', '/etc/httpd/conf/httpd.conf', 'etc/apache2/httpd.conf']
+CONFIGURATION_FILE_TYPES = ['/etc/apache2/apache2.conf', '/etc/httpd/conf/httpd.conf', '/etc/apache2/httpd.conf']
 
 
 def check_apache_modules(apache, debug, container_name):
@@ -21,7 +21,7 @@ def check_apache_modules(apache, debug, container_name):
 
 def loaded_modules(module_name, debug, container_name):
     """This function checks if the cgi_module is loaded."""
-    print(constants.FULL_QUESTION_MESSAGE.format('Does Apache HTTP Server have loaded modules??'))
+    print(constants.FULL_QUESTION_MESSAGE.format('Does Apache HTTP Server have loaded modules?'))
     modules = check_apache_modules(APACHE, debug, container_name)
     if not modules:
         modules = check_apache_modules(HTTPD, debug, container_name)
@@ -54,13 +54,14 @@ def apache_configuration_file(debug, container_name):
     apache_configuration_output = pipe_apache_configuration.stdout
     if not apache_configuration_output or 'not found' in apache_configuration_output:
         return constants.UNSUPPORTED
-    configuration_file_path = apache_configuration_output.split()[-1]
-    configuration_file_types = ['apache2.conf', 'conf/httpd.conf', 'httpd.conf']
-    for configuration_file_type in configuration_file_types:
-        full_configuration_file_path = f'{configuration_file_path}/{configuration_file_type}'
-        configuration_content = file_functions.get_file_content(full_configuration_file_path, debug, container_name)
-        if configuration_content and not 'No such file or directory' in configuration_content[0]:
-            return configuration_content
+    configuration_file_paths = apache_configuration_output.split()
+    for configuration_file_path in configuration_file_paths:
+        configuration_file_types = ['apache2.conf', 'conf/httpd.conf', 'httpd.conf']
+        for configuration_file_type in configuration_file_types:
+            full_configuration_file_path = f'{configuration_file_path}/{configuration_file_type}'
+            configuration_content = file_functions.get_file_content(full_configuration_file_path, debug, container_name)
+            if configuration_content and not 'No such file or directory' in configuration_content[0] and not 'Not a directory' in configuration_content[0]:
+                return configuration_content
     return constants.UNSUPPORTED
 
 
@@ -86,9 +87,9 @@ def check_apache_exists(apache, debug, container_name):
 def check_apache_types(debug, container_name):
     """This function checks two types of Apache HTTP Server."""
     print(constants.FULL_QUESTION_MESSAGE.format('Is Apache HTTP Server installed?'))
-    apache_output = check_apache_exists(APACHE, debug, container_name)
+    apache_output = check_apache_exists(HTTPD, debug, container_name)
     if not apache_output:
-        apache_output = check_apache_exists(HTTPD, debug, container_name)
+        apache_output = check_apache_exists(APACHE, debug, container_name)
         if not apache_output:
             print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
             print(constants.FULL_EXPLANATION_MESSAGE.format('Apache HTTP Server is not installed'))

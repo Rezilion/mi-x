@@ -45,7 +45,8 @@ def apache_configuration_file(debug, container_name):
         for configuration_file_type in configuration_file_types:
             full_configuration_file_path = f'{configuration_file_path}/{configuration_file_type}'
             configuration_content = file_functions.get_file_content(full_configuration_file_path, debug, container_name)
-            if configuration_content and not 'No such file or directory' in configuration_content[0] and not 'Not a directory' in configuration_content[0]:
+            if configuration_content and all(error not in configuration_content[0] for error in
+                                             ('No such file or directory', 'Not a directory')):
                 return configuration_content
     return constants.UNSUPPORTED
 

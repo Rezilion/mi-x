@@ -20,7 +20,7 @@ NVD Link: https://nvd.nist.gov/vuln/detail/CVE-2021-42013
 An apache HTTP server vulnerability that can lead to Path Traversal Map URLs to Files and Remote Code Execution attacks 
 on the apache HTTP server.
 The code in Apache HTTPD version 2.4.49 changed the path normalization implemented and introduced a vulnerability. 
-In order to refrain path traversal vulnerability, the code resolves the URL encoded values from the URI, however, 
+To avoid path traversal vulnerability, the code resolves the URL encoded values from the URI, however, 
 the code fails to properly convert the second encoded value after the first one, allowing the '/.%2e/' segment to 
 bypass the check, and via path traversal, access files and directories in the server's file system through the cgi-bin 
 directory. The vulnerability affects directories that are not explicitly set as an alias but have the ‘require all 

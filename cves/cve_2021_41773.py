@@ -92,7 +92,7 @@ def check_vulnerable_configuration(debug, container_name):
             directory_name = line.split('<Directory')[1].split('>')[0]
             directory_name = parse_directory_name(directory_name)
         if directory_section and 'Require all granted' in line:
-            if cgi_bin_directory and directory_name == cgi_bin_directory:
+            if cgi_bin_directory and (directory_name == cgi_bin_directory):
                 cgi_bin_required_all_granted = True
             else:
                 directories.append(directory_name)

@@ -57,12 +57,7 @@ MITIGATION_2 = f'{CHANGE_PERMISSIONS}\nDisable the cgi_module and cgid_module by
 
 def parse_directory_name(directory):
     """This function returns the directory after removing unnecessary characters."""
-    if '"' in directory:
-        directory = directory.replace('"', '')
-    if "'" in directory:
-        directory = directory.replace("'", '')
-    if ' ' in directory:
-        directory = directory.replace(' ', '')
+    directory = directory.replace('"', '').replace("'", '').replace(' ', '')
     if directory != '/' and directory.endswith('/'):
         directory = directory[:-1]
     return directory

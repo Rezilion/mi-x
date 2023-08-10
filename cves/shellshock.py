@@ -184,15 +184,17 @@ def is_bash_affected(bash_version):
     print(constants.FULL_QUESTION_MESSAGE.format('Is bash version affected?'))
     if version.parse(MIN_BASH_AFFECTED_VERSION) > version.parse(bash_version) > \
             version.parse(MAX_BASH_AFFECTED_VERSION):
-        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Bash affected versions are between: '
-                                                        f'{MIN_BASH_AFFECTED_VERSION} to {MAX_BASH_AFFECTED_VERSION}\n'
-                                                        f'Your bash version which is: {bash_version}, is not affected'))
-    else:
         print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
         print(constants.FULL_EXPLANATION_MESSAGE.format(f'Bash affected versions are between: '
                                                         f'{MIN_BASH_AFFECTED_VERSION} to {MAX_BASH_AFFECTED_VERSION}\n'
                                                         f'Your bash version which is: {bash_version}, is affected'))
+        return True
+    else:
+        print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
+        print(constants.FULL_EXPLANATION_MESSAGE.format(f'Bash affected versions are between: '
+                                                        f'{MIN_BASH_AFFECTED_VERSION} to {MAX_BASH_AFFECTED_VERSION}\n'
+                                                        f'Your bash version which is: {bash_version}, is not affected'))
+        return False
 
 
 def bash_installed(debug, container_name):
@@ -217,16 +219,18 @@ def validate(debug, container_name):
     state = {}
     bash_version = bash_installed(debug, container_name)
     if bash_version:
-        is_bash_affected(bash_version)
-        if bash_version:
-            state['CVE-2014-6271'] = cve_2014_6271(container_name)
-            state['CVE-2014-6277 or CVE-2014-6278'] = cve_2014_6277_and_cve_2014_6278(container_name)
-            state['CVE-2014-7169'] = cve_2014_7169(container_name)
-            state['CVE-2014-7186'] = cve_2014_7186(container_name)
-            state['CVE-2014-7187'] = cve_2014_7187(container_name)
-            for value in state:
-                if state[value] == 'vulnerable':
-                    status_functions.remediation_mitigation(REMEDIATION, MITIGATION)
+        if is_bash_affected(bash_version):
+            if bash_version:
+                state['CVE-2014-6271'] = cve_2014_6271(container_name)
+                state['CVE-2014-6277 or CVE-2014-6278'] = cve_2014_6277_and_cve_2014_6278(container_name)
+                state['CVE-2014-7169'] = cve_2014_7169(container_name)
+                state['CVE-2014-7186'] = cve_2014_7186(container_name)
+                state['CVE-2014-7187'] = cve_2014_7187(container_name)
+                for value in state:
+                    if state[value] == 'vulnerable':
+                        status_functions.remediation_mitigation(REMEDIATION, MITIGATION)
+            else:
+                state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
         else:
             state[VULNERABILITY] = status_functions.not_vulnerable(VULNERABILITY)
     else:

@@ -66,16 +66,6 @@ while handling redir_stack. An attacker could exploit this vulnerability to exec
 cause a denial of service.
 The vulnerability is relevant for GNU Bash through 4.3 bash43-026.
 
-CVE-2014-7187 
-
-CVSS Score: 10.0
-NVD Link: https://nvd.nist.gov/vuln/detail/cve-2014-7187
-
-Off-by-one error in the read_token_word function in `parse.y` allows remote attackers to cause a denial of service 
-(out-of-bounds array access and application crash) or possibly have unspecified other impact via deeply nested for 
-loops, aka the "word_lineno" issue.
-The vulnerability is relevant for GNU Bash through 4.3 bash43-026.
-
 Related Links:
 https://owasp.org/www-pdf-archive/Shellshock_-_Tudor_Enache.pdf
 https://unix.stackexchange.com/questions/157477/how-can-shellshock-be-exploited-over-ssh
@@ -86,25 +76,6 @@ MIN_BASH_AFFECTED_VERSION = '1.0.3'
 MAX_BASH_AFFECTED_VERSION = '4.3.0'
 REMEDIATION = 'Upgrade bash version to 4.3.1 or higher'
 MITIGATION = 'Sanitize user input and remove unneeded characters'
-
-
-def cve_2014_7187(container_name):
-    """This function tests if the system is vulnerable to CVE-2014-7187."""
-    exploit_command = '''(for x in {1..200} ; do echo "for x$x in ; do :"; done; for x in {1..200} ;
-                         do echo done ; done) | bash || echo "CVE-2014-7187 vulnerable, word_lineno"'''
-    if container_name:
-        exploit_command = constants.DOCKER_EXEC_COMMAND.format(container_name, 'bash', exploit_command)
-    with subprocess.Popen(exploit_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True) \
-            as pipe_exploit_out:
-        exploit_out = pipe_exploit_out.communicate()[0]
-        print(constants.FULL_QUESTION_MESSAGE.format('Is vulnerable to CVE-2014-7187?'))
-        if 'CVE-2014-7187 vulnerable, word_lineno' in exploit_out:
-            print(constants.FULL_NEGATIVE_RESULT_MESSAGE.format('Yes'))
-            state = status_functions.vulnerable('CVE-2014-7187')
-        else:
-            print(constants.FULL_POSITIVE_RESULT_MESSAGE.format('No'))
-            state = status_functions.not_vulnerable('CVE-2014-7187')
-    return state
 
 
 def cve_2014_7186(container_name):
@@ -225,7 +196,6 @@ def validate(debug, container_name):
                 state['CVE-2014-6277 or CVE-2014-6278'] = cve_2014_6277_and_cve_2014_6278(container_name)
                 state['CVE-2014-7169'] = cve_2014_7169(container_name)
                 state['CVE-2014-7186'] = cve_2014_7186(container_name)
-                state['CVE-2014-7187'] = cve_2014_7187(container_name)
                 for value in state:
                     if state[value] == 'vulnerable':
                         status_functions.remediation_mitigation(REMEDIATION, MITIGATION)
